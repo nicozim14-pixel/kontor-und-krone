@@ -4,7 +4,10 @@
 name: Veröffentlichen
 
 on:
-  # Vorerst nur von Hand startbar (Test, ob Claude Workflow-Dateien hochladen darf).
+  # Automatisch bei jedem Hochladen auf „main“ …
+  push:
+    branches: [main]
+  # … und zusätzlich von Hand startbar (Reiter „Actions“ auf GitHub)
   workflow_dispatch:
 
 # Rechte für diesen Ablauf: Code lesen, auf GitHub Pages veröffentlichen

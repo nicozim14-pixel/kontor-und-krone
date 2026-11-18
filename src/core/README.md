@@ -4,4 +4,4 @@ Grundbausteine, die alle anderen Teile brauchen: der Simulations-Takt (die „Uh
 
 - Kennt weder die Grafik noch die Bedienoberfläche.
 - Wird in Unterphase 1.6 genau geplant und umgesetzt.
-- Bereits hier: `buildInfo.ts` (Versionsangaben für die Versionsanzeige).
+- Bereits hier: `buildInfo.ts` (Versionsangaben für die Versionsanzeige) und `updateCheck.ts` (erkennt neuere Online-Versionen).

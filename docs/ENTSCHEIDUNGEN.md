@@ -128,3 +128,29 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
   - **Prüf-Skript** `npm run screenshot`: Claude startet das Spiel in einem unsichtbaren Chrome, macht Bildschirmfotos (Laptop, Tablet quer, Tablet hoch) und meldet Fehler. Die Bilder werden nicht ins Repository gespeichert.
 - **Vorteile:** Einheitlich, gut prüfbar, Fehler werden auch auf dem Tablet sichtbar.
 - **Nachteile:** keine nennenswerten.
+
+---
+
+## E-010 · Veröffentlichung über GitHub Actions
+
+- **Datum:** 18.11.2026 · Unterphase 1.4
+- **Frage:** Wie kommt jede Änderung automatisch online?
+- **Gewählt:** Ein GitHub-Actions-Ablauf (`.github/workflows/deploy.yml`) startet bei jedem Hochladen auf `main`. Er prüft (lint, test), baut und veröffentlicht auf GitHub Pages. Schlägt eine Prüfung fehl, bleibt die alte Version online. Zusätzlich lässt er sich von Hand starten.
+- **Prüfung:** Claude darf Workflow-Dateien hochladen (getestet am 18.11.2026). Der Ausweg aus dem Phase-Prompt (gebauter Ordner im Repository oder Hosting-Dienst baut selbst) ist deshalb nicht nötig.
+- **Vorteile:** Kein Zutun nötig. Kaputte Versionen werden nicht veröffentlicht. Für öffentliche Repositories kostenlos.
+- **Nachteile:** Eine Veröffentlichung dauert etwa 1–2 Minuten. GitHub-Pages-Einstellungen kann Claude nicht selbst ändern; der Nutzer hat einmalig die Quelle „GitHub Actions“ eingestellt.
+- **Alternative:** Den gebauten Ordner mit ins Repository speichern und „Deploy from a branch“ nutzen. Das ist unübersichtlicher und bläht das Repository auf.
+- **Verwendete Bausteine (Stand 18.11.2026):** actions/checkout v7, actions/setup-node v7 (Node.js 22), actions/configure-pages v6, actions/upload-pages-artifact v5, actions/deploy-pages v5.
+
+---
+
+## E-011 · Schutz vor alten Versionen: Update-Hinweis
+
+- **Datum:** 18.11.2026 · Unterphase 1.4
+- **Frage:** Soll das Spiel selbst merken, wenn online eine neuere Version liegt?
+- **Gewählt:** **Ja, mit Hinweis.** Beim Bauen entsteht `version.json`. Das Spiel fragt sie beim Start, alle 2 Minuten und beim Zurückkehren zum Tab ab. Ist online eine neuere Version, erscheint oben „Neue Version verfügbar – tippen zum Laden“.
+- **Weitere Schutzmaßnahmen:** Alle Code-Dateien tragen ein Prüfkürzel (Hash) im Namen, z. B. `index-CfjoKiQ4.js`. Eine geänderte Datei hat dadurch immer einen neuen Namen, und der Browser kann keine alte Fassung erwischen. Die Versionsanzeige unten rechts zeigt Bauzeitpunkt und Commit-Kürzel.
+- **Vorteile:** Man testet nie aus Versehen eine alte Version. Ein Tipp genügt, auch ohne „Herunterziehen zum Neuladen“ (das ist auf der Spielfläche abgeschaltet).
+- **Nachteile:** Etwas mehr Code. Alle 2 Minuten eine winzige Abfrage (ca. 100 Byte).
+- **Alternative:** Nur von Hand neu laden (Chrome-Menü ⋮ → ↻).
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.

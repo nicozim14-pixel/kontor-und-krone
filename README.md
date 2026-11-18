@@ -9,7 +9,14 @@ Wirtschaft, Schönbauen und Handel, ganz ohne Militär, als Endlosspiel.
 
 ## Spiel-Link
 
-Folgt in Unterphase 1.4, sobald die automatische Veröffentlichung eingerichtet ist.
+**▶ https://nicozim14-pixel.github.io/kontor-und-krone/**
+
+Jede Änderung auf dem Hauptzweig `main` wird automatisch geprüft, gebaut und nach etwa 1–2 Minuten unter diesem Link veröffentlicht.
+Unten rechts im Spiel steht die Version (Bauzeitpunkt + Commit-Kürzel). Ist online eine neuere Version, erscheint oben der Hinweis „Neue Version verfügbar – tippen zum Laden“.
+
+Notfalls von Hand neu laden:
+- **Tablet (Chrome):** oben rechts auf **⋮** tippen, dann auf den runden Pfeil **↻**
+- **Laptop (Chrome):** **Strg + F5** (lädt alles frisch vom Server)
 
 ## Aktueller Stand
 

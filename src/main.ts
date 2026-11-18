@@ -3,11 +3,14 @@
  */
 import "./styles.css";
 import { Engine } from "@babylonjs/core/Engines/engine";
+import { readBuildInfo } from "./core/buildInfo";
+import { watchForNewerBuild } from "./core/updateCheck";
 import { preventBrowserGestures } from "./input/browserGestures";
 import { createRenderEngine } from "./render/engine";
 import { parseRenderScalePercent } from "./render/resolution";
 import { createTestScene } from "./render/testScene";
 import { setupFullscreenButton } from "./ui/fullscreenButton";
+import { showUpdateBanner } from "./ui/updateBanner";
 import { showVersionBadge } from "./ui/versionBadge";
 
 // Signal an die Startprüfung in index.html: Der Browser hat den Spielcode verstanden.
@@ -26,6 +29,10 @@ function start(): void {
   preventBrowserGestures();
   showVersionBadge(getElement("version", HTMLDivElement));
   setupFullscreenButton(getElement("fullscreen-button", HTMLButtonElement));
+  const updateBanner = getElement("update-banner", HTMLButtonElement);
+  watchForNewerBuild(readBuildInfo(), () => {
+    showUpdateBanner(updateBanner);
+  });
 
   if (!Engine.isSupported()) {
     window.kkShowError?.(

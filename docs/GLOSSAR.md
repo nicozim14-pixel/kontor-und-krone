@@ -37,6 +37,9 @@ Eine Rückmeldung eines Servers, die „Zutritt verboten“ bedeutet: Man ist zw
 **GitHub**
 Eine Webseite, auf der Repositories gespeichert werden. Dort liegt unser gesamter Code mit allen früheren Fassungen.
 
+**GitHub Actions (Workflow)**
+Ein Dienst von GitHub, der bei bestimmten Ereignissen automatisch Arbeitsschritte ausführt, z. B. „bei jedem Hochladen: prüfen, bauen, veröffentlichen“. Die Liste dieser Schritte heißt Workflow. Wie eine Fertigungsstraße, die bei jeder Lieferung von selbst anläuft.
+
 **GitHub Pages**
 Ein kostenloser Dienst von GitHub, der eine Webseite direkt aus einem Repository ins Internet stellt. Über ihn wird unser Spiel unter einem festen Link erreichbar.
 
@@ -70,6 +73,9 @@ Wie viele winzige Bildpunkte (Pixel) ein Bildschirm auf derselben Fläche hat. T
 **Prettier**
 Ein Werkzeug, das den Code automatisch einheitlich formatiert (Einrückungen, Zeilenumbrüche). Wie eine automatische Textformatierung.
 
+**Prüfkürzel (Hash)**
+Eine kurze Buchstabenfolge, die aus dem Inhalt einer Datei berechnet wird, z. B. `CfjoKiQ4` in `index-CfjoKiQ4.js`. Ändert sich der Inhalt, ändert sich das Kürzel und damit der Dateiname. So kann der Browser keine veraltete Datei verwenden.
+
 **README**
 Die „Visitenkarte“ eines Repositorys: eine Textdatei, die GitHub auf der Startseite des Repositorys anzeigt. Sie erklärt, worum es geht.
 
@@ -85,6 +91,9 @@ Die Programmiersprache, in der Claude den Code schreibt. Sie ist eine strengere 
 **Unsichtbarer Chrome (Headless)**
 Ein Chrome-Browser ohne Fenster, den Claude in der Cloud-Umgebung startet, um das Spiel selbst zu prüfen und Bildschirmfotos zu machen.
 
+**Veröffentlichen (Deploy)**
+Das Hochladen des gebauten Spiels zum Hosting-Dienst, damit es unter dem Spiel-Link erreichbar ist.
+
 **Versionsanzeige**
 Die kleine Angabe unten rechts im Spiel (Bauzeitpunkt + Commit-Kürzel). Daran erkennt man, ob man die neueste Version sieht.
 
@@ -96,3 +105,6 @@ Die Technik, mit der ein Browser 3D-Grafik über den Grafikchip zeichnet. Babylo
 
 **Zwei-Faktor-Anmeldung (2FA)**
 Ein zweites Schloss für ein Konto: Zusätzlich zum Passwort braucht man einen Code, z. B. aus einer App auf dem Handy. Selbst wer das Passwort kennt, kommt dann nicht hinein.
+
+**Zwischenspeicher (Cache)**
+Ein Vorrat an kürzlich geladenen Dateien im Browser oder im Netz, damit Seiten schneller laden. Nachteil: Man sieht manchmal kurz eine alte Fassung. Deshalb gibt es Prüfkürzel und den Update-Hinweis.

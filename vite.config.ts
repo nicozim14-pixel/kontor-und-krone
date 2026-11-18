@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
 /**
@@ -22,23 +23,47 @@ function readCommitHash(): string {
   }
 }
 
-export default defineConfig(({ command }) => ({
-  // Relative Pfade, damit das Spiel auch in einem Unterordner läuft (z. B. GitHub Pages).
-  base: "./",
-  define: {
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __COMMIT_HASH__: JSON.stringify(command === "serve" ? "dev" : readCommitHash()),
-  },
-  build: {
-    target: BUILD_TARGET,
-    // Quellkarten helfen beim Fehlersuchen und werden nur bei geöffneten Entwicklerwerkzeugen geladen.
-    sourcemap: true,
-    // Babylon.js allein ist ca. 1,1 MB groß (ca. 265 kB komprimiert übertragen).
-    // Warnung erst ab 1,4 MB; das verbindliche Download-Budget folgt in Unterphase 1.5.
-    chunkSizeWarningLimit: 1400,
-  },
-  test: {
-    include: ["src/**/*.test.ts"],
-    environment: "node",
-  },
-}));
+/**
+ * Legt beim Bauen die Datei „version.json“ neben index.html.
+ * Das laufende Spiel fragt sie regelmäßig ab und erkennt so neue Versionen (src/core/updateCheck.ts).
+ */
+function versionFilePlugin(builtAt: string, commit: string): Plugin {
+  return {
+    name: "kontor-und-krone:version-file",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: "version.json",
+        source: `${JSON.stringify({ builtAt, commit }, null, 2)}\n`,
+      });
+    },
+  };
+}
+
+export default defineConfig(({ command }) => {
+  const builtAt = new Date().toISOString();
+  const commit = command === "serve" ? "dev" : readCommitHash();
+
+  return {
+    // Relative Pfade, damit das Spiel auch in einem Unterordner läuft (z. B. GitHub Pages).
+    base: "./",
+    define: {
+      __BUILD_TIME__: JSON.stringify(builtAt),
+      __COMMIT_HASH__: JSON.stringify(commit),
+    },
+    plugins: [versionFilePlugin(builtAt, commit)],
+    build: {
+      target: BUILD_TARGET,
+      // Quellkarten helfen beim Fehlersuchen und werden nur bei geöffneten Entwicklerwerkzeugen geladen.
+      sourcemap: true,
+      // Babylon.js allein ist ca. 1,1 MB groß (ca. 265 kB komprimiert übertragen).
+      // Warnung erst ab 1,4 MB; das verbindliche Download-Budget folgt in Unterphase 1.5.
+      chunkSizeWarningLimit: 1400,
+    },
+    test: {
+      include: ["src/**/*.test.ts"],
+      environment: "node",
+    },
+  };
+});
