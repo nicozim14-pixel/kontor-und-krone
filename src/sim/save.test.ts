@@ -9,12 +9,15 @@ describe("Spielzustand und Spielstand-Format", () => {
     expect(state.saveVersion).toBe(SAVE_VERSION);
     expect(state.seed).toBe(1701);
     expect(state.nextEntityId).toBe(1);
+    expect(state.buildings).toEqual({});
     expect(state.storage).toEqual({});
   });
 
   it("besteht nur aus einfachen Daten: Text hin und zurück ergibt exakt denselben Zustand", () => {
     const state = createInitialState(42);
     state.tick = 1234;
+    state.nextEntityId = 2;
+    state.buildings["1"] = { id: 1, type: "test_woodcutter" };
     state.storage.wood = 99;
     const result = deserializeGameState(serializeGameState(state));
     if (!result.ok) {

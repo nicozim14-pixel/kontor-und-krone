@@ -66,14 +66,26 @@ const READ_PAGE_REPORT = `(() => {
 
 interface LoopStats {
   readonly tick: number;
+  readonly wood: number;
+  readonly speed: number;
   readonly renderedFrames: number;
   readonly idle: boolean;
 }
 
 const READ_LOOP_STATS = `(() => {
   const s = window.kkStats;
-  return s ? { tick: s.tick, renderedFrames: s.renderedFrames, idle: s.idle } : null;
+  return s
+    ? { tick: s.tick, wood: s.wood, speed: s.speed, renderedFrames: s.renderedFrames, idle: s.idle }
+    : null;
 })()`;
+
+async function readLoopStats(page: Page): Promise<LoopStats> {
+  const stats = await page.evaluate<LoopStats | null>(READ_LOOP_STATS);
+  if (stats === null) {
+    throw new Error("window.kkStats fehlt.");
+  }
+  return stats;
+}
 
 /**
  * Prüft die Spiel-Schleife im laufenden Spiel (Unterphase 1.6):
@@ -82,13 +94,7 @@ const READ_LOOP_STATS = `(() => {
  */
 async function checkGameLoop(page: Page): Promise<string[]> {
   const errors: string[] = [];
-  const read = async (): Promise<LoopStats> => {
-    const stats = await page.evaluate<LoopStats | null>(READ_LOOP_STATS);
-    if (stats === null) {
-      throw new Error("window.kkStats fehlt.");
-    }
-    return stats;
-  };
+  const read = (): Promise<LoopStats> => readLoopStats(page);
 
   const start = await read();
   await page.waitForTimeout(3000);
@@ -99,6 +105,12 @@ async function checkGameLoop(page: Page): Promise<string[]> {
   }
   if (!afterWait.idle) {
     errors.push("Nach 3 Sekunden ohne Bewegung ist kein Ruhebild aktiv.");
+  }
+  // Der Test-Holzfäller steht ab dem Start und legt pro Takt 1 Holz ins Lager.
+  if (afterWait.wood !== afterWait.tick) {
+    errors.push(
+      `Holz ${String(afterWait.wood)} passt nicht zu ${String(afterWait.tick)} Takten (erwartet: gleich viel).`,
+    );
   }
 
   await page.waitForTimeout(2000);
@@ -131,6 +143,76 @@ async function checkGameLoop(page: Page): Promise<string[]> {
   console.log(
     `      Schleife: ${String(ticks)} Takte in 3 s · Ruhebild: ${String(idleFrames)} Bilder in 2 s · ` +
       `beim Wischen: ${String(dragFrames)} Bilder in ca. 1 s`,
+  );
+  return errors;
+}
+
+/**
+ * Prüft die Debug-Anzeige (Unterphase 1.7): Inhalt, Tempo-Knöpfe, Ein- und Ausklappen.
+ */
+async function checkDebugPanel(page: Page): Promise<string[]> {
+  const errors: string[] = [];
+  if (await page.isHidden("#debug-panel")) {
+    errors.push("Debug-Anzeige ist beim ersten Start nicht sichtbar.");
+    return errors;
+  }
+  const text = await page.innerText("#debug-panel");
+  for (const label of ["FPS", "Takt", "Holz", "Dreiecke", "Draw Calls", "Seed", "Pause", "4×"]) {
+    if (!text.includes(label)) {
+      errors.push(`Debug-Anzeige: „${label}“ fehlt.`);
+    }
+  }
+  const triangles = /Dreiecke\s+([\d.]+)/.exec(text)?.[1];
+  const drawCalls = /Draw Calls\s+([\d.]+)/.exec(text)?.[1];
+  if (triangles === undefined || Number(triangles.replace(/\./g, "")) <= 0) {
+    errors.push(`Debug-Anzeige: keine Dreiecke gemessen („${String(triangles)}“).`);
+  }
+  if (drawCalls === undefined || Number(drawCalls) <= 0) {
+    errors.push(`Debug-Anzeige: keine Draw Calls gemessen („${String(drawCalls)}“).`);
+  }
+
+  // Pause: Es entstehen keine Takte und kein Holz.
+  await page.tap('#debug-panel button[data-speed="0"]');
+  const paused = await readLoopStats(page);
+  await page.waitForTimeout(1500);
+  const afterPause = await readLoopStats(page);
+  if (paused.speed !== 0 || afterPause.tick !== paused.tick || afterPause.wood !== paused.wood) {
+    errors.push(
+      `Pause wirkt nicht: Tempo ${String(paused.speed)}, Takte ${String(paused.tick)} → ${String(afterPause.tick)}.`,
+    );
+  }
+  if ((await page.getAttribute('#debug-panel button[data-speed="0"]', "aria-pressed")) !== "true") {
+    errors.push("Der Pause-Knopf ist nicht als gedrückt markiert.");
+  }
+
+  // 4×: 8 Takte pro Sekunde
+  await page.tap('#debug-panel button[data-speed="4"]');
+  const fast = await readLoopStats(page);
+  await page.waitForTimeout(2000);
+  const afterFast = await readLoopStats(page);
+  const fastTicks = afterFast.tick - fast.tick;
+  if (fastTicks < 14 || fastTicks > 18) {
+    errors.push(`Bei 4× ${String(fastTicks)} Takte in 2 Sekunden, erwartet etwa 16.`);
+  }
+  if (afterFast.wood !== afterFast.tick) {
+    errors.push("Bei 4× passt das Holz nicht mehr zu den Takten.");
+  }
+  await page.screenshot({ path: `${OUTPUT_DIR}/tablet-quer-debug.png` });
+  await page.tap('#debug-panel button[data-speed="1"]');
+
+  // Ein- und Ausklappen
+  await page.tap("#debug-toggle");
+  if (!(await page.isHidden("#debug-panel"))) {
+    errors.push("Debug-Anzeige lässt sich nicht einklappen.");
+  }
+  await page.tap("#debug-toggle");
+  if (await page.isHidden("#debug-panel")) {
+    errors.push("Debug-Anzeige lässt sich nicht wieder aufklappen.");
+  }
+
+  console.log(
+    `      Debug-Anzeige: Pause hält an · 4×: ${String(fastTicks)} Takte in 2 s · ` +
+      `Dreiecke ${String(triangles)} · Draw Calls ${String(drawCalls)}`,
   );
   return errors;
 }
@@ -236,6 +318,7 @@ try {
 
     if (device.name === "tablet-quer") {
       errors.push(...(await checkGameLoop(page)));
+      errors.push(...(await checkDebugPanel(page)));
     }
 
     const status = errors.length === 0 ? "OK" : "PROBLEM";

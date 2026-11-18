@@ -7,7 +7,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **Phase:** 1 von 10 – Fundament & Setup
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
 - **Erledigt:** 1.1, 1.2, 1.3, 1.4, 1.5, 1.6.
-- **Nächster Schritt:** Unterphase **1.7 – Durchstich, Abnahme & Übergabe.** Test-Ware „Holz“ in `src/data/goods.json` eintragen; Test-Betrieb (neue Datendatei mit Schema, Greybox-Würfel) erzeugt pro Takt eine feste Menge über ein System in `sim/` (Systeme werden der `Simulation` übergeben); Test-Lager zählt mit (`state.storage`). Ein- und ausklappbare Debug-Anzeige: FPS (gezeichnete Bilder pro Sekunde), Takt-Nummer, Holz-Bestand, Dreiecke und Draw Calls, Tempo-Knöpfe Pause/1×/2×/4× (`GameClock.setSpeed`), Seed; dabei mit dem Nutzer am Tablet prüfen, ob 60 FPS bei 90 Hz gleichmäßig wirken (sonst `?fps=45` vergleichen, E-015). Tests für Holz-Verrechnung und Datenprüfung, Leistungs-Check am Tablet, Abnahme-Checkliste, Git-Tag `phase-1`.
+- **Nächster Schritt:** Unterphase **1.7 – Durchstich, Abnahme & Übergabe** abschließen. Gebaut und selbst geprüft ist der Durchstich (E-019): „Holz“ in `goods.json`, Test-Holzfäller in `buildings.json` (1 Holz pro Takt), Bau per Befehl `debugPlaceBuilding`, System „Produktion“, Platzhalter-Würfel, Debug-Anzeige oben links. Offen: Tablet-Test durch den Nutzer (Holz zählt, Tempo-Knöpfe, Ein-/Ausklappen, 60 FPS bei 90 Hz gleichmäßig? sonst `?fps=45` vergleichen, E-015), Leistungs-Check gegen LEISTUNGSBUDGET.md, Abnahme-Checkliste, Rückschau, Git-Tag `phase-1`.
 
 ## Unterphasen von Phase 1
 
@@ -19,7 +19,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 | 1.4 | Automatische Veröffentlichung (Hosting) | ✅ erledigt (Tablet-Test bestätigt, Laptop entfällt) | 18.11.2026 |
 | 1.5 | Geräte-Check & Leistungsbudget | ✅ erledigt | 18.11.2026 |
 | 1.6 | Kern-Architektur | ✅ erledigt | 18.11.2026 |
-| 1.7 | Durchstich, Abnahme & Übergabe | ⏳ offen | – |
+| 1.7 | Durchstich, Abnahme & Übergabe | 🔧 in Arbeit (gebaut und selbst geprüft, Tablet-Test offen) | – |
 
 ## Wichtige Eckdaten
 
@@ -41,9 +41,9 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   - **Nicht möglich aus der Cloud-Umgebung:** die Live-Seite auf github.io öffnen (curl und WebFetch werden blockiert) und die Pages-Einstellungen per API lesen/ändern (`/pages` gesperrt). Die Live-Seite prüft deshalb der Nutzer.
   - Claude darf Workflow-Dateien hochladen (getestet).
 - **Technik-Stand (E-005 bis E-011):** TypeScript 6.0.3 (nicht 7, wegen typescript-eslint), Build-Ziel Chrome 111 (E-013), Bildschärfe max. doppelte Pixeldichte, Link-Zusatz `?aufloesung=50`, Update-Hinweis über `version.json`. Babylon.js 9 hat „.pure“-Module; wir importieren bewusst die normalen Module (z. B. `@babylonjs/core/Engines/engine`), weil diese ihre Zusatzfunktionen selbst einbinden.
-- **Hinweis für 1.7:** Die Debug-Anzeige soll zusätzlich **Dreiecke und Draw Calls** zeigen (Prüfverfahren aus LEISTUNGSBUDGET.md, Abschnitt 7).
+- **Debug-Anzeige:** zeigt auch **Dreiecke und Draw Calls** (Prüfverfahren aus LEISTUNGSBUDGET.md, Abschnitt 7). Leere Szene mit Holzfäller: 26 Dreiecke, 3 Draw Calls.
 - **Architektur (E-016):** Bauplan in [ARCHITEKTUR.md](ARCHITEKTUR.md), Abschnitt 14 listet alle Dateien. ESLint überwacht die Schichten-Regeln (wer wen importieren darf; in `core/`, `data/`, `sim/` keine Browser-Zugriffe, kein `Math.random()`, keine Uhrzeit). Alles, was sich bewegt, muss dem Zeichen-Takt `markActivity` melden, sonst greift das Ruhebild.
-- **Prüf-Skript:** `npm run screenshot` prüft jetzt auch die Spiel-Schleife (Takte pro Sekunde, Ruhebild, Aufwachen beim Wischen) über `window.kkStats`.
+- **Prüf-Skript:** `npm run screenshot` prüft auch die Spiel-Schleife (Takte pro Sekunde, Ruhebild, Aufwachen beim Wischen) und die Debug-Anzeige (Holz = Takte, Pause, 4×, Ein-/Ausklappen) über `window.kkStats`.
 - **Links in der Claude-App** öffnen sich in deren eingebautem Browser, nicht in Chrome. Für Tests den Nutzer bitten, den Link zu kopieren und in der Chrome-App zu öffnen.
 - **Nutzer-Vorlieben:** Rückfragen immer als anklickbare Auswahl. Prompts zum Einfügen (z. B. für den nächsten Chat) immer in einem eigenen Code-Block, damit es einen Kopieren-Knopf gibt. Kurze Antworten, da oft auf Tablet/Handy gelesen.
 
@@ -64,3 +64,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   1.5 begonnen: Testseite `check.html` (Geräte-Angaben + Belastungstest mit 16 Stufen: 500/2.000/10.000/30.000 Greybox-Bäume als Thin Instances, mit/ohne Schatten, volle/halbe Auflösung; Zeitlimit, Abbrechen, Schutz gegen Einfrieren, kopierbarer Ergebnistext). Selbst geprüft im unsichtbaren Chrome (Schnelldurchlauf `?schnell`), 39 Tests grün.
   1.5 abgeschlossen: Messfehler beim Start des Tests behoben (Vollbild-Wechsel abwarten, Vorwärmen), Draw-Call-Stufen ergänzt. Test in Google Chrome 157 auf dem Tablet: 10.000 Bäume mit Schatten bei voller Auflösung = 49 FPS, 1.000 Draw Calls = 90 FPS. docs/LEISTUNGSBUDGET.md geschrieben und vom Nutzer bestätigt (E-014); Bildraten-Begrenzer 60 FPS gewählt (E-015). Projekt in claude.ai vom Nutzer in „Anno 1701 like Browser Game Tablet“ umbenannt.
 - **18.11.2026 (Chat 4):** 1.6 abgeschlossen. docs/ARCHITEKTUR.md mit Brettspiel-Vergleich und Diagramm geschrieben; Nutzer hat zugestimmt (E-016), dazu Bedienoberfläche mit HTML/CSS (E-017) und „läuft beim Zurückkehren sofort weiter“ (E-018). Grundgerüst gebaut: Uhr mit Tempo und Schutz vor der Aufhol-Lawine, Ereignis-Bus, Zufall mit Seed (sfc32, getrennte Ströme), Spielzustand mit Versionsnummer und Spielstand-Format, Befehle (Test-Befehl `debugAddGoods`), Daten-Lader mit zod und deutschen Fehlermeldungen, eigene Spiel-Schleife mit Bildraten-Begrenzer 60 FPS und Ruhebild, Schichten-Regeln in ESLint (mit Probedateien geprüft). 95 Tests grün; im unsichtbaren Chrome: 6 Takte in 3 s, Ruhebild 2 Bilder in 2 s, beim Wischen 60 Bilder pro Sekunde.
+- **18.11.2026 (Chat 5):** 1.7 begonnen. Durchstich nach Bestätigung des Nutzers gebaut (E-019): Holz und Test-Holzfäller als Datendateien mit Querverweis-Prüfung, Gebäude per Befehl, System „Produktion“, Platzhalter-Würfel in der Inselmitte, Debug-Anzeige mit FPS, Takt, Holz, Dreiecken, Draw Calls, Seed und Tempo-Knöpfen. 116 Tests grün; im unsichtbaren Chrome: Holz = Takte, Pause hält an, 4× = ca. 16 Takte in 2 s.

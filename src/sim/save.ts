@@ -13,6 +13,12 @@ import { SAVE_VERSION, type GameState, type ReadonlyGameState } from "./state";
 const uint32 = z.int().check(z.gte(0), z.lte(0xffff_ffff));
 const randomStateSchema = z.tuple([uint32, uint32, uint32, uint32]);
 const count = z.int().check(z.gte(0));
+const entityId = z.int().check(z.gte(1));
+
+const buildingStateSchema = z.strictObject({
+  id: entityId,
+  type: z.string(),
+});
 
 /** Prüfschema für den Spielzustand der aktuellen Version. */
 const gameStateSchema = z.strictObject({
@@ -20,7 +26,8 @@ const gameStateSchema = z.strictObject({
   seed: uint32,
   random: z.strictObject({ world: randomStateSchema, events: randomStateSchema }),
   tick: count,
-  nextEntityId: z.int().check(z.gte(1)),
+  nextEntityId: entityId,
+  buildings: z.record(z.string(), buildingStateSchema),
   storage: z.record(z.string(), count),
 });
 

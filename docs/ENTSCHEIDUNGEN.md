@@ -272,3 +272,20 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Vorteile:** kein zusätzliches Tippen; man verpasst trotzdem nichts, weil die Zeit im Hintergrund stand.
 - **Nachteile:** kein ruhiger Moment zum Orientieren, bevor die Zeit weiterläuft.
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung. Lässt sich später leicht als Einstellung anbieten.
+
+---
+
+## E-019 · Durchstich mit Test-Holzfäller und Debug-Anzeige
+
+- **Datum:** 18.11.2026 · Unterphase 1.7
+- **Frage:** Wie bauen wir den Beweis, dass alle Teile zusammenspielen?
+- **Gewählt (technisches Bündel, vom Nutzer bestätigt: „Einverstanden“):**
+  1. **Holz als Datendatei, Test-Holzfäller mit 1 Holz pro Takt.** „Holz“ (`wood`) steht in `goods.json`. Neue Datendatei `buildings.json` für Gebäudearten mit Prüfschema; darin der Test-Holzfäller (`test_woodcutter`), der pro Takt 1 Holz herstellt (bei 1× also 2 Holz pro Sekunde). Der Daten-Lader prüft auch Querverweise (Gibt es die hergestellte Ware?).
+     - *Vorteil:* leicht nachzurechnen (10 Takte = 10 Holz). *Nachteil:* viel schneller als später im echten Spiel. *Alternative:* realistischer, z. B. 1 Holz alle 10 Takte; beim Testen sähe man dann kaum etwas.
+  2. **Gebäude per Befehl.** Beim Start baut die Regie den Test-Holzfäller mit dem Test-Befehl `debugPlaceBuilding`. Der Spielzustand bekommt dafür eine Gebäudeliste (`buildings`, nachschlagbar über die Nummer). Das System „Produktion“ legt in jedem Takt die Menge ins Test-Lager. Die Darstellung hört die Durchsage `buildingPlaced` und stellt einen braunen Platzhalter-Würfel in die Mitte der Test-Insel.
+     - *Vorteil:* Der ganze Weg (Befehl → Spielzustand → Takt → Durchsage → Bild) wird schon jetzt benutzt und getestet. *Nachteil:* etwas mehr Code. *Alternative:* Würfel und Lager fest einbauen: schneller, beweist aber weniger.
+  3. **Debug-Anzeige oben links** mit Knopf zum Ein- und Ausklappen: FPS (mit Hinweis „Ruhebild“), Takt-Nummer mit Spielzeit, Lagerbestände (Holz), Dreiecke, Draw Calls, Seed, Knöpfe Pause / 1× / 2× / 4×. Frischt ihre Werte 4-mal pro Sekunde auf, nur solange sie offen ist. Merkt sich im Browser, ob sie offen ist; beim ersten Start offen.
+     - *Vorteil:* Der Platz oben links ist frei, die Anzeige kostet kaum Leistung. *Nachteil:* verdeckt eine kleine Ecke der Szene. *Alternative:* unten links.
+  4. **Automatische Tests:** echte Datendateien gültig; absichtlich fehlerhafte `buildings.json` liefert deutsche Meldungen; unbekannte Ware wird erkannt; 10 Takte = 10 Holz; Pause erzeugt nichts; 2× und 4× ergeben in derselben Zeit doppelt bzw. viermal so viel Holz.
+- **Technische Kleinigkeiten (von Claude festgelegt):** Draw Calls werden mit Babylons Mess-Hilfe `SceneInstrumentation` gezählt (nur der Zähler, keine Zeitmessung), Dreiecke über die Zahl der gezeichneten Eckpunkt-Verweise. Die Spielstand-Versionsnummer bleibt bei 1, weil es bis Phase 3 noch keine gespeicherten Spielstände gibt.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.

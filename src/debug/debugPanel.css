@@ -1,0 +1,74 @@
+/* Debug-Anzeige oben links (debugPanel.ts). Der Knopf nutzt den Grundstil .hud-button aus styles.css. */
+
+#debug-toggle {
+  right: auto;
+  left: max(12px, env(safe-area-inset-left));
+}
+
+#debug-toggle.is-active {
+  background: rgba(20, 45, 60, 0.8);
+}
+
+#debug-panel {
+  position: fixed;
+  top: calc(max(12px, env(safe-area-inset-top)) + 56px);
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 4;
+  width: 232px;
+  box-sizing: border-box;
+  padding: 10px 12px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  background: rgba(20, 45, 60, 0.72);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#debug-panel[hidden] {
+  display: none;
+}
+
+#debug-panel dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  margin: 0 0 10px;
+}
+
+#debug-panel dt {
+  opacity: 0.75;
+}
+
+#debug-panel dd {
+  margin: 0;
+  text-align: right;
+  /* Ziffern gleich breit, damit die Zahlen beim Auffrischen nicht hin und her springen */
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.debug-speed {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.debug-speed button {
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.debug-speed button[aria-pressed="true"] {
+  border-color: #fff3c4;
+  background: #e8b84a;
+  color: #1b1408;
+  font-weight: 600;
+}

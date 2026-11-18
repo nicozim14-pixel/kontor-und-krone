@@ -49,11 +49,17 @@ Ein gespeicherter Zwischenstand des Codes mit einer kurzen Notiz, was sich geän
 **Datengetrieben**
 Spielinhalte wie Waren und Gebäude stehen in Datendateien statt im Programmcode. Neues lässt sich eintragen, ohne die Spielregeln umzuschreiben. Wie der Kartenkatalog eines Brettspiels.
 
+**Debug-Anzeige**
+Ein kleines Prüf-Fenster oben links im Spiel (Knopf mit den drei Balken). Es zeigt Messwerte wie Bildrate, Takt-Nummer, Holz, Dreiecke und Draw Calls und hat Knöpfe für die Spielgeschwindigkeit. „Debug“ heißt wörtlich „entwanzen“, also Fehler suchen. Wie die Anzeigen im Cockpit: Für die Fahrt selbst braucht man sie nicht, aber man sieht sofort, ob alles stimmt.
+
 **Draw Call (Zeichenauftrag)**
 Ein einzelner Auftrag des Prozessors an den Grafikchip: „Zeichne dieses Objekt.“ Jeder Auftrag kostet Verwaltungsaufwand, egal wie klein das Objekt ist. Thin Instances fassen viele gleiche Objekte zu einem einzigen Auftrag zusammen.
 
 **Dreieck (Polygon)**
 Jede 3D-Form besteht aus vielen kleinen Dreiecken, wie ein Fußball aus Flicken. Je mehr Dreiecke, desto feiner die Form, aber desto mehr Arbeit für den Grafikchip. Unser Test-Baum hat 88 Dreiecke.
+
+**Durchstich**
+Ein erster, ganz schmaler Weg durch alle Teile des Spiels, um zu beweisen, dass sie zusammenpassen. Wie beim Tunnelbau: Bevor der Tunnel breit ausgebaut wird, bohrt man einmal komplett durch. Bei uns: Holz steht in einer Datendatei, wird im Takt hergestellt und erscheint im Bild.
 
 **Ereignis-Bus (Beobachter-Prinzip)**
 Das „Lautsprecher-System“ des Spiels: Die Simulation macht Durchsagen („Holz jetzt 24“), Darstellung und Bedienoberfläche melden sich als Zuhörer für die Durchsagen an, die sie interessieren.
@@ -81,6 +87,9 @@ Ein kostenloser Dienst von GitHub, der eine Webseite direkt aus einem Repository
 
 **.gitignore**
 Eine Liste von Dateien, die das Repository absichtlich *nicht* speichern soll, z. B. automatisch erzeugte Dateien oder geheime Einstellungen. Wie ein Schild „Bitte nicht einpacken“ beim Umzug.
+
+**Git-Tag (Markierung)**
+Ein fester Name für einen bestimmten Stand im Repository, z. B. „phase-1“. Wie ein Lesezeichen im Buch: Man findet diesen Stand jederzeit wieder, auch wenn später viel dazukommt.
 
 **Greybox (Platzhalter-Grafik)**
 Einfache graue Formen wie Würfel oder Zylinder anstelle fertiger 3D-Modelle. So kann man das Spiel bauen und testen, bevor die schöne Grafik kommt (bei uns ab Phase 8).
@@ -136,6 +145,9 @@ Eine Art Formular-Vorlage für Daten: Welche Felder gibt es, welche Art von Wert
 **Qualitätsstufe (Grafik)**
 Eine Sammel-Einstellung für die Bildqualität, bei uns Hoch, Mittel und Niedrig. Niedrigere Stufen sehen etwas schlichter aus, laufen aber flüssiger und sparen Akku.
 
+**Querverweis**
+Eine Angabe in einer Datendatei, die auf einen Eintrag in einer anderen Datei zeigt. Beispiel: Der Test-Holzfäller in `buildings.json` stellt die Ware „wood“ her, die in `goods.json` stehen muss. Der Daten-Lader prüft, ob jeder Querverweis ein Ziel hat.
+
 **README**
 Die „Visitenkarte“ eines Repositorys: eine Textdatei, die GitHub auf der Startseite des Repositorys anzeigt. Sie erklärt, worum es geht.
 
@@ -159,6 +171,9 @@ Der Teil des Programms, der das Spiel „rechnet“: Waren, Produktion, Bevölke
 
 **Spielzustand und Spielstand**
 Der Spielzustand ist alles, was in einer Partie gerade gilt, in einem einzigen Datenpaket. Ein Spielstand ist dieser Zustand als gespeicherter Text, wie ein Foto vom Spielbrett.
+
+**System (Teil der Spiellogik)**
+Ein Baustein der Simulation, der in jedem Wirtschafts-Takt einmal läuft, z. B. die Produktion. Später kommen Verbrauch, Steuern, Marktkarren usw. dazu. Die Systeme laufen immer in derselben Reihenfolge, wie die Stationen an einem Fließband.
 
 **Szene**
 Alles, was in der 3D-Welt existiert: Meer, Insel, Licht, Kamera. Wie eine Theaterbühne mit Kulissen und Scheinwerfern.

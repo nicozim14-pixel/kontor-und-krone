@@ -7,9 +7,9 @@
  * wenn ein Befehl nicht behandelt wird.
  */
 import type { GameData } from "../data/gameData";
-import type { GoodId } from "../data/schemas";
+import type { BuildingTypeId, GoodId } from "../data/schemas";
 import type { SimEventBus } from "./events";
-import type { GameState } from "./state";
+import { buildingKey, type GameState } from "./state";
 
 /** Test-Befehl: Waren ins Test-Lager legen oder (mit negativer Menge) herausnehmen. */
 export interface DebugAddGoodsCommand {
@@ -18,7 +18,16 @@ export interface DebugAddGoodsCommand {
   readonly amount: number;
 }
 
-export type Command = DebugAddGoodsCommand;
+/**
+ * Test-Befehl: ein Gebäude bauen, vorerst ohne Platz auf der Karte und ohne Baukosten
+ * (Durchstich, Unterphase 1.7). Das richtige Bauen mit Raster folgt in Phase 2.
+ */
+export interface DebugPlaceBuildingCommand {
+  readonly type: "debugPlaceBuilding";
+  readonly building: BuildingTypeId;
+}
+
+export type Command = DebugAddGoodsCommand | DebugPlaceBuildingCommand;
 
 export type CommandResult = { readonly ok: true } | { readonly ok: false; readonly reason: string };
 
@@ -38,10 +47,10 @@ export interface CommandContext {
 /** Führt einen Befehl aus. Die Durchsagen werden gesammelt, verteilt werden sie von der Simulation. */
 export function executeCommand(command: Command, context: CommandContext): CommandResult {
   switch (command.type) {
-    // Die Weiche wächst mit jedem neuen Befehl. Solange es nur einen gibt, hält ESLint sie für überflüssig.
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case "debugAddGoods":
       return debugAddGoods(command, context);
+    case "debugPlaceBuilding":
+      return debugPlaceBuilding(command, context);
   }
 }
 
@@ -63,5 +72,20 @@ function debugAddGoods(
   }
   state.storage[good.id] = next;
   events.emit("storageChanged", { good: good.id, amount: next, delta: command.amount });
+  return OK;
+}
+
+function debugPlaceBuilding(
+  command: DebugPlaceBuildingCommand,
+  { state, data, events }: CommandContext,
+): CommandResult {
+  const definition = data.buildings.get(command.building);
+  if (definition === undefined) {
+    return fail(`Die Gebäudeart „${command.building}“ gibt es nicht.`);
+  }
+  const id = state.nextEntityId;
+  state.nextEntityId += 1;
+  state.buildings[buildingKey(id)] = { id, type: definition.id };
+  events.emit("buildingPlaced", { id, type: definition.id });
   return OK;
 }

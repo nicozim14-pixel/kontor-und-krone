@@ -3,8 +3,8 @@
 Dieses Dokument beschreibt, wie die Teile des Spiels zusammenarbeiten.
 Es gilt für alle Phasen. Wer Code schreibt, hält sich daran; Änderungen werden hier und in [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) festgehalten.
 
-- **Stand:** 18.11.2026 · Unterphase 1.6
-- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6.
+- **Stand:** 18.11.2026 · Unterphase 1.7
+- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6, Durchstich in 1.7 (E-019).
 
 ---
 
@@ -83,7 +83,7 @@ Alles, was ein Spielstand enthalten muss, steht in **einem** Objekt: dem Spielzu
 - **Versionsnummer:** Jeder Spielstand trägt eine Versionsnummer (`saveVersion`). Ändert sich später der Aufbau, wandelt ein kleines Umbau-Programm alte Spielstände automatisch um („Migration“).
 - **Nur die Simulation darf ihn ändern.** Darstellung und Oberfläche bekommen eine schreibgeschützte Sicht; TypeScript meldet jeden Änderungsversuch als Fehler.
 
-Beispiel (vereinfacht, so ähnlich nach Phase 1):
+Beispiel (so sieht er nach Phase 1 aus, Zufalls-Zahlen gekürzt):
 
 ```json
 {
@@ -91,9 +91,9 @@ Beispiel (vereinfacht, so ähnlich nach Phase 1):
   "seed": 1701,
   "random": { "world": [1, 2, 3, 4], "events": [5, 6, 7, 8] },
   "tick": 1240,
-  "nextEntityId": 3,
+  "nextEntityId": 2,
   "buildings": { "1": { "id": 1, "type": "test_woodcutter" } },
-  "storage": { "wood": 2480 }
+  "storage": { "wood": 1240 }
 }
 ```
 
@@ -152,7 +152,7 @@ Englische Namen als feste Kennung, deutsche Texte für die Anzeige:
 Beim Laden wird jede Datei damit kontrolliert, danach die Querverweise (Gibt es die Ware, die ein Gebäude herstellt? Ist jede Kennung nur einmal vergeben?).
 Fehler kommen als klare deutsche Meldung, z. B.:
 
-> buildings.json → Eintrag 1 („test_woodcutter“) → Feld „produces“: Die Ware „holz“ gibt es nicht. Bekannte Waren: wood.
+> buildings.json → Eintrag 1 („test_woodcutter“) → Feld „produces“ → Feld „good“: Die Ware „holz“ gibt es nicht. Bekannte Waren: wood.
 
 Geprüft wird **zweimal:** in den automatischen Tests (fehlerhafte Daten werden gar nicht erst veröffentlicht) und beim Spielstart (Sicherheitsnetz, später auch für geladene Spielstände).
 Die Dateien werden beim Bauen ins Spiel gepackt; es gibt keine zusätzlichen Downloads.
@@ -221,11 +221,12 @@ Ein Hilfs-Baukasten für die Oberfläche (z. B. Preact oder Lit) wird erst in Ph
 | Zufall | gleicher Seed → gleiche Zahlen; getrennte Ströme beeinflussen sich nicht; Speichern und Fortsetzen ergibt dieselbe Folge |
 | Spielzustand | Speichern als Text und Zurücklesen ergibt exakt denselben Zustand |
 | Spieldaten | die echten Dateien sind gültig; absichtlich fehlerhafte Beispiel-Dateien liefern die erwartete deutsche Meldung |
-| Simulation | gleicher Seed + gleiche Befehle → gleiches Ergebnis; Produktion pro Takt stimmt (ab 1.7) |
+| Simulation | gleicher Seed + gleiche Befehle → gleiches Ergebnis; Gebäude per Befehl; Produktion pro Takt stimmt |
+| Durchstich | echte Datendateien + Uhr + Simulation: 10 Takte = 10 Holz; Pause erzeugt nichts; 2× und 4× doppelt bzw. viermal so viel |
 | Bildraten-Begrenzer | bei 90 Hz entstehen im Schnitt 60 Bilder pro Sekunde; Ruhebild greift und endet richtig |
 | Schichten-Regeln | ESLint (Abschnitt 3) |
 
-Darstellung und Oberfläche prüft Claude mit dem Bildschirmfoto-Skript im unsichtbaren Chrome; das Gefühl am Tablet prüft der Nutzer.
+Darstellung und Oberfläche prüft Claude mit dem Bildschirmfoto-Skript im unsichtbaren Chrome (u. a. Holz = Takte, Pause, 4×, Debug-Anzeige ein- und ausklappen); das Gefühl am Tablet prüft der Nutzer.
 Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die alte Version online.
 
 ## 14. Wo steht was im Code
@@ -238,14 +239,19 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 | `data/validation.ts` | Prüfen mit zod, deutsche Fehlermeldungen |
 | `data/schemas.ts` | die Prüfschemas der Datendateien |
 | `data/gameData.ts` | der Daten-Lader |
-| `data/*.json` | die Spieldaten (`testdata/` enthält absichtlich fehlerhafte Beispiele für die Tests) |
+| `data/*.json` | die Spieldaten: `goods.json` (Waren), `buildings.json` (Gebäudearten); `testdata/` enthält absichtlich fehlerhafte Beispiele für die Tests |
 | `sim/state.ts` | der Spielzustand und seine Versionsnummer |
 | `sim/save.ts` | das Spielstand-Format |
 | `sim/commands.ts` | die Befehle |
 | `sim/events.ts` | die Liste aller Durchsagen |
 | `sim/simulation.ts` | der Spielleiter: `step()` und `execute()` |
+| `sim/systems.ts` | Liste aller Systeme in fester Reihenfolge |
+| `sim/production.ts` | System „Produktion“ (vorläufig: feste Menge pro Takt) |
 | `render/frameScheduler.ts` | der Zeichen-Takt: Bildraten-Begrenzer und Ruhebild |
 | `render/activity.ts` | meldet Kamera-Bewegungen an den Zeichen-Takt |
+| `render/buildingView.ts` | zeigt Gebäude als Platzhalter-Würfel |
+| `render/renderStats.ts` | misst Dreiecke und Draw Calls |
+| `debug/debugPanel.ts` | die Debug-Anzeige oben links |
 | `app/gameLoop.ts` | die Spiel-Schleife |
 | `app/startGame.ts` | die Regie: baut alles auf und verbindet es |
 | `app/urlOptions.ts` | Link-Zusätze wie `?seed=42` |
@@ -253,5 +259,5 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 ## 15. Was wann gebaut wird
 
 - **Unterphase 1.6 (erledigt):** Uhr mit Tempo, Ereignis-Bus, Zufallsgenerator, Spielzustand mit Versionsnummer, Spielstand-Format, Befehls-Grundgerüst, Daten-Lader mit Prüfschema, Bildraten-Begrenzer und Ruhebild, Schichten-Regeln in ESLint – alles mit Tests.
-- **Unterphase 1.7:** Test-Ware „Holz“ als echte Datendatei, Test-Betrieb und Test-Lager, Debug-Anzeige.
+- **Unterphase 1.7 (erledigt):** Test-Ware „Holz“ als echte Datendatei, Gebäudearten mit Querverweis-Prüfung, Test-Holzfäller per Befehl, System „Produktion“, Test-Lager, Debug-Anzeige.
 - **Später:** Speichern/Laden im Browser-Speicher (Phase 3), Rückgängig (bei Bedarf), Oberflächen-Baukasten (Phase 3).

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "test_woodcutter",
+    "name": "Test-Holzfäller",
+    "produces": { "good": "wood", "amountPerTick": 1 }
+  },
+  { "id": "fisher", "name": "Fischer", "produces": { "good": "fish", "amountPerTick": 0 } },
+  { "id": "sawmill", "name": "Sägewerk", "produces": { "good": "planks", "amountPerTick": 1.5 } },
+  { "id": "quarry", "produces": { "good": "stone", "amountPerTick": 1 } },
+  { "id": "hunter", "name": "Jagdhütte", "produces": { "good": "meat", "amount": 1 } },
+  { "id": "Weber", "name": "Webstube" }
+]

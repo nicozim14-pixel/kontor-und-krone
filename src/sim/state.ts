@@ -7,7 +7,7 @@
  * - Nur die Simulation darf ihn ändern; alle anderen bekommen eine schreibgeschützte Sicht.
  */
 import { createRandomState, type RandomState } from "../core/random";
-import type { GoodId } from "../data/schemas";
+import type { BuildingTypeId, GoodId } from "../data/schemas";
 import type { DeepReadonly } from "./readonly";
 
 /**
@@ -19,6 +19,14 @@ export const SAVE_VERSION = 1;
 
 /** Fortlaufende Nummer für Dinge auf der Karte (Gebäude, Karren, Schiffe …). */
 export type EntityId = number;
+
+/** Ein gebautes Gebäude auf der Karte. Ab Phase 2 kommen Position und Drehung dazu. */
+export interface BuildingState {
+  /** Nummer des Gebäudes (Hausnummer) */
+  id: EntityId;
+  /** Gebäudeart aus buildings.json, z. B. "test_woodcutter" */
+  type: BuildingTypeId;
+}
 
 export interface GameState {
   /** Version des Spielstand-Formats, siehe SAVE_VERSION */
@@ -36,8 +44,19 @@ export interface GameState {
   tick: number;
   /** Nächste freie Nummer für ein neues Ding auf der Karte */
   nextEntityId: EntityId;
+  /**
+   * Alle gebauten Gebäude, nachschlagbar über ihre Nummer.
+   * Die Nummer steht als Text im Schlüssel (z. B. "1"), weil JSON nur Text-Schlüssel kennt.
+   * Zum Nachschlagen `buildingKey(id)` benutzen.
+   */
+  buildings: Record<string, BuildingState>;
   /** Vorläufiges Test-Lager: Menge je Ware. Wird in Phase 3 durch echte Insellager ersetzt. */
   storage: Record<GoodId, number>;
+}
+
+/** Schlüssel eines Gebäudes in `GameState.buildings`. */
+export function buildingKey(id: EntityId): string {
+  return String(id);
 }
 
 /** Schreibgeschützte Sicht für Darstellung und Oberfläche. */
@@ -54,6 +73,7 @@ export function createInitialState(seed: number): GameState {
     },
     tick: 0,
     nextEntityId: 1,
+    buildings: {},
     storage: {},
   };
 }

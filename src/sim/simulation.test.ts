@@ -9,7 +9,10 @@ import { Simulation, type SimSystem } from "./simulation";
 import { createInitialState } from "./state";
 
 function testData(): GameData {
-  const result = loadGameData({ goods: [{ id: "wood", name: "Holz" }] });
+  const result = loadGameData({
+    goods: [{ id: "wood", name: "Holz" }],
+    buildings: [{ id: "test_woodcutter", name: "Test-Holzfäller" }],
+  });
   if (!result.ok) {
     throw new Error(result.errors.join("\n"));
   }
@@ -81,6 +84,33 @@ describe("Simulation", () => {
     });
     expect(simulation.state.storage).toEqual({});
     expect(changes).toBe(0);
+  });
+
+  it("baut Gebäude per Befehl mit fortlaufender Nummer und sagt es durch", () => {
+    const { simulation, events } = createSimulation();
+    const heard: string[] = [];
+    events.on("buildingPlaced", ({ id, type }) => heard.push(`${String(id)} ${type}`));
+
+    const command: Command = { type: "debugPlaceBuilding", building: "test_woodcutter" };
+    expect(simulation.execute(command)).toEqual({ ok: true });
+    expect(simulation.execute(command)).toEqual({ ok: true });
+
+    expect(heard).toEqual(["1 test_woodcutter", "2 test_woodcutter"]);
+    expect(simulation.state.buildings).toEqual({
+      "1": { id: 1, type: "test_woodcutter" },
+      "2": { id: 2, type: "test_woodcutter" },
+    });
+    expect(simulation.state.nextEntityId).toBe(3);
+  });
+
+  it("lehnt unbekannte Gebäudearten ab und vergibt dann keine Nummer", () => {
+    const { simulation } = createSimulation();
+    expect(simulation.execute({ type: "debugPlaceBuilding", building: "castle" })).toEqual({
+      ok: false,
+      reason: "Die Gebäudeart „castle“ gibt es nicht.",
+    });
+    expect(simulation.state.buildings).toEqual({});
+    expect(simulation.state.nextEntityId).toBe(1);
   });
 
   it("rechnet reproduzierbar: gleicher Seed und gleiche Befehle ergeben dasselbe Ergebnis", () => {

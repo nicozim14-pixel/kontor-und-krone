@@ -8,5 +8,7 @@ Alles, was mit Babylon.js gezeichnet wird: Szene, Licht, Kamera, Meer, Insel, sp
 - `frameScheduler.ts` – der Zeichen-Takt: höchstens 60 Bilder pro Sekunde (Link-Zusatz `?fps=45` zum Vergleich), Ruhebild zum Akku-Sparen
 - `activity.ts` – meldet Kamera-Bewegungen an den Zeichen-Takt
 - `testScene.ts` – die leere Test-Szene aus Unterphase 1.3 (wird in Phase 2 ersetzt)
+- `buildingView.ts` – zeigt gebaute Gebäude als Platzhalter-Würfel auf der Test-Insel
+- `renderStats.ts` – misst Dreiecke und Draw Calls für die Debug-Anzeige
 
 **Regel für alles, was sich bewegt:** Bewegung dem Zeichen-Takt melden (`markActivity`), einmalige sichtbare Änderungen mit `requestRender`. Sonst wird im Ruhebild nur einmal pro Sekunde gezeichnet.

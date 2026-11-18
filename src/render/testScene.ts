@@ -15,6 +15,9 @@ const SEA_SIZE = 2000;
 /** Kantenlänge des Test-Würfels, der vorerst die Insel darstellt. */
 const ISLAND_SIZE = 12;
 
+/** Höhe der Oberseite der Test-Insel. Dort stehen die Test-Gebäude (buildingView.ts). */
+export const TEST_ISLAND_TOP_Y = ISLAND_SIZE * 0.75;
+
 /** Himmelsfarbe; der Horizont verschwimmt im Dunst in derselben Farbe. */
 const SKY_COLOR = new Color3(0.56, 0.8, 0.94);
 
@@ -69,7 +72,7 @@ function createSea(scene: Scene): void {
 function createTestIsland(scene: Scene): void {
   const island = CreateBox("testIsland", { size: ISLAND_SIZE }, scene);
   // Zu einem Viertel im Wasser versenkt, damit er wie eine kleine Insel aus dem Meer ragt
-  island.position.y = ISLAND_SIZE / 4;
+  island.position.y = TEST_ISLAND_TOP_Y - ISLAND_SIZE / 2;
   const material = new StandardMaterial("sandMaterial", scene);
   material.diffuseColor = new Color3(0.84, 0.72, 0.5);
   material.specularColor = Color3.Black();

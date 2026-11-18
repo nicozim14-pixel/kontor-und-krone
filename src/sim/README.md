@@ -5,7 +5,9 @@ Hier wird das Spiel „gerechnet“: Waren, Gebäude, Produktion, Bevölkerung, 
 - `state.ts` – der Spielzustand: ein Datenpaket aus einfachen Daten, mit Versionsnummer
 - `save.ts` – das Spielstand-Format: Text hin und zurück, Prüfung, Umwandlung alter Versionen
 - `simulation.ts` – der Spielleiter: `step()` rechnet einen Takt, `execute()` führt einen Befehl aus
-- `commands.ts` – die Befehle (Spieler-Aktionen)
+- `systems.ts` – Liste aller Systeme (Teile der Spiellogik), die pro Takt in fester Reihenfolge laufen
+- `production.ts` – System „Produktion“: Gebäude legen pro Takt ihre Ware ins Test-Lager (vorläufig, echte Ketten in Phase 3)
+- `commands.ts` – die Befehle (Spieler-Aktionen); bisher die Test-Befehle `debugAddGoods` und `debugPlaceBuilding`
 - `events.ts` – die Liste aller Durchsagen der Simulation
 - `readonly.ts` – schreibgeschützte Sicht für Darstellung und Oberfläche
 

@@ -1,0 +1,7 @@
+[
+  {
+    "id": "test_woodcutter",
+    "name": "Test-Holzfäller",
+    "produces": { "good": "wood", "amountPerTick": 1 }
+  }
+]

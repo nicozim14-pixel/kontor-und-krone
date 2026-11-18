@@ -19,6 +19,10 @@ interface Window {
   kkStats?: {
     /** Anzahl der gerechneten Wirtschafts-Takte */
     readonly tick: number;
+    /** Holz im Test-Lager */
+    readonly wood: number;
+    /** Spielgeschwindigkeit (0 = Pause) */
+    readonly speed: number;
     /** Anzahl der gezeichneten Bilder */
     readonly renderedFrames: number;
     /** Ist gerade Ruhebild? */

@@ -4,9 +4,10 @@
  */
 import { loadGameData, type GameData } from "./gameData";
 import type { CheckResult } from "./validation";
+import buildings from "./buildings.json";
 import goods from "./goods.json";
 
 /** Prüft und lädt die mitgelieferten Spieldaten. */
 export function loadBundledGameData(): CheckResult<GameData> {
-  return loadGameData({ goods });
+  return loadGameData({ goods, buildings });
 }
