@@ -1,0 +1,26 @@
+# Abhängigkeiten (werden von npm automatisch heruntergeladen)
+node_modules/
+
+# Gebaute Dateien (werden bei jedem Build neu erzeugt)
+dist/
+*.tsbuildinfo
+.vite/
+
+# Testberichte
+coverage/
+
+# Geheime Einstellungen und Zugangsschlüssel: gehören NIE ins Repository
+.env
+.env.*
+!.env.example
+
+# Protokolldateien
+*.log
+npm-debug.log*
+
+# Dateien von Betriebssystemen und Editoren
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
