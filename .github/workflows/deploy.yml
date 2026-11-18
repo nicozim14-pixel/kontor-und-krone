@@ -1,0 +1,65 @@
+# Automatische Veröffentlichung auf GitHub Pages.
+# Bei jedem Hochladen auf den Hauptzweig „main“ wird das Spiel geprüft (lint, test),
+# gebaut und veröffentlicht. Schlägt eine Prüfung fehl, bleibt die alte Version online.
+name: Veröffentlichen
+
+on:
+  # Vorerst nur von Hand startbar (Test, ob Claude Workflow-Dateien hochladen darf).
+  workflow_dispatch:
+
+# Rechte für diesen Ablauf: Code lesen, auf GitHub Pages veröffentlichen
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nie zwei Veröffentlichungen gleichzeitig; eine laufende wird nicht abgebrochen
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Prüfen und bauen
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code holen
+        uses: actions/checkout@v7
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Pakete installieren
+        run: npm ci
+
+      - name: Code-Qualität prüfen (lint)
+        run: npm run lint
+
+      - name: Automatische Tests
+        run: npm run test
+
+      - name: Spiel bauen
+        run: npm run build
+
+      - name: GitHub Pages vorbereiten
+        uses: actions/configure-pages@v6
+
+      - name: Gebautes Spiel bereitstellen
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    name: Veröffentlichen
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Auf GitHub Pages veröffentlichen
+        id: deployment
+        uses: actions/deploy-pages@v5
