@@ -81,6 +81,14 @@ export function estimateRefreshRate(intervalsMs: readonly number[]): number | un
   return Math.round(1000 / median);
 }
 
+/** Listet alle Marken auf, die der Browser von sich meldet, z. B. "Google Chrome 142, Chromium 142". */
+export function describeBrands(brands: readonly BrandVersion[]): string {
+  const real = brands.filter((entry) => !/not.?a.?brand/i.test(entry.brand));
+  return real.length === 0
+    ? "keine Angabe"
+    : real.map((entry) => `${entry.brand} ${entry.version}`).join(", ");
+}
+
 /** Wandelt die Einträge in kopierbaren Text um, eine Zeile pro Eintrag. */
 export function formatInfoText(entries: readonly InfoEntry[]): string {
   return entries.map((entry) => `${entry.label}: ${entry.value}`).join("\n");
@@ -302,5 +310,10 @@ export async function collectDeviceInfo(
       value: screen.orientation.type.startsWith("landscape") ? "quer" : "hoch",
     },
     { label: "Ladezeit dieser Seite", value: loadDescription },
+    {
+      label: "Browser-Marken",
+      value: describeBrands(highEntropy?.fullVersionList ?? extras.userAgentData?.brands ?? []),
+    },
+    { label: "Browser-Kennung", value: navigator.userAgent },
   ];
 }

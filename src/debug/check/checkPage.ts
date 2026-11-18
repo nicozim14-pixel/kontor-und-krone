@@ -45,7 +45,12 @@ const timing: StageTiming = new URLSearchParams(window.location.search).has("sch
   ? QUICK_TIMING
   : NORMAL_TIMING;
 const plan = buildStressPlan();
-const maxObjects = Math.max(...plan.map((stage) => stage.objectCount));
+const maxObjects = Math.max(
+  ...plan.filter((stage) => stage.kind === "gestempelt").map((stage) => stage.objectCount),
+);
+const maxSeparate = Math.max(
+  ...plan.filter((stage) => stage.kind === "einzeln").map((stage) => stage.objectCount),
+);
 const estimatedSeconds = Math.ceil((plan.length * (timing.warmupMs + timing.measureMs)) / 1000);
 
 let deviceEntries: InfoEntry[] = [];
@@ -123,7 +128,12 @@ function renderResults(): void {
   for (const result of results) {
     const row = elements.resultBody.insertRow();
     addCell(row, String(result.stage.number));
-    addCell(row, formatNumber(result.stage.objectCount));
+    addCell(
+      row,
+      result.stage.kind === "einzeln"
+        ? `${formatNumber(result.stage.objectCount)} einzeln`
+        : formatNumber(result.stage.objectCount),
+    );
     addCell(row, result.stage.shadows ? "ja" : "nein");
     addCell(row, `${String(result.stage.resolutionPercent)} %`);
     addCell(row, result.averageFps === undefined ? "–" : formatNumber(result.averageFps, 1));
@@ -190,8 +200,58 @@ interface Measurement {
   readonly worstFrameMs?: number;
 }
 
+/** Wartet, bis sich die Fenstergröße nicht mehr ändert (z. B. nach dem Wechsel ins Vollbild). */
+async function waitForStableSize(stableMs = 500, maxMs = 3000): Promise<void> {
+  const start = performance.now();
+  let lastSize = "";
+  let stableSince = start;
+  while (performance.now() - start < maxMs) {
+    const size = `${String(window.innerWidth)}x${String(window.innerHeight)}`;
+    const now = performance.now();
+    if (size !== lastSize) {
+      lastSize = size;
+      stableSince = now;
+    } else if (now - stableSince >= stableMs) {
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+}
+
+/** Lässt die Szene eine Weile ungemessen laufen. */
+function renderFor(engine: Engine, stress: StressScene, durationMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    const start = performance.now();
+    function loop(): void {
+      stress.scene.render();
+      if (performance.now() - start >= durationMs || isAborted()) {
+        engine.stopRenderLoop(loop);
+        resolve();
+      }
+    }
+    engine.runRenderLoop(loop);
+  });
+}
+
+/**
+ * Vorbereitung vor der ersten Stufe: Jede Einstellung wird einmal gezeichnet,
+ * damit der Grafikchip seine Programme (Shader) schon vorher übersetzt und die Messung nicht stört.
+ */
+async function prewarm(engine: Engine, stress: StressScene): Promise<void> {
+  elements.progress.textContent = "Vorbereitung …";
+  elements.liveFps.textContent = "";
+  const duration = timing.warmupMs / 2;
+  stress.configure("gestempelt", 500, false);
+  await renderFor(engine, stress, duration);
+  stress.configure("gestempelt", 500, true);
+  await renderFor(engine, stress, duration);
+  stress.configure("einzeln", 100, false);
+  await renderFor(engine, stress, duration);
+}
+
 /**
  * Lässt die Szene eine Stufe lang laufen: erst Aufwärmen, dann Messen.
+ * Die ersten Bilder zählen beim Aufwärmen nicht mit (Vorbereitung im Grafikchip).
  * Schutz gegen Einfrieren: Ist sie zu langsam oder dauert ein Bild zu lange, endet die Stufe sofort.
  */
 function measureStage(engine: Engine, stress: StressScene): Promise<Measurement> {
@@ -199,6 +259,7 @@ function measureStage(engine: Engine, stress: StressScene): Promise<Measurement>
     const start = performance.now();
     let last = start;
     let warmupFrames = 0;
+    let warmupStart = 0;
     let measureStart = 0;
     let lastLiveUpdate = start;
     const frameTimes: number[] = [];
@@ -221,13 +282,21 @@ function measureStage(engine: Engine, stress: StressScene): Promise<Measurement>
 
       if (measureStart === 0) {
         warmupFrames += 1;
-        const elapsed = now - start;
-        if (warmupFrames > IGNORED_START_FRAMES && frameMs > ABORT_FRAME_MS) {
+        if (warmupFrames <= IGNORED_START_FRAMES) {
+          // Die ersten Bilder dürfen lange dauern, aber nicht ewig (Schutz gegen Einfrieren).
+          if (now - start > timing.warmupMs + 10_000) {
+            finish({ status: "zu langsam" });
+          }
+          warmupStart = now;
+          return;
+        }
+        if (frameMs > ABORT_FRAME_MS) {
           finish({ status: "zu langsam", worstFrameMs: frameMs });
           return;
         }
+        const elapsed = now - warmupStart;
         if (elapsed >= timing.warmupMs) {
-          const warmupFps = warmupFrames / (elapsed / 1000);
+          const warmupFps = (warmupFrames - IGNORED_START_FRAMES) / (elapsed / 1000);
           if (warmupFps < ABORT_BELOW_FPS) {
             finish({ status: "zu langsam", averageFps: warmupFps });
             return;
@@ -259,7 +328,7 @@ function measureStage(engine: Engine, stress: StressScene): Promise<Measurement>
 function showProgress(stage: StressStage): void {
   elements.progress.textContent =
     `Stufe ${String(stage.number)} von ${String(plan.length)}: ` +
-    `${formatNumber(stage.objectCount)} Objekte · ` +
+    `${formatNumber(stage.objectCount)} ${stage.kind === "einzeln" ? "Einzelobjekte" : "Objekte"} · ` +
     `${stage.shadows ? "mit" : "ohne"} Schatten · ${String(stage.resolutionPercent)} %`;
   elements.liveFps.textContent = "…";
 }
@@ -314,15 +383,18 @@ async function runStressTest(): Promise<void> {
     { powerPreference: "high-performance", preserveDrawingBuffer: false, stencil: true },
     false,
   );
-  const stress = createStressScene(engine, maxObjects);
+  await waitForStableSize();
+  const stress = createStressScene(engine, maxObjects, maxSeparate);
   trianglesPerObject = stress.trianglesPerObject;
   // Ändert sich die Fenstergröße (z. B. weil das Vollbild verspätet kommt), Zeichenfläche anpassen.
   const onResize = (): void => {
     engine.resize();
   };
   window.addEventListener("resize", onResize);
+  engine.resize();
 
   try {
+    await prewarm(engine, stress);
     for (const stage of plan) {
       const triangles = stage.objectCount * trianglesPerObject;
       if (isAborted()) {
@@ -334,7 +406,7 @@ async function runStressTest(): Promise<void> {
         continue;
       }
       showProgress(stage);
-      stress.configure(stage.objectCount, stage.shadows);
+      stress.configure(stage.kind, stage.objectCount, stage.shadows);
       engine.setHardwareScalingLevel(
         computeHardwareScalingLevel(window.devicePixelRatio, stage.resolutionPercent),
       );

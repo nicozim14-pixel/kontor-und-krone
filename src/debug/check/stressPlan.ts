@@ -6,6 +6,12 @@
 /** Anzahl der Objekte pro Stufe (so wie später Bäume und Häuser). */
 export const OBJECT_COUNTS: readonly number[] = [500, 2000, 10_000, 30_000];
 
+/**
+ * Anzahl einzeln gezeichneter Objekte (jedes ein eigener „Draw Call“, also ein eigener Zeichenauftrag).
+ * Misst, wie viele getrennte Objekte der Prozessor pro Bild an den Grafikchip schicken kann.
+ */
+export const SEPARATE_COUNTS: readonly number[] = [100, 300, 1000];
+
 /** Auflösungen in Prozent: volle Schärfe und halbe Schärfe (pro Seite). */
 export const RESOLUTION_PERCENTS: readonly number[] = [100, 50];
 
@@ -34,15 +40,23 @@ export interface StageTiming {
   readonly measureMs: number;
 }
 
-/** Normale Zeiten: 16 Stufen × 5 s ≈ 1½ Minuten. */
+/** Normale Zeiten: 19 Stufen × 5 s ≈ 1½ Minuten. */
 export const NORMAL_TIMING: StageTiming = { warmupMs: 1000, measureMs: 4000 };
 
 /** Kurze Zeiten für Claudes automatische Prüfung (Link-Zusatz „?schnell“). */
 export const QUICK_TIMING: StageTiming = { warmupMs: 300, measureMs: 700 };
 
+/**
+ * Art der Objekte:
+ * - "gestempelt": alle als Thin Instances in einem einzigen Zeichenauftrag (so werden später Bäume und Häuser gezeichnet)
+ * - "einzeln": jedes Objekt als eigener Zeichenauftrag (Draw Call)
+ */
+export type StageKind = "gestempelt" | "einzeln";
+
 export interface StressStage {
   /** Laufende Nummer ab 1 */
   readonly number: number;
+  readonly kind: StageKind;
   readonly objectCount: number;
   readonly shadows: boolean;
   readonly resolutionPercent: number;
@@ -51,18 +65,35 @@ export interface StressStage {
 /**
  * Erstellt die Reihenfolge der Stufen: erst volle, dann halbe Auflösung;
  * jeweils erst ohne, dann mit Schatten; jeweils von wenigen zu vielen Objekten.
+ * Zum Schluss die einzeln gezeichneten Objekte (ohne Schatten, volle Auflösung).
  */
 export function buildStressPlan(
   counts: readonly number[] = OBJECT_COUNTS,
   resolutions: readonly number[] = RESOLUTION_PERCENTS,
+  separateCounts: readonly number[] = SEPARATE_COUNTS,
 ): StressStage[] {
   const stages: StressStage[] = [];
   for (const resolutionPercent of resolutions) {
     for (const shadows of [false, true]) {
       for (const objectCount of counts) {
-        stages.push({ number: stages.length + 1, objectCount, shadows, resolutionPercent });
+        stages.push({
+          number: stages.length + 1,
+          kind: "gestempelt",
+          objectCount,
+          shadows,
+          resolutionPercent,
+        });
       }
     }
+  }
+  for (const objectCount of separateCounts) {
+    stages.push({
+      number: stages.length + 1,
+      kind: "einzeln",
+      objectCount,
+      shadows: false,
+      resolutionPercent: 100,
+    });
   }
   return stages;
 }
@@ -102,6 +133,7 @@ export function shouldSkipStage(stage: StressStage, previous: readonly StageResu
   return previous.some(
     (result) =>
       isHopeless(result) &&
+      result.stage.kind === stage.kind &&
       result.stage.shadows === stage.shadows &&
       result.stage.resolutionPercent === stage.resolutionPercent &&
       result.stage.objectCount < stage.objectCount,
@@ -155,10 +187,12 @@ export function formatNumber(value: number, fractionDigits = 0): string {
   });
 }
 
-/** Kurze Beschreibung einer Stufe, z. B. "10.000 Objekte · mit Schatten · 50 %". */
+/** Kurze Beschreibung einer Stufe, z. B. "10.000 Objekte · mit Schatten · 50 % Auflösung". */
 export function describeStage(stage: StressStage): string {
   return [
-    `${formatNumber(stage.objectCount)} Objekte`,
+    stage.kind === "einzeln"
+      ? `${formatNumber(stage.objectCount)} Einzelobjekte (Draw Calls)`
+      : `${formatNumber(stage.objectCount)} Objekte`,
     stage.shadows ? "mit Schatten" : "ohne Schatten",
     `${String(stage.resolutionPercent)} % Auflösung`,
   ].join(" · ");

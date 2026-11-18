@@ -101,8 +101,8 @@ async function checkDeviceCheckPage(): Promise<number> {
 
   const report = await page.inputValue("#report");
   const resultLines = report.split("\n").filter((line) => /^\s?\d+\. /.test(line));
-  if (resultLines.length !== 16) {
-    errors.push(`Erwartet 16 Ergebniszeilen, gefunden: ${String(resultLines.length)}.`);
+  if (resultLines.length !== 19) {
+    errors.push(`Erwartet 19 Ergebniszeilen, gefunden: ${String(resultLines.length)}.`);
   }
   if (!(await page.isHidden("#error-box"))) {
     errors.push("Fehler-Hinweis ist sichtbar.");

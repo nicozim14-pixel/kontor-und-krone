@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  describeBrands,
   describeBuildTargetFit,
   describeMemory,
   describeScreen,
@@ -78,5 +79,18 @@ describe("formatInfoText", () => {
         { label: "Touch", value: "ja (bis zu 10 Finger)" },
       ]),
     ).toBe("WebGL2: ja\nTouch: ja (bis zu 10 Finger)");
+  });
+});
+
+describe("describeBrands", () => {
+  it("listet die echten Marken und lässt Platzhalter weg", () => {
+    expect(
+      describeBrands([
+        { brand: "Not)A;Brand", version: "99" },
+        { brand: "Samsung Internet", version: "29.0" },
+        { brand: "Chromium", version: "148.0.0.47" },
+      ]),
+    ).toBe("Samsung Internet 29.0, Chromium 148.0.0.47");
+    expect(describeBrands([])).toBe("keine Angabe");
   });
 });

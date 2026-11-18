@@ -11,6 +11,7 @@ import { CreateCylinder } from "@babylonjs/core/Meshes/Builders/cylinderBuilder"
 import { CreateGround } from "@babylonjs/core/Meshes/Builders/groundBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
+import type { StageKind } from "./stressPlan";
 
 /** Kantenlänge der Fläche, auf der die Test-Bäume stehen (Meter). */
 const FOREST_SIZE = 240;
@@ -24,8 +25,8 @@ export interface StressScene {
   readonly scene: Scene;
   /** Dreiecke eines einzelnen Test-Baums */
   readonly trianglesPerObject: number;
-  /** Stellt Anzahl der Bäume und Schatten für die nächste Stufe ein. */
-  configure(objectCount: number, shadows: boolean): void;
+  /** Stellt Art und Anzahl der Bäume sowie die Schatten für die nächste Stufe ein. */
+  configure(kind: StageKind, objectCount: number, shadows: boolean): void;
   dispose(): void;
 }
 
@@ -118,9 +119,14 @@ function createTreeMatrices(maxObjects: number): Float32Array {
 /**
  * Baut die Szene für den Belastungstest: Wiese, Meer, Sonne mit Schatten
  * und bis zu maxObjects Bäume als Thin Instances (ein Mesh, das die Grafikkarte vielfach zeichnet).
+ * Für die Draw-Call-Stufen gibt es zusätzlich bis zu maxSeparate einzeln gezeichnete Bäume.
  * Die Kamera schaut schräg von oben auf den Wald und dreht sich langsam.
  */
-export function createStressScene(engine: Engine, maxObjects: number): StressScene {
+export function createStressScene(
+  engine: Engine,
+  maxObjects: number,
+  maxSeparate: number,
+): StressScene {
   const scene = new Scene(engine);
   scene.clearColor = new Color4(SKY_COLOR.r, SKY_COLOR.g, SKY_COLOR.b, 1);
 
@@ -159,6 +165,19 @@ export function createStressScene(engine: Engine, maxObjects: number): StressSce
   tree.alwaysSelectAsActiveMesh = true;
   const trianglesPerObject = tree.getTotalIndices() / 3;
 
+  // Einzeln gezeichnete Bäume: Kopien teilen sich die Form, sind aber je ein eigener Zeichenauftrag.
+  const matrices = createTreeMatrices(maxSeparate);
+  const separateTemplate = createTestTree(scene);
+  separateTemplate.setEnabled(false);
+  const separateTrees: Mesh[] = [];
+  for (let index = 0; index < maxSeparate; index += 1) {
+    const copy = separateTemplate.clone(`separateTree${String(index)}`);
+    Matrix.FromArray(matrices, index * 16).decompose(copy.scaling, undefined, copy.position);
+    copy.rotation.y = (index * 2.399) % (Math.PI * 2);
+    copy.setEnabled(false);
+    separateTrees.push(copy);
+  }
+
   const shadowGenerator = new ShadowGenerator(SHADOW_MAP_SIZE, sun);
   shadowGenerator.usePercentageCloserFiltering = true;
   shadowGenerator.filteringQuality = ShadowGenerator.QUALITY_MEDIUM;
@@ -183,8 +202,12 @@ export function createStressScene(engine: Engine, maxObjects: number): StressSce
   return {
     scene,
     trianglesPerObject,
-    configure(objectCount: number, shadows: boolean): void {
+    configure(kind: StageKind, objectCount: number, shadows: boolean): void {
+      tree.setEnabled(kind === "gestempelt");
       tree.thinInstanceCount = Math.min(objectCount, maxObjects);
+      separateTrees.forEach((copy, index) => {
+        copy.setEnabled(kind === "einzeln" && index < objectCount);
+      });
       sun.shadowEnabled = shadows;
     },
     dispose(): void {
