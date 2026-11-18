@@ -3,11 +3,12 @@ import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
 /**
- * Ältester Browser, für den gebaut wird (Entscheidung E-006).
+ * Ältester Browser, für den gebaut wird (Entscheidung E-013, ersetzt E-006).
+ * Entspricht dem Vite-Standard „baseline-widely-available“ (Stand März 2023).
+ * Bewusst fest eingetragen, damit ein Vite-Update das Ziel nicht unbemerkt verschiebt.
  * Neuere Sprachmittel werden beim Bauen automatisch in ältere übersetzt.
- * Wird in Unterphase 1.5 mit dem echten Laptop-Browser abgeglichen.
  */
-const BUILD_TARGET = ["chrome87", "edge88", "firefox78", "safari14"];
+const BUILD_TARGET = ["chrome111", "edge111", "firefox114", "safari16.4"];
 
 /** Kurzes Commit-Kürzel für die Versionsanzeige. */
 function readCommitHash(): string {

@@ -5,10 +5,9 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 ## Aktueller Stand
 
 - **Phase:** 1 von 10 – Fundament & Setup
-- **Erledigt:** 1.1, 1.2, 1.3. **1.4 fast fertig:** Die automatische Veröffentlichung läuft, das Spiel ist online, der Test auf dem **Tablet** ist bestätigt (18.11.2026). **Offen ist nur noch der Test auf dem Laptop.**
-- **Nächster Schritt:**
-  1. Zuerst den **Laptop-Test aus 1.4** nachholen: Link in Chrome öffnen, mit der Maus drehen und zoomen, Versionsanzeige mit dem letzten Commit vergleichen. Danach 1.4 auf „erledigt“ setzen.
-  2. Dann Unterphase **1.5 – Geräte-Check & Leistungsbudget** (Testseite mit Geräte-Infos und Stresstest, Nutzer testet auf beiden Geräten, docs/LEISTUNGSBUDGET.md, Build-Ziel Chrome 87 mit echter Laptop-Version abgleichen)
+- **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
+- **Erledigt:** 1.1, 1.2, 1.3, 1.4.
+- **Nächster Schritt:** Unterphase **1.5 – Geräte-Check & Leistungsbudget** (Testseite mit Geräte-Infos und Stresstest, Nutzer testet auf dem Tablet, docs/LEISTUNGSBUDGET.md, Build-Ziel Chrome 111 mit der echten Chrome-Version des Tablets abgleichen)
 
 ## Unterphasen von Phase 1
 
@@ -17,7 +16,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 | 1.1 | Start, Überblick & Grundentscheidungen | ✅ erledigt | 18.11.2026 |
 | 1.2 | Konten, Repository & Verbindung zu Claude | ✅ erledigt | 18.11.2026 |
 | 1.3 | Projektgerüst & leere 3D-Szene | ✅ erledigt | 18.11.2026 |
-| 1.4 | Automatische Veröffentlichung (Hosting) | 🟡 Tablet ✅, Laptop-Test offen | – |
+| 1.4 | Automatische Veröffentlichung (Hosting) | ✅ erledigt (Tablet-Test bestätigt, Laptop entfällt) | 18.11.2026 |
 | 1.5 | Geräte-Check & Leistungsbudget | ⏳ offen | – |
 | 1.6 | Kern-Architektur | ⏳ offen | – |
 | 1.7 | Durchstich, Abnahme & Übergabe | ⏳ offen | – |
@@ -39,12 +38,12 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **Veröffentlichung prüfen:** Jedes Hochladen auf `main` startet den Ablauf „Veröffentlichen“ (`.github/workflows/deploy.yml`, ca. 1 Minute). Den Status liest Claude mit `gh api repos/nicozim14-pixel/kontor-und-krone/actions/runs?per_page=1` (auch `…/runs/<id>/jobs` und `…/deployments` funktionieren).
   - **Nicht möglich aus der Cloud-Umgebung:** die Live-Seite auf github.io öffnen (curl und WebFetch werden blockiert) und die Pages-Einstellungen per API lesen/ändern (`/pages` gesperrt). Die Live-Seite prüft deshalb der Nutzer.
   - Claude darf Workflow-Dateien hochladen (getestet).
-- **Technik-Stand (E-005 bis E-011):** TypeScript 6.0.3 (nicht 7, wegen typescript-eslint), Build-Ziel Chrome 87, Bildschärfe max. doppelte Pixeldichte, Link-Zusatz `?aufloesung=50`, Update-Hinweis über `version.json`. Babylon.js 9 hat „.pure“-Module; wir importieren bewusst die normalen Module (z. B. `@babylonjs/core/Engines/engine`), weil diese ihre Zusatzfunktionen selbst einbinden.
+- **Technik-Stand (E-005 bis E-011):** TypeScript 6.0.3 (nicht 7, wegen typescript-eslint), Build-Ziel Chrome 111 (E-013), Bildschärfe max. doppelte Pixeldichte, Link-Zusatz `?aufloesung=50`, Update-Hinweis über `version.json`. Babylon.js 9 hat „.pure“-Module; wir importieren bewusst die normalen Module (z. B. `@babylonjs/core/Engines/engine`), weil diese ihre Zusatzfunktionen selbst einbinden.
 - **Nutzer-Vorlieben:** Rückfragen immer als anklickbare Auswahl. Prompts zum Einfügen (z. B. für den nächsten Chat) immer in einem eigenen Code-Block, damit es einen Kopieren-Knopf gibt. Kurze Antworten, da oft auf Tablet/Handy gelesen.
 
 ## Offene Fragen
 
-- Laptop-Test aus 1.4 (siehe „Nächster Schritt“).
+- Keine.
 
 ## Bekannte Probleme
 
@@ -55,3 +54,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **18.11.2026 (Chat 1):** Phase 1 gestartet. 1.1 abgeschlossen: Grundbegriffe erklärt, Arbeitstitel „Kontor & Krone“, Repository-Name `kontor-und-krone` und Hosting-Weg (öffentlich + GitHub Pages) entschieden. 1.2 abgeschlossen: Nutzer hat das Repository angelegt, GitHub mit Claude verbunden und die Claude GitHub App installiert. Erster Commit (README, .gitignore, docs/) ist hochgeladen, die README ist auf github.com sichtbar.
 - **18.11.2026 (Chat 2):** 1.3 abgeschlossen: Technik-Bündel (E-005 bis E-008) nach Erklärung bestätigt. Projektgerüst mit Vite 8, TypeScript 6, Babylon.js 9, Prettier, ESLint, Vitest. Leere Szene mit Himmel, Dunst-Horizont, türkisem Meer, Sandwürfel, Sonne und Kreisel-Kamera. Tablet-Grundlagen (Gesten-Sperre, Vollbild-Knopf, Querformat-Hinweis, Auflösungs-Begrenzung), Versionsanzeige, Startprüfung mit deutschem Fehler-Hinweis. Selbst geprüft: 13 Tests grün, Bildschirmfotos und simulierte Maus-/Finger-Bedienung im unsichtbaren Chrome in Ordnung.
   1.4 weitgehend erledigt: Veröffentlichungs-Ablauf mit GitHub Actions (prüft, baut, veröffentlicht), Nutzer hat die Pages-Quelle eingestellt, erste Veröffentlichung erfolgreich. Update-Hinweis „Neue Version verfügbar“ auf Wunsch des Nutzers eingebaut (E-011). Spiel-Link in der README. Tablet-Test vom Nutzer bestätigt; Laptop-Test folgt im nächsten Chat.
+- **18.11.2026 (Chat 3):** Auf Wunsch des Nutzers ist das Spiel jetzt ein **reines Tablet-Spiel**, der Laptop entfällt (E-012). Damit ist 1.4 abgeschlossen. Technische Folgen (E-013): Build-Ziel Chrome 111 statt 87, Maus nur noch für Claudes Tests, 1.5 nur für das Tablet. Alle Dokumente angepasst, auch die Projekt-Dokumente „Grundlagen/Gesamtplan.txt“ und „Phasen/Phase_01_Fundament_und_Setup.txt“ (Prompt-Version 1.1).

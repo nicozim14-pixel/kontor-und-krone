@@ -38,6 +38,6 @@ async function toggleFullscreen(): Promise<void> {
   try {
     await screen.orientation.lock("landscape");
   } catch {
-    // Festhalten des Querformats geht nicht überall (z. B. am Laptop). Das ist kein Problem.
+    // Festhalten des Querformats geht nicht überall (z. B. in manchen Browsern am PC). Das ist kein Problem.
   }
 }

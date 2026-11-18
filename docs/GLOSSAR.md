@@ -20,7 +20,7 @@ Eine parallele Fassung des Codes im Repository. Der Hauptzweig heißt bei uns `m
 Das Umwandeln unseres Codes in fertige Dateien, die ein Browser direkt laden kann. Dabei wird alles zusammengepackt, verkleinert und geprüft. Wie das Drucken eines Buches aus dem Manuskript.
 
 **Build-Ziel**
-Die älteste Browser-Version, für die gebaut wird. Neuere Sprachmittel werden beim Bauen automatisch in ältere „übersetzt“. Bei uns: Chrome 87 und neuer.
+Die älteste Browser-Version, für die gebaut wird. Neuere Sprachmittel werden beim Bauen automatisch in ältere „übersetzt“. Bei uns: Chrome 111 und neuer (E-013).
 
 **Claude GitHub App**
 Eine kleine Erweiterung bei GitHub, die Claude erlaubt, in ausgewählte Repositories zu schreiben. Die Verbindung im Claude-Konto ist wie ein Besucherausweis, die App ist der Schlüssel für ein bestimmtes Repository. Sie lässt sich bei GitHub jederzeit wieder entfernen.

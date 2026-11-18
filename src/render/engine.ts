@@ -10,7 +10,7 @@ export function createRenderEngine(canvas: HTMLCanvasElement, renderScalePercent
     canvas,
     true, // Kantenglättung
     {
-      // Auf Laptops mit zwei Grafikchips den stärkeren wählen
+      // Bittet den Browser um volle Grafikleistung statt Stromsparbetrieb
       powerPreference: "high-performance",
       preserveDrawingBuffer: false,
       stencil: true,

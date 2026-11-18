@@ -3,7 +3,7 @@
 Ein barockes Insel-Aufbauspiel im Browser, inspiriert von Anno 1701:
 Wirtschaft, Schönbauen und Handel, ganz ohne Militär, als Endlosspiel.
 
-- **Geräte:** Google Chrome im Querformat auf einem Android-Tablet (Touch) und einem älteren Windows-Laptop (Maus)
+- **Gerät:** reines Tablet-Spiel: Google Chrome im Querformat auf einem Android-Tablet (Touch)
 - **Technik:** Babylon.js (3D im Browser), TypeScript, Vite
 - **Zweck:** privates Hobbyprojekt, keine Veröffentlichung in App-Stores
 
@@ -14,9 +14,7 @@ Wirtschaft, Schönbauen und Handel, ganz ohne Militär, als Endlosspiel.
 Jede Änderung auf dem Hauptzweig `main` wird automatisch geprüft, gebaut und nach etwa 1–2 Minuten unter diesem Link veröffentlicht.
 Unten rechts im Spiel steht die Version (Bauzeitpunkt + Commit-Kürzel). Ist online eine neuere Version, erscheint oben der Hinweis „Neue Version verfügbar – tippen zum Laden“.
 
-Notfalls von Hand neu laden:
-- **Tablet (Chrome):** oben rechts auf **⋮** tippen, dann auf den runden Pfeil **↻**
-- **Laptop (Chrome):** **Strg + F5** (lädt alles frisch vom Server)
+Notfalls von Hand neu laden: in Chrome oben rechts auf **⋮** tippen, dann auf den runden Pfeil **↻**.
 
 ## Aktueller Stand
 

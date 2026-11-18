@@ -1,5 +1,5 @@
 > **Hinweis:** Kopie des Projekt-Dokuments „Grundlagen/Gesamtplan.txt“, Stand 18.11.2026.
-> Inhalt unverändert, nur für die Anzeige auf GitHub als Markdown formatiert.
+> Für die Anzeige auf GitHub als Markdown formatiert. Am 18.11.2026 angepasst: reines Tablet-Spiel, der Laptop entfällt (E-012).
 
 # GESAMTPLAN – Barockes Insel-Aufbauspiel im Browser
 
@@ -8,11 +8,10 @@ Bei Widersprüchen gilt dieser Gesamtplan (er ersetzt die Unity-Vorgaben des Mas
 
 ## 1. GRUNDSATZENTSCHEIDUNGEN
 
-- Plattform: Browser (Google Chrome) im Querformat auf
-  - einem Android-Tablet (Budget-Modell, relativ neu) – Hauptgerät für Touch
-  - einem sehr alten Windows-Laptop – schwächstes Gerät
-
-  Das schwächere Gerät legt die Leistungsgrenzen fest.
+- Plattform: reines Tablet-Spiel. Browser (Google Chrome) im Querformat auf
+  einem Android-Tablet (Budget-Modell, relativ neu), Bedienung per Touch.
+  Das Tablet legt die Leistungsgrenzen fest. (Der ursprünglich zusätzlich
+  geplante alte Windows-Laptop entfällt seit 18.11.2026, siehe E-012.)
 - Technik: Babylon.js (3D-Engine für den Browser) + TypeScript + Vite.
   Ersetzt Unity/C# aus dem Masterplan.
 - Arbeitsweise: Claude schreibt den gesamten Code in der Cloud und speichert
@@ -30,7 +29,7 @@ Bei Widersprüchen gilt dieser Gesamtplan (er ersetzt die Unity-Vorgaben des Mas
 | --- | --- |
 | Unity URP / C# | Babylon.js / TypeScript |
 | ScriptableObjects | JSON-Datendateien mit Prüfschema |
-| Unity New Input System | Babylon.js-Zeigerereignisse (Touch + Maus) |
+| Unity New Input System | Babylon.js-Zeigerereignisse (Touch) |
 | GPU Instancing | Thin Instances |
 | Object Pooling | bleibt gleich |
 | Spielstände JSON/Binary | Browser-Speicher (IndexedDB) + Export/Import als Datei |
@@ -91,7 +90,7 @@ Fehlerbehebung, Aufräumen des Codes.
 *Masterplan: 8.1 + Feinschliff*
 
 **Phase 10 – Optimierung & Abschluss**
-Messen und Optimieren auf beiden Geräten, Ladezeiten, Offline-Fähigkeit
+Messen und Optimieren auf dem Tablet, Ladezeiten, Offline-Fähigkeit
 und App-Symbol (PWA), finale Version.
 *Masterplan: 8.3 + Release*
 
@@ -101,14 +100,14 @@ und App-Symbol (PWA), finale Version.
   Er wird in einen neuen Chat in diesem Claude-Projekt eingefügt.
 - Größere Phasen brauchen mehrere Chats: einfach denselben Prompt erneut
   einfügen. Der Fortschritt steht in docs/FORTSCHRITT.md im Repository.
-- Am Ende jeder Phase: Leistungs-Check auf Tablet und Laptop,
+- Am Ende jeder Phase: Leistungs-Check auf dem Tablet,
   Abnahme-Checkliste, Git-Tag (z. B. „phase-1“).
 - Alle Entscheidungen werden mit Vor- und Nachteilen in
   docs/ENTSCHEIDUNGEN.md festgehalten.
 
 ## 5. OFFENE ENTSCHEIDUNGEN FÜR SPÄTER
 
-- Spielstände zwischen Laptop und Tablet übertragen
+- Spielstände außerhalb des Tablets sichern, z. B. für ein neues Tablet
   (Datei-Export/Import oder Online-Speicher) → Phase 3 bzw. 7
 - Herkunft der Musik (z. B. gemeinfreie Barock-Aufnahmen) und der
   Erzählerstimme → Phase 8

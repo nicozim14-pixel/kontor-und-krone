@@ -3,12 +3,12 @@
  * Ergänzt die CSS-Regeln in styles.css (touch-action, overscroll-behavior, user-select).
  */
 export function preventBrowserGestures(): void {
-  // Langes Drücken (Tablet) bzw. Rechtsklick (Laptop) öffnet kein Browser-Menü
+  // Langes Drücken öffnet kein Browser-Menü (am PC ebenso wenig ein Rechtsklick)
   document.addEventListener("contextmenu", (event) => {
     event.preventDefault();
   });
 
-  // Strg + Mausrad oder Zwei-Finger-Zoom auf dem Touchpad würde die ganze Seite vergrößern
+  // Strg + Mausrad (Tablet mit Tastatur oder Claudes Tests am PC) würde die ganze Seite vergrößern
   window.addEventListener(
     "wheel",
     (event) => {

@@ -9,7 +9,7 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 
 - **Datum:** 18.11.2026 (aus dem Gesamtplan übernommen)
 - **Festgelegt:**
-  - Plattform: Google Chrome im Querformat auf einem Android-Tablet (Budget-Modell, Hauptgerät für Touch) und einem sehr alten Windows-Laptop (schwächstes Gerät)
+  - Plattform: Google Chrome im Querformat auf einem Android-Tablet (Budget-Modell, Hauptgerät für Touch) und einem sehr alten Windows-Laptop (schwächstes Gerät) **→ ersetzt durch E-012: nur noch das Tablet, der Laptop entfällt.**
   - Technik: Babylon.js + TypeScript, Build-Werkzeug Vite, Paketverwaltung npm
   - Arbeitsweise: Claude baut in der Cloud und speichert auf GitHub, jede Änderung wird automatisch veröffentlicht, getestet wird per Link. Auf den eigenen Geräten wird nichts installiert.
   - 3D-Grafik ab Phase 8 aus kostenlosen CC0-Paketen (z. B. KayKit, Quaternius, Kenney), bis dahin Platzhalter-Formen (Greybox)
@@ -80,6 +80,8 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 ---
 
 ## E-006 · Build-Ziel: Chrome 87 und neuer, mit Startprüfung
+
+> **Ersetzt durch E-013** (Build-Ziel Chrome 111, weil der Laptop entfällt). Die Startprüfung bleibt.
 
 - **Datum:** 18.11.2026 · Unterphase 1.3 (Überprüfung in 1.5)
 - **Frage:** Wie alt darf der Browser höchstens sein?
@@ -154,3 +156,38 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Nachteile:** Etwas mehr Code. Alle 2 Minuten eine winzige Abfrage (ca. 100 Byte).
 - **Alternative:** Nur von Hand neu laden (Chrome-Menü ⋮ → ↻).
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-012 · Reines Tablet-Spiel: Der Laptop entfällt
+
+- **Datum:** 18.11.2026 · zwischen Unterphase 1.4 und 1.5
+- **Frage:** Für welche Geräte bauen wir das Spiel? (Anlass: Der Laptop war für den offenen Laptop-Test aus 1.4 nicht zur Hand.)
+- **Gewählt:** **Nur das Android-Tablet** (Google Chrome, Querformat, Touch). Der alte Windows-Laptop ist kein Zielgerät mehr. Ersetzt den Laptop-Teil von E-001.
+- **Andere Optionen:** 1.5 vorerst nur am Tablet testen und den Laptop später nachholen · direkt mit 1.6 weitermachen · warten, bis der Laptop da ist
+- **Vorteile:**
+  - Das Tablet legt jetzt allein die Leistungsgrenzen fest. Ein relativ neues Tablet ist meist deutlich stärker als ein sehr alter Laptop. Dadurch ist mehr Grafik und mehr „Gewusel“ möglich.
+  - Weniger Testaufwand: In jeder Phase gibt es nur noch einen Geräte-Test.
+  - Bedienung, Bildschirmaufteilung und Optimierung können ganz auf Finger und Tablet zugeschnitten werden.
+- **Nachteile:**
+  - Gespielt werden kann nur noch auf dem Tablet. Auf einem PC startet das Spiel zwar meist trotzdem, wird dafür aber weder getestet noch optimiert.
+  - Kommt der Laptop später doch zurück, müsste man Leistung und Bedienung dafür nachträglich prüfen.
+- **Folgen:** 1.4 ist abgeschlossen (der Tablet-Test war bestätigt). Geräte-Check und Leistungsbudget in 1.5 nur für das Tablet. Alle Dokumente (README, Fortschritt, Gesamtplan, Phase-1-Prompt) wurden angepasst. Technische Folgen siehe E-013.
+- **Begründung:** Wahl des Nutzers.
+
+---
+
+## E-013 · Technische Folgen des reinen Tablet-Spiels
+
+- **Datum:** 18.11.2026 · nach E-012
+- **Festgelegt (technisches Bündel, vom Nutzer bestätigt: „Einverstanden“):**
+  1. **Build-Ziel Chrome 111 und neuer** (Vite-Standard „baseline-widely-available“: Chrome/Edge 111, Firefox 114, Safari 16.4; Stand März 2023) statt Chrome 87. Ersetzt E-006. Der Spielcode darf JavaScript-Stand 2022 nutzen (`lib: ES2022`). Die Startprüfung in `index.html` bleibt und nennt jetzt Chrome 111.
+     - *Vorteil:* etwas kleinere und schnellere Dateien, weil weniger umgeschrieben werden muss. Ein aktuelles Android-Tablet bekommt Chrome automatisch aktualisiert und ist weit darüber.
+     - *Nachteil:* Für ein aktuelles Tablet keiner. Sehr alte Browser bekommen den Hinweis „Dein Browser ist zu alt“.
+     - *Alternative:* bei Chrome 87 bleiben (größer, ohne Nutzen).
+     - *Prüfung:* Die Testseite in 1.5 liest die echte Chrome-Version des Tablets aus.
+  2. **Maus bleibt technisch erhalten.** Babylon.js unterstützt Maus und Finger automatisch über dieselben „Zeiger-Ereignisse“. Claude braucht die Maus für die eigenen Tests im unsichtbaren Chrome.
+     - *Vorteil:* kostet nichts, erleichtert die automatischen Prüfungen.
+     - *Nachteil:* keiner. Geplant, getestet und optimiert wird aber nur für das Tablet.
+     - *Alternative:* Maus abschalten. Das bringt keinen Nutzen und erschwert die Tests.
+  3. **Geräte-Check und Leistungsbudget (1.5) nur für das Tablet.** Das Prüf-Skript `npm run screenshot` macht keine Laptop-Bildschirmfotos mehr, sondern nur noch Tablet quer und hoch.

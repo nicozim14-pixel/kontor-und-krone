@@ -25,14 +25,6 @@ interface DeviceCase {
 
 const DEVICES: readonly DeviceCase[] = [
   {
-    name: "laptop",
-    width: 1366,
-    height: 768,
-    deviceScaleFactor: 1,
-    touch: false,
-    expectRotateHint: false,
-  },
-  {
     name: "tablet-quer",
     width: 1280,
     height: 800,
