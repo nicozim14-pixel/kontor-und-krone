@@ -64,3 +64,67 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Wichtig:** Der Spiel-Link ist bei jeder Option für jeden erreichbar, der ihn kennt. Privat bliebe nur der Code.
 - **Folge:** Im Repository dürfen niemals Passwörter, Zugangsschlüssel oder persönliche Daten stehen. Das gilt ohnehin immer.
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung: einfachster Weg für ein privates Hobbyprojekt ohne geheime Inhalte.
+
+---
+
+## E-005 · Paketversionen und TypeScript 6.0 statt 7.0
+
+- **Datum:** 18.11.2026 · Unterphase 1.3
+- **Frage:** Welche Versionen der Werkzeuge nutzen wir?
+- **Gewählt:** Vite 8.3, Babylon.js 9.37 (modulares Paket `@babylonjs/core`), **TypeScript 6.0.3**, Prettier 3.10, ESLint 10.15 mit typescript-eslint 8.73, Vitest 5.1. Alle Versionen fest eingetragen (keine automatischen Updates).
+- **Vorteile:** Alle Werkzeuge passen nachweislich zusammen. Feste Versionen verhindern Überraschungen durch Updates.
+- **Nachteile:** TypeScript 7 (neu geschriebener, deutlich schnellerer Übersetzer) wird noch nicht genutzt. Für das Spiel selbst macht das keinen Unterschied.
+- **Alternative:** TypeScript 7 ohne die gründliche, typbasierte Fehlersuche von ESLint.
+- **Begründung:** typescript-eslint unterstützt laut npm (Stand 18.11.2026) nur TypeScript bis 6.0. Wechsel auf 7, sobald das möglich ist (siehe IDEEN-SPAETER.md). Teil des technischen Bündels, vom Nutzer bestätigt („Einverstanden“).
+
+---
+
+## E-006 · Build-Ziel: Chrome 87 und neuer, mit Startprüfung
+
+- **Datum:** 18.11.2026 · Unterphase 1.3 (Überprüfung in 1.5)
+- **Frage:** Wie alt darf der Browser höchstens sein?
+- **Gewählt:** Gebaut wird für Chrome 87 (Ende 2020) und neuer (`build.target` in `vite.config.ts`). Zusätzlich darf der Spielcode nur Funktionen von JavaScript-Stand 2020 benutzen (`lib: ES2020` in `tsconfig.app.json`). Eine Startprüfung in `index.html` zeigt einen deutschen Hinweis, wenn der Browser zu alt ist.
+- **Vorteile:** Läuft auch auf einem alten Laptop, dessen Chrome nicht mehr ganz aktuell ist (Windows 7/8.1 bekommen z. B. höchstens Chrome 109). Statt einer weißen Seite gibt es eine verständliche Meldung.
+- **Nachteile:** Etwas größere Dateien, weil neue Sprachmittel umgeschrieben werden. Neueste JavaScript-Funktionen stehen im Spielcode nicht zur Verfügung.
+- **Alternative:** Vite-Standard (etwa ab Chrome 111): etwas kleiner, könnte aber den alten Laptop ausschließen.
+- **Prüfung:** Der gebaute Code wurde nach Funktionen durchsucht, die Chrome 87 nicht kennt. Keine gefunden (nur `WeakRef`, das Chrome seit Version 84 kennt). Endgültige Prüfung mit dem echten Laptop in 1.5.
+- **Begründung:** Teil des technischen Bündels, vom Nutzer bestätigt.
+
+---
+
+## E-007 · Vorläufige Kamera: „Kreisel-Kamera“
+
+- **Datum:** 18.11.2026 · Unterphase 1.3
+- **Frage:** Welche Kamera bekommt die leere Test-Szene?
+- **Gewählt:** Babylons ArcRotateCamera („Kreisel-Kamera“): Sie kreist um die Mitte. 1 Finger bzw. Maus ziehen = drehen, 2 Finger spreizen bzw. Mausrad = zoomen. Verschieben ist abgeschaltet.
+- **Vorteile:** Fertig eingebaut, stabil, reicht zum Testen von Touch und Maus.
+- **Nachteile:** Kein Verschieben, keine Anno-typische Steuerung.
+- **Alternative:** Gleich eine eigene Spiel-Kamera bauen. Das gehört aber zu Phase 2 (braucht Insel und Raster).
+- **Begründung:** Teil des technischen Bündels, vom Nutzer bestätigt. Wird in Phase 2 ersetzt.
+
+---
+
+## E-008 · Bildschärfe: höchstens doppelte Pixeldichte
+
+- **Datum:** 18.11.2026 · Unterphase 1.3 (Überprüfung in 1.5)
+- **Frage:** Wie scharf wird die 3D-Szene gezeichnet?
+- **Gewählt:** Die Pixeldichte des Geräts wird genutzt, aber auf das Doppelte begrenzt (`src/render/resolution.ts`). Zum Testen lässt sich die Auflösung per Link-Zusatz senken, z. B. `?aufloesung=50` (erlaubt: 25–100 %).
+- **Vorteile:** Bei dreifacher Pixeldichte müsste der Grafikchip 9-mal so viele Bildpunkte malen wie bei einfacher, bei doppelter nur 4-mal so viele. Das schont das Budget-Tablet deutlich.
+- **Nachteile:** Auf Bildschirmen mit sehr hoher Pixeldichte minimal weniger scharf.
+- **Alternative:** Immer volle Geräte-Auflösung: schärfer, aber langsamer.
+- **Begründung:** Teil des technischen Bündels, vom Nutzer bestätigt. Endgültige Werte nach den Messungen in 1.5.
+
+---
+
+## E-009 · Technische Kleinigkeiten aus 1.3
+
+- **Datum:** 18.11.2026 · Unterphase 1.3
+- **Festgelegt (von Claude, ohne spürbare Folgen für den Nutzer):**
+  - **Vorläufige Ordnerstruktur** unter `src/`: core, sim, data, render, input, ui, debug, je mit kurzer README. Endgültig in 1.6.
+  - **Automatische Tests** liegen direkt neben dem geprüften Code (`name.test.ts`). So findet man sie leicht.
+  - **Prettier** formatiert Code, aber keine Markdown-Dokumente. Die Kopie des Masterplans bleibt so unverändert.
+  - **ESLint-Ausnahme:** Die Regel `no-unsafe-class-instance-assignment` ist für `src/render/` abgeschaltet. Babylon.js baut manche Klassen über „Mixins“ zusammen, und die Regel meldet dort Fehlalarme.
+  - **Fehler-Hinweis auf dem Bildschirm:** Tritt ein Fehler auf, zeigt das Spiel ihn als deutschen Hinweis mit der Bitte um ein Bildschirmfoto. Grund: Auf dem Tablet gibt es keine Entwicklerwerkzeuge, mit denen man Fehler sonst sehen könnte.
+  - **Prüf-Skript** `npm run screenshot`: Claude startet das Spiel in einem unsichtbaren Chrome, macht Bildschirmfotos (Laptop, Tablet quer, Tablet hoch) und meldet Fehler. Die Bilder werden nicht ins Repository gespeichert.
+- **Vorteile:** Einheitlich, gut prüfbar, Fehler werden auch auf dem Tablet sichtbar.
+- **Nachteile:** keine nennenswerten.

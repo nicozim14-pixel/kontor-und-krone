@@ -1,0 +1,9 @@
+# Automatisch erzeugte Dateien
+dist/
+coverage/
+screenshots/
+node_modules/
+package-lock.json
+
+# Dokumentation pflegt Claude von Hand (die Kopie des Masterplans soll unverändert bleiben)
+**/*.md

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Kein Seiten-Zoom durch Finger-Gesten; das Spiel nutzt die ganze Fläche bis in die Ecken -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#1b3a4b" />
+    <meta name="description" content="Kontor & Krone – barockes Insel-Aufbauspiel im Browser" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Kontor &amp; Krone</title>
+
+    <!--
+      Startprüfung in bewusst altem JavaScript, damit sie auch in sehr alten Browsern läuft.
+      1. Zeigt Fehler als deutschen Hinweis an (auf dem Tablet gibt es keine Entwicklerwerkzeuge).
+      2. Merkt, wenn der Browser das eigentliche Spiel gar nicht starten konnte (zu alt).
+    -->
+    <script>
+      (function () {
+        function showError(title, details, canClose) {
+          var box = document.getElementById("boot-error");
+          if (!box) {
+            return;
+          }
+          document.getElementById("boot-error-title").textContent = title;
+          document.getElementById("boot-error-details").textContent = details;
+          document.getElementById("boot-error-close").style.display = canClose ? "" : "none";
+          box.style.display = "flex";
+        }
+        window.kkShowError = function (title, details) {
+          showError(title, details, false);
+        };
+        window.addEventListener("error", function (event) {
+          var message = event && event.message ? event.message : "Unbekannter Fehler";
+          if (message === "Script error." || message.indexOf("ResizeObserver") !== -1) {
+            return;
+          }
+          showError("Ein Fehler ist aufgetreten", message, true);
+        });
+        window.addEventListener("unhandledrejection", function (event) {
+          var reason = event && event.reason;
+          var message = reason && reason.message ? reason.message : String(reason);
+          showError("Ein Fehler ist aufgetreten", message, true);
+        });
+        window.addEventListener("load", function () {
+          if (!window.kkBooted) {
+            var match = navigator.userAgent.match(/Chrome\/(\d+)/);
+            var found = match ? "Chrome " + match[1] : navigator.userAgent;
+            showError(
+              "Dein Browser ist zu alt",
+              "Kontor & Krone braucht Google Chrome ab Version 87. Gefunden: " +
+                found +
+                ". Bitte Chrome aktualisieren.",
+              false
+            );
+          }
+        });
+      })();
+    </script>
+    <script type="module" src="./src/main.ts"></script>
+  </head>
+  <body>
+    <canvas id="game-canvas" aria-label="Spielfläche"></canvas>
+
+    <button id="fullscreen-button" class="hud-button" type="button" aria-label="Vollbild">
+      <svg class="icon-enter" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+      </svg>
+      <svg class="icon-exit" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" />
+      </svg>
+    </button>
+
+    <div id="version" aria-label="Version"></div>
+
+    <div id="rotate-hint" role="alert">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="20" y="6" width="24" height="40" rx="4" />
+        <path d="M14 52a22 22 0 0 0 36 0M44 56l6-4-1 7" />
+      </svg>
+      <p>Bitte ins Querformat drehen</p>
+    </div>
+
+    <div id="boot-error" role="alert">
+      <div class="boot-error-box">
+        <h1 id="boot-error-title"></h1>
+        <p id="boot-error-details" class="allow-select"></p>
+        <p class="boot-error-hint">Bitte mach ein Bildschirmfoto davon und schick es an Claude.</p>
+        <div class="boot-error-actions">
+          <button type="button" onclick="location.reload()">Neu laden</button>
+          <button
+            id="boot-error-close"
+            type="button"
+            onclick="document.getElementById('boot-error').style.display = 'none'"
+          >
+            Schließen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <noscript>Bitte JavaScript aktivieren, um Kontor &amp; Krone zu spielen.</noscript>
+  </body>
+</html>

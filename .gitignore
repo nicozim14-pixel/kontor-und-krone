@@ -6,8 +6,9 @@ dist/
 *.tsbuildinfo
 .vite/
 
-# Testberichte
+# Testberichte und Prüf-Bildschirmfotos
 coverage/
+screenshots/
 
 # Geheime Einstellungen und Zugangsschlüssel: gehören NIE ins Repository
 .env
