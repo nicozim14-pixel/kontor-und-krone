@@ -208,6 +208,10 @@ body {
   font-family: ui-monospace, Consolas, monospace;
   font-size: 14px;
   word-break: break-word;
+  /* Mehrere Fehler (z. B. in den Spieldaten) stehen je in einer eigenen Zeile; lange Listen scrollen */
+  white-space: pre-line;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .boot-error-hint {

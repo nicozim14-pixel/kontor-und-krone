@@ -1,7 +1,8 @@
 # ui – die Bedienoberfläche
 
-Knöpfe, Menüs, Anzeigen und Hinweise über der 3D-Szene.
+Knöpfe, Menüs, Anzeigen und Hinweise über der 3D-Szene, gebaut mit HTML/CSS (E-017).
 
 - Bereits hier: Vollbild-Knopf (`fullscreenButton.ts`), Versionsanzeige (`versionBadge.ts`) und Update-Hinweis (`updateBanner.ts`).
-- Ob die Oberfläche als HTML/CSS oder mit Babylon GUI gebaut wird, entscheiden wir in Unterphase 1.6.
-  Die richtige Oberfläche (Infoleiste, Baumenü) kommt in Phase 3.
+- Die richtige Oberfläche (Infoleiste, Baumenü, Radialmenü) kommt in Phase 3. Ob ein Hilfs-Baukasten (z. B. Preact oder Lit) dazukommt, entscheiden wir dann.
+
+**Regeln (ESLint prüft sie):** kein Babylon.js; liest den Spielzustand nur und schickt Spieler-Aktionen als Befehle an die Simulation.

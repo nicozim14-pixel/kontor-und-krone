@@ -1,4 +1,4 @@
-import type { BuildInfo } from "./buildInfo";
+import type { BuildInfo } from "../core/buildInfo";
 
 /**
  * Erkennt, ob online eine neuere Version des Spiels liegt.

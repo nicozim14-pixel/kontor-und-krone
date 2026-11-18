@@ -1,0 +1,8 @@
+[
+  { "id": "wood", "name": "Holz" },
+  { "id": "Holz", "name": "Holz" },
+  { "id": "tools", "name": 5 },
+  { "id": "fish" },
+  { "id": "bricks", "name": "Ziegel", "price": 3 },
+  { "id": "cloth", "name": "" }
+]

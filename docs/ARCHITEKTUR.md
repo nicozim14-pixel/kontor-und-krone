@@ -4,7 +4,7 @@ Dieses Dokument beschreibt, wie die Teile des Spiels zusammenarbeiten.
 Es gilt für alle Phasen. Wer Code schreibt, hält sich daran; Änderungen werden hier und in [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) festgehalten.
 
 - **Stand:** 18.11.2026 · Unterphase 1.6
-- **Status:** 📝 Entwurf, wartet auf die Zustimmung des Nutzers
+- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6.
 
 ---
 
@@ -54,16 +54,16 @@ Kurz: **Befehle gehen hinein, Ereignisse kommen heraus.** Dazwischen liegt nur d
 
 | Ordner | Aufgabe | darf benutzen |
 | --- | --- | --- |
-| `core/` | Takt, Ereignis-Bus, Zufall, später Speicher-Format und Versionen | nichts anderes |
+| `core/` | Takt (Uhr), Ereignis-Bus, Zufall, Versionsangaben | nichts anderes |
 | `data/` | Spieldaten (JSON), Prüfschemas, Daten-Lader | `core` |
-| `sim/` | Spielzustand, Spielregeln, Befehle | `core`, `data` |
+| `sim/` | Spielzustand, Spielregeln, Befehle, Spielstand-Format | `core`, `data` |
 | `render/` | 3D-Darstellung mit Babylon.js | `core`, `data`, `sim` (nur lesen) |
 | `input/` | Finger-Eingaben in Befehle übersetzen | `core`, `sim`, `render` (um angetippte 3D-Objekte zu finden) |
 | `ui/` | Bedienoberfläche (HTML) | `core`, `data`, `sim` – **kein** Babylon.js |
 | `debug/` | Prüfhilfen (Geräte-Check, Debug-Anzeige) | alles |
-| `app/` | Start, Spiel-Schleife, Versionsprüfung: verbindet alle Teile | alles |
+| `app/` | Start, Spiel-Schleife, Versionsprüfung, Link-Zusätze, später Speichern im Browser: verbindet alle Teile | alles |
 
-`main.ts` ruft nur `app/` auf. Die bisherigen Dateien `core/buildInfo.ts` und `core/updateCheck.ts` ziehen nach `app/` um, weil sie den Browser brauchen.
+`main.ts` ruft nur `app/` auf. `updateCheck.ts` ist von `core/` nach `app/` umgezogen, weil es den Browser braucht.
 
 **Automatische Kontrolle:** ESLint (der „Rechtschreibprüfer“ für Code) prüft diese Tabelle bei jedem Bauen.
 Ein verbotener Import, z. B. Babylon.js in `sim/`, ist ein Fehler. Dann wird auch nichts veröffentlicht.
@@ -98,6 +98,7 @@ Beispiel (vereinfacht, so ähnlich nach Phase 1):
 ```
 
 Die Spielgeschwindigkeit gehört nicht zum Spielzustand, sondern zur Uhr (Abschnitt 5).
+Das Spielstand-Format (Text hin und zurück, Prüfung beim Einlesen, Umwandlung alter Versionen) steht in `sim/save.ts`; das Ablegen im Browser-Speicher kommt in Phase 3.
 
 ## 5. Die Uhr: Wirtschafts-Takt und Zeichen-Takt
 
@@ -115,7 +116,7 @@ Pro Takt rechnet die Simulation einmal alles durch: Produktion, Verbrauch, Steue
 
 **Schutz vor der „Aufhol-Lawine“:** Hängt das Tablet kurz oder war das Spiel im Hintergrund, würde eine einfache Uhr alle verpassten Takte auf einmal nachholen – das Spiel friert ein, holt auf, friert wieder ein.
 Deshalb zählt pro Bild höchstens eine Viertelsekunde echte Zeit. Was darüber liegt, verfällt: Das Spiel läuft dann kurz langsamer, statt zu ruckeln.
-Im Hintergrund (andere App, Bildschirm aus) zeichnet Chrome nichts, also steht das Spiel still. Es verpasst nichts.
+Im Hintergrund (andere App, Bildschirm aus) hält die Spiel-Schleife ganz an, das Spiel steht still und verpasst nichts. Beim Zurückkehren läuft es sofort im eingestellten Tempo weiter (E-018).
 
 **Zeichen-Takt (Darstellung):** höchstens 60 Bilder pro Sekunde (E-015), siehe Abschnitt 9.
 
@@ -176,15 +177,16 @@ Grundlage sind die Zahlen in [LEISTUNGSBUDGET.md](LEISTUNGSBUDGET.md).
 - **Wiederverwenden statt neu erzeugen („Pooling“):** Karren, Figuren, Schiffe und Effekte kommen aus einem Vorrat und gehen danach zurück. Wie Leihfahrräder: Ständiges Neukaufen und Wegwerfen kostet Zeit und führt zu kleinen Rucklern beim „Aufräumen“ des Arbeitsspeichers.
 - **Unbewegliches einfrieren:** Gebäude und Gelände werden als „unbeweglich“ markiert; Babylon.js spart sich dann Rechenarbeit.
 - **Bildraten-Begrenzer:** höchstens 60 Bilder pro Sekunde (E-015). Zum Vergleich am Tablet lässt sich per Link-Zusatz `?fps=45` ein anderer Wert testen.
-- **Ruhebild (Akku schonen):** Bewegt sich nichts im Bild (kein Finger, Kamera steht, keine Animation), wird nur noch gezeichnet, wenn sich etwas ändert, plus ein Kontrollbild pro Sekunde. Sobald ein Finger den Bildschirm berührt oder sich etwas bewegt, sofort wieder bis zu 60 Bilder pro Sekunde.
+- **Ruhebild (Akku schonen):** Bewegt sich 2 Sekunden lang nichts im Bild (kein Finger, Kamera steht, keine Animation), wird nur noch gezeichnet, wenn sich etwas ändert, plus ein Kontrollbild pro Sekunde. Die Spiel-Schleife schlägt dann nur 10-mal pro Sekunde statt bei jeder Bildschirm-Auffrischung; die Simulation rechnet trotzdem im richtigen Tempo. Sobald ein Finger den Bildschirm berührt oder sich etwas bewegt, sofort wieder bis zu 60 Bilder pro Sekunde.
+  **Regel für später:** Alles, was sich bewegt (Animationen, Karren, Wasser), muss das dem Zeichen-Takt melden (`markActivity`), sonst wird es im Ruhebild nur einmal pro Sekunde gezeichnet. Einmalige sichtbare Änderungen melden sich mit `requestRender`.
   Mit viel „Gewusel“ (ab Phase 3) bewegt sich fast immer etwas. Ob es dann zusätzlich einen Akku-Modus nach längerer Untätigkeit gibt, entscheiden wir in Phase 9/10.
 - **Simulation im Haupt-Programm:** Bei 2–8 Takten pro Sekunde ist sie sehr sparsam. Weil sie nichts von der Grafik weiß, könnte sie später in einen eigenen Rechenstrang („Web Worker“) umziehen, falls große Städte das nötig machen (Phase 10).
 
-## 10. Bedienoberfläche: HTML/CSS über der 3D-Szene (Empfehlung)
+## 10. Bedienoberfläche: HTML/CSS über der 3D-Szene
 
-Umgesetzt wird die Oberfläche erst in Phase 3. Die Technik legen wir jetzt fest.
+Entschieden (E-017). Umgesetzt wird die Oberfläche erst in Phase 3.
 
-| | **HTML/CSS über der Szene** (Empfehlung) | **Babylon GUI** (in der 3D-Szene gezeichnet) |
+| | **HTML/CSS über der Szene** (gewählt) | **Babylon GUI** (in der 3D-Szene gezeichnet) |
 | --- | --- | --- |
 | Schrift | gestochen scharf in jeder Größe | wird als Bild gezeichnet, kann leicht unscharf wirken |
 | Gestaltung | mit CSS sehr flexibel, barocke Rahmen, Schriften, Schatten | aufwendiger, weniger Möglichkeiten |
@@ -205,7 +207,7 @@ Ein Hilfs-Baukasten für die Oberfläche (z. B. Preact oder Lit) wird erst in Ph
 
 ## 12. Werkzeug für die Prüfschemas: zod
 
-- **Gewählt (Vorschlag):** zod 4, schlanke Variante `zod/mini`, ca. 6 kB komprimiert.
+- **Gewählt (E-016):** zod 4.6.7, schlanke Variante `zod/mini`, ca. 6 kB komprimiert.
 - **Vorteile:** sehr verbreitet und gut gepflegt; eingebaute deutsche Fehlermeldungen; das Schema liefert gleichzeitig die TypeScript-Typen (eine Quelle statt zwei).
 - **Nachteile:** Die schlanke Variante schreibt sich etwas umständlicher als die volle (27 kB). Die eingebauten Meldungen sind teils holprig („erwartet string“); wir übersetzen die häufigsten selbst in Alltagssprache.
 - **Alternativen:** valibot (ähnlich klein, weniger verbreitet) · ajv mit JSON-Schema (Industriestandard, aber größer und mit englischen Meldungen).
@@ -226,8 +228,30 @@ Ein Hilfs-Baukasten für die Oberfläche (z. B. Preact oder Lit) wird erst in Ph
 Darstellung und Oberfläche prüft Claude mit dem Bildschirmfoto-Skript im unsichtbaren Chrome; das Gefühl am Tablet prüft der Nutzer.
 Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die alte Version online.
 
-## 14. Was wann gebaut wird
+## 14. Wo steht was im Code
 
-- **Unterphase 1.6:** Uhr mit Tempo, Ereignis-Bus, Zufallsgenerator, Spielzustand mit Versionsnummer, Befehls-Grundgerüst, Daten-Lader mit Prüfschema, Bildraten-Begrenzer und Ruhebild, Schichten-Regeln in ESLint – alles mit Tests.
+| Datei | Inhalt |
+| --- | --- |
+| `core/clock.ts` | die Uhr: Wirtschafts-Takt, Tempo, Schutz vor der Aufhol-Lawine |
+| `core/eventBus.ts` | der Ereignis-Bus |
+| `core/random.ts` | Zufall mit Seed (sfc32), Seed aus Zahl oder Wort |
+| `data/validation.ts` | Prüfen mit zod, deutsche Fehlermeldungen |
+| `data/schemas.ts` | die Prüfschemas der Datendateien |
+| `data/gameData.ts` | der Daten-Lader |
+| `data/*.json` | die Spieldaten (`testdata/` enthält absichtlich fehlerhafte Beispiele für die Tests) |
+| `sim/state.ts` | der Spielzustand und seine Versionsnummer |
+| `sim/save.ts` | das Spielstand-Format |
+| `sim/commands.ts` | die Befehle |
+| `sim/events.ts` | die Liste aller Durchsagen |
+| `sim/simulation.ts` | der Spielleiter: `step()` und `execute()` |
+| `render/frameScheduler.ts` | der Zeichen-Takt: Bildraten-Begrenzer und Ruhebild |
+| `render/activity.ts` | meldet Kamera-Bewegungen an den Zeichen-Takt |
+| `app/gameLoop.ts` | die Spiel-Schleife |
+| `app/startGame.ts` | die Regie: baut alles auf und verbindet es |
+| `app/urlOptions.ts` | Link-Zusätze wie `?seed=42` |
+
+## 15. Was wann gebaut wird
+
+- **Unterphase 1.6 (erledigt):** Uhr mit Tempo, Ereignis-Bus, Zufallsgenerator, Spielzustand mit Versionsnummer, Spielstand-Format, Befehls-Grundgerüst, Daten-Lader mit Prüfschema, Bildraten-Begrenzer und Ruhebild, Schichten-Regeln in ESLint – alles mit Tests.
 - **Unterphase 1.7:** Test-Ware „Holz“ als echte Datendatei, Test-Betrieb und Test-Lager, Debug-Anzeige.
 - **Später:** Speichern/Laden im Browser-Speicher (Phase 3), Rückgängig (bei Bedarf), Oberflächen-Baukasten (Phase 3).

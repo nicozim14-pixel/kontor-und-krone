@@ -6,8 +6,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 - **Phase:** 1 von 10 – Fundament & Setup
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
-- **Erledigt:** 1.1, 1.2, 1.3, 1.4, 1.5.
-- **Nächster Schritt:** Unterphase **1.6 – Kern-Architektur.** docs/ARCHITEKTUR.md erarbeiten (Schichten, Spielzustand, 0,5-s-Takt, Ereignis-Bus, Befehle, Datendateien mit Prüfschema, Zufall mit Seed, Leistungs-Grundsätze, UI-Empfehlung, Tests), dem Nutzer als verständliche Zusammenfassung vorlegen, Zustimmung einholen, dann das Grundgerüst mit Tests bauen. Dabei beachten: Bildraten-Begrenzer 60 FPS (E-015) und gedrosselte Bildrate im Leerlauf gehören in den Zeichen-Takt.
+- **Erledigt:** 1.1, 1.2, 1.3, 1.4, 1.5, 1.6.
+- **Nächster Schritt:** Unterphase **1.7 – Durchstich, Abnahme & Übergabe.** Test-Ware „Holz“ in `src/data/goods.json` eintragen; Test-Betrieb (neue Datendatei mit Schema, Greybox-Würfel) erzeugt pro Takt eine feste Menge über ein System in `sim/` (Systeme werden der `Simulation` übergeben); Test-Lager zählt mit (`state.storage`). Ein- und ausklappbare Debug-Anzeige: FPS (gezeichnete Bilder pro Sekunde), Takt-Nummer, Holz-Bestand, Dreiecke und Draw Calls, Tempo-Knöpfe Pause/1×/2×/4× (`GameClock.setSpeed`), Seed; dabei mit dem Nutzer am Tablet prüfen, ob 60 FPS bei 90 Hz gleichmäßig wirken (sonst `?fps=45` vergleichen, E-015). Tests für Holz-Verrechnung und Datenprüfung, Leistungs-Check am Tablet, Abnahme-Checkliste, Git-Tag `phase-1`.
 
 ## Unterphasen von Phase 1
 
@@ -18,7 +18,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 | 1.3 | Projektgerüst & leere 3D-Szene | ✅ erledigt | 18.11.2026 |
 | 1.4 | Automatische Veröffentlichung (Hosting) | ✅ erledigt (Tablet-Test bestätigt, Laptop entfällt) | 18.11.2026 |
 | 1.5 | Geräte-Check & Leistungsbudget | ✅ erledigt | 18.11.2026 |
-| 1.6 | Kern-Architektur | ⏳ offen | – |
+| 1.6 | Kern-Architektur | ✅ erledigt | 18.11.2026 |
 | 1.7 | Durchstich, Abnahme & Übergabe | ⏳ offen | – |
 
 ## Wichtige Eckdaten
@@ -42,6 +42,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   - Claude darf Workflow-Dateien hochladen (getestet).
 - **Technik-Stand (E-005 bis E-011):** TypeScript 6.0.3 (nicht 7, wegen typescript-eslint), Build-Ziel Chrome 111 (E-013), Bildschärfe max. doppelte Pixeldichte, Link-Zusatz `?aufloesung=50`, Update-Hinweis über `version.json`. Babylon.js 9 hat „.pure“-Module; wir importieren bewusst die normalen Module (z. B. `@babylonjs/core/Engines/engine`), weil diese ihre Zusatzfunktionen selbst einbinden.
 - **Hinweis für 1.7:** Die Debug-Anzeige soll zusätzlich **Dreiecke und Draw Calls** zeigen (Prüfverfahren aus LEISTUNGSBUDGET.md, Abschnitt 7).
+- **Architektur (E-016):** Bauplan in [ARCHITEKTUR.md](ARCHITEKTUR.md), Abschnitt 14 listet alle Dateien. ESLint überwacht die Schichten-Regeln (wer wen importieren darf; in `core/`, `data/`, `sim/` keine Browser-Zugriffe, kein `Math.random()`, keine Uhrzeit). Alles, was sich bewegt, muss dem Zeichen-Takt `markActivity` melden, sonst greift das Ruhebild.
+- **Prüf-Skript:** `npm run screenshot` prüft jetzt auch die Spiel-Schleife (Takte pro Sekunde, Ruhebild, Aufwachen beim Wischen) über `window.kkStats`.
 - **Links in der Claude-App** öffnen sich in deren eingebautem Browser, nicht in Chrome. Für Tests den Nutzer bitten, den Link zu kopieren und in der Chrome-App zu öffnen.
 - **Nutzer-Vorlieben:** Rückfragen immer als anklickbare Auswahl. Prompts zum Einfügen (z. B. für den nächsten Chat) immer in einem eigenen Code-Block, damit es einen Kopieren-Knopf gibt. Kurze Antworten, da oft auf Tablet/Handy gelesen.
 
@@ -51,7 +53,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 ## Bekannte Probleme
 
-- Keine. (Hinweis: Das Spiel lädt für die leere Szene ca. 265 kB komprimiert; das Budget dafür wird in 1.5 festgelegt.)
+- Keine. (Download beim Start: ca. 271 kB komprimiert, Budget 1 MB.)
 
 ## Verlauf
 
@@ -61,3 +63,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **18.11.2026 (Chat 3):** Auf Wunsch des Nutzers ist das Spiel jetzt ein **reines Tablet-Spiel**, der Laptop entfällt (E-012). Damit ist 1.4 abgeschlossen. Technische Folgen (E-013): Build-Ziel Chrome 111 statt 87, Maus nur noch für Claudes Tests, 1.5 nur für das Tablet. Alle Dokumente angepasst, auch die Projekt-Dokumente „Grundlagen/Gesamtplan.txt“ und „Phasen/Phase_01_Fundament_und_Setup.txt“ (Prompt-Version 1.1).
   1.5 begonnen: Testseite `check.html` (Geräte-Angaben + Belastungstest mit 16 Stufen: 500/2.000/10.000/30.000 Greybox-Bäume als Thin Instances, mit/ohne Schatten, volle/halbe Auflösung; Zeitlimit, Abbrechen, Schutz gegen Einfrieren, kopierbarer Ergebnistext). Selbst geprüft im unsichtbaren Chrome (Schnelldurchlauf `?schnell`), 39 Tests grün.
   1.5 abgeschlossen: Messfehler beim Start des Tests behoben (Vollbild-Wechsel abwarten, Vorwärmen), Draw-Call-Stufen ergänzt. Test in Google Chrome 157 auf dem Tablet: 10.000 Bäume mit Schatten bei voller Auflösung = 49 FPS, 1.000 Draw Calls = 90 FPS. docs/LEISTUNGSBUDGET.md geschrieben und vom Nutzer bestätigt (E-014); Bildraten-Begrenzer 60 FPS gewählt (E-015). Projekt in claude.ai vom Nutzer in „Anno 1701 like Browser Game Tablet“ umbenannt.
+- **18.11.2026 (Chat 4):** 1.6 abgeschlossen. docs/ARCHITEKTUR.md mit Brettspiel-Vergleich und Diagramm geschrieben; Nutzer hat zugestimmt (E-016), dazu Bedienoberfläche mit HTML/CSS (E-017) und „läuft beim Zurückkehren sofort weiter“ (E-018). Grundgerüst gebaut: Uhr mit Tempo und Schutz vor der Aufhol-Lawine, Ereignis-Bus, Zufall mit Seed (sfc32, getrennte Ströme), Spielzustand mit Versionsnummer und Spielstand-Format, Befehle (Test-Befehl `debugAddGoods`), Daten-Lader mit zod und deutschen Fehlermeldungen, eigene Spiel-Schleife mit Bildraten-Begrenzer 60 FPS und Ruhebild, Schichten-Regeln in ESLint (mit Probedateien geprüft). 95 Tests grün; im unsichtbaren Chrome: 6 Takte in 3 s, Ruhebild 2 Bilder in 2 s, beim Wischen 60 Bilder pro Sekunde.

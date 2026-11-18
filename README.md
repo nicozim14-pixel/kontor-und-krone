@@ -29,6 +29,8 @@ Was erledigt ist und was als Nächstes kommt, steht in [docs/FORTSCHRITT.md](doc
 | --- | --- |
 | [docs/FORTSCHRITT.md](docs/FORTSCHRITT.md) | Wo wir stehen, nächster Schritt, offene Fragen |
 | [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md) | Alle Entscheidungen mit Vor- und Nachteilen |
+| [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) | Der Bauplan: wie die Teile des Spiels zusammenarbeiten |
+| [docs/LEISTUNGSBUDGET.md](docs/LEISTUNGSBUDGET.md) | Was das Tablet leistet und welche Grenzen gelten |
 | [docs/GLOSSAR.md](docs/GLOSSAR.md) | Fachbegriffe in Alltagssprache |
 | [docs/IDEEN-SPAETER.md](docs/IDEEN-SPAETER.md) | Ideen für spätere Phasen |
 | [docs/MASTERPLAN.md](docs/MASTERPLAN.md) | Die vollständige Spielidee |
@@ -48,6 +50,8 @@ Voraussetzung: Node.js ab Version 22.12. Einmalig `npm install`, danach:
 | `npm run format` | Formatiert den Code einheitlich |
 | `npm run screenshot` | Bildschirmfotos im unsichtbaren Chrome (nach `build`; Chrome-Pfad über `CHROME_PATH`) |
 
-Aufbau des Codes: siehe die READMEs in den Ordnern unter `src/`.
+Aufbau des Codes: siehe [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) und die READMEs in den Ordnern unter `src/`.
+
+Link-Zusätze zum Testen: `?seed=42` (Startnummer der Welt), `?fps=45` (Höchst-Bildrate), `?aufloesung=50` (Auflösung in Prozent).
 
 Der gesamte Code wird von Claude geschrieben.

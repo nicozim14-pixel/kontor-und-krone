@@ -219,3 +219,56 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Umsetzung:** im Zeichen-Takt (Unterphase 1.6/1.7), zusammen mit der gedrosselten Bildrate im Leerlauf. Claude prüft die Gleichmäßigkeit mit dem Nutzer am Tablet; wirkt es unruhig, wird 45 FPS als Alternative vorgeschlagen.
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
 
+---
+
+## E-016 · Kern-Architektur
+
+- **Datum:** 18.11.2026 · Unterphase 1.6
+- **Frage:** Nach welchem Bauplan arbeiten die Teile des Spiels zusammen?
+- **Gewählt:** der Bauplan in [ARCHITEKTUR.md](ARCHITEKTUR.md) (technisches Bündel, vom Nutzer bestätigt: „Einverstanden“). Kernpunkte:
+  1. **Schichten als Ordner** (`core`, `data`, `sim`, `render`, `input`, `ui`, `debug`, neu `app` für Start und Spiel-Schleife). Die Simulation weiß nichts von der Grafik. ESLint prüft automatisch, wer wen benutzen darf. In `core/`, `data/` und `sim/` sind Browser-Zugriffe, `Math.random()` und die Uhrzeit verboten.
+     - *Vorteil:* Spielregeln ohne Grafik testbar, Grafik später austauschbar, Fehler in der Aufteilung fallen sofort auf. *Nachteil:* etwas mehr Ordnung nötig, manchmal ein Umweg über Ereignisse.
+  2. **Ein Spielzustand aus einfachen Daten**, Verweise über Kennungen und Nummern, Versionsnummer `saveVersion` mit Umwandlungen für alte Spielstände. Das Spielstand-Format (Text hin und zurück, Prüfung beim Einlesen) liegt in `sim/save.ts`, das Ablegen im Browser-Speicher kommt in Phase 3.
+     - *Vorteil:* Speichern und Laden werden einfach. *Nachteil:* keine bequemen Objekt-Verweise, man schlägt über Nummern nach.
+  3. **Wirtschafts-Takt 0,5 s** mit Tempo Pause/1×/2×/4×; pro Bild zählt höchstens 0,25 s echte Zeit (Schutz vor der Aufhol-Lawine).
+  4. **Bewegungen nach dem Fahrplan-Prinzip** mit weicher Interpolation in der Darstellung, **kein** feinerer Takt.
+     - *Vorteil:* sehr sparsam und trotzdem flüssig. *Nachteil:* Bewegungen müssen als Fahrplan beschreibbar sein (für Karren und Schiffe der Fall).
+  5. **Befehle** werden sofort ausgeführt (auch in der Pause), **Ereignisse** über einen typisierten Ereignis-Bus erst nach einem Takt oder Befehl verteilt.
+  6. **Spieldaten als JSON-Dateien** in `src/data/`, beim Bauen ins Spiel gepackt, geprüft in den Tests und beim Start.
+  7. **Prüfwerkzeug zod 4.6.7**, schlanke Variante `zod/mini` (ca. 6 kB komprimiert), mit eigenen deutschen Fehlermeldungen für die häufigsten Fälle.
+     - *Vorteile:* verbreitet und gepflegt, eingebaute deutsche Meldungen, Schema liefert zugleich die TypeScript-Typen. *Nachteile:* die schlanke Variante schreibt sich etwas umständlicher. *Alternativen:* valibot (ähnlich klein, weniger verbreitet), ajv mit JSON-Schema (größer, englische Meldungen).
+  8. **Zufall:** Verfahren sfc32, Seed als Zahl oder Wort, getrennte Ströme für Kartengenerator und Ereignisse, Zustand im Spielstand.
+  9. **Zeichen-Takt:** Bildraten-Begrenzer 60 FPS (E-015) und **Ruhebild** nach 2 Sekunden ohne Bewegung (nur noch Zeichnen bei Änderungen plus 1 Kontrollbild pro Sekunde; die Spiel-Schleife schlägt dann nur 10-mal pro Sekunde).
+     - *Vorteil:* spart Akku, ohne das Bild beim Zuschauen ruckelig zu machen. *Nachteil:* Was sich bewegt, muss sich als „Bewegung“ melden, sonst würde es im Ruhebild nur einmal pro Sekunde gezeichnet.
+- **Technische Kleinigkeiten (von Claude festgelegt):**
+  - Link-Zusätze zum Testen: `?seed=42` bzw. `?seed=Barock` (ohne Angabe gilt der Seed 1701) und `?fps=45` (erlaubt 10–120) zum Vergleich am Tablet.
+  - `core/updateCheck.ts` ist nach `app/` umgezogen, weil es den Browser braucht. `core/buildInfo.ts` bleibt in `core/`.
+  - Die Spiel-Schleife ist eine eigene (statt Babylons `runRenderLoop`), damit Begrenzer, Ruhebild und Stillstand im Hintergrund zusammenpassen.
+  - Vorläufiges Test-Lager im Spielzustand und der Test-Befehl `debugAddGoods`, um Befehle schon jetzt prüfen zu können.
+- **Begründung:** Vom Nutzer bestätigt, entsprach der Empfehlung.
+
+---
+
+## E-017 · Bedienoberfläche mit HTML/CSS über der 3D-Szene
+
+- **Datum:** 18.11.2026 · Unterphase 1.6 (Umsetzung ab Phase 3)
+- **Frage:** Womit wird die Bedienoberfläche (Knöpfe, Menüs, Infoleiste) gebaut?
+- **Gewählt:** **HTML/CSS über der 3D-Szene**
+- **Andere Option:** Babylon GUI (in der 3D-Szene gezeichnet)
+- **Vorteile:** gestochen scharfe Schrift, barocke Gestaltung mit CSS leicht möglich, belastet die 3D-Zeichnung nicht, kein zusätzlicher Download, der Browser regelt Touch und Scrollen.
+- **Nachteile:** Beschriftungen direkt an 3D-Objekten (z. B. Sprechblasen über Gebäuden) brauchen etwas Zusatz-Code zur Umrechnung der Position.
+- **Alternative mit Vor- und Nachteilen:** Babylon GUI: alles in einem Bild, Beschriftungen an 3D-Objekten eingebaut; aber Schrift teils unscharf, ca. 100 kB mehr Download, jedes Element kostet Zeichenleistung.
+- **Offen für Phase 3:** ob ein Hilfs-Baukasten (z. B. Preact oder Lit) dazukommt.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-018 · Verhalten beim Zurückkehren zum Spiel
+
+- **Datum:** 18.11.2026 · Unterphase 1.6
+- **Frage:** Im Hintergrund (andere App, Bildschirm aus) steht die Spielzeit still. Was passiert beim Zurückkehren?
+- **Gewählt:** **Das Spiel läuft sofort weiter** (im eingestellten Tempo). Verpasste Zeit wird nicht nachgeholt.
+- **Andere Option:** automatische Pause, weiter erst nach Tippen auf „Weiter“
+- **Vorteile:** kein zusätzliches Tippen; man verpasst trotzdem nichts, weil die Zeit im Hintergrund stand.
+- **Nachteile:** kein ruhiger Moment zum Orientieren, bevor die Zeit weiterläuft.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung. Lässt sich später leicht als Einstellung anbieten.

@@ -7,7 +7,7 @@
  * Der Pfad zu Chrome lässt sich mit der Umgebungsvariablen CHROME_PATH ändern.
  */
 import { mkdir } from "node:fs/promises";
-import { chromium } from "playwright-core";
+import { chromium, type Page } from "playwright-core";
 import { preview } from "vite";
 
 const CHROME_PATH = process.env.CHROME_PATH ?? "/usr/bin/google-chrome";
@@ -63,6 +63,77 @@ const READ_PAGE_REPORT = `(() => {
     bootErrorVisible: isVisible("boot-error"),
   };
 })()`;
+
+interface LoopStats {
+  readonly tick: number;
+  readonly renderedFrames: number;
+  readonly idle: boolean;
+}
+
+const READ_LOOP_STATS = `(() => {
+  const s = window.kkStats;
+  return s ? { tick: s.tick, renderedFrames: s.renderedFrames, idle: s.idle } : null;
+})()`;
+
+/**
+ * Prüft die Spiel-Schleife im laufenden Spiel (Unterphase 1.6):
+ * Wirtschafts-Takt (2 pro Sekunde), Ruhebild nach 2 Sekunden ohne Bewegung,
+ * sofortiges Aufwachen bei Berührung, Bildraten-Begrenzer.
+ */
+async function checkGameLoop(page: Page): Promise<string[]> {
+  const errors: string[] = [];
+  const read = async (): Promise<LoopStats> => {
+    const stats = await page.evaluate<LoopStats | null>(READ_LOOP_STATS);
+    if (stats === null) {
+      throw new Error("window.kkStats fehlt.");
+    }
+    return stats;
+  };
+
+  const start = await read();
+  await page.waitForTimeout(3000);
+  const afterWait = await read();
+  const ticks = afterWait.tick - start.tick;
+  if (ticks < 5 || ticks > 7) {
+    errors.push(`In 3 Sekunden ${String(ticks)} Takte gerechnet, erwartet etwa 6.`);
+  }
+  if (!afterWait.idle) {
+    errors.push("Nach 3 Sekunden ohne Bewegung ist kein Ruhebild aktiv.");
+  }
+
+  await page.waitForTimeout(2000);
+  const idleEnd = await read();
+  const idleFrames = idleEnd.renderedFrames - afterWait.renderedFrames;
+  if (idleFrames > 4) {
+    errors.push(
+      `Im Ruhebild ${String(idleFrames)} Bilder in 2 Sekunden gezeichnet, erwartet höchstens etwa 2.`,
+    );
+  }
+
+  // Mit dem „Finger“ über die Spielfläche wischen (1 Sekunde lang)
+  await page.mouse.move(640, 400);
+  await page.mouse.down();
+  const beforeDrag = await read();
+  for (let i = 1; i <= 20; i++) {
+    await page.mouse.move(640 + i * 10, 400);
+    await page.waitForTimeout(50);
+  }
+  await page.mouse.up();
+  const afterDrag = await read();
+  const dragFrames = afterDrag.renderedFrames - beforeDrag.renderedFrames;
+  if (afterDrag.idle) {
+    errors.push("Nach dem Wischen ist immer noch Ruhebild.");
+  }
+  if (dragFrames < 10 || dragFrames > 70) {
+    errors.push(`Beim Wischen ${String(dragFrames)} Bilder in ca. 1 Sekunde, erwartet 10 bis 60.`);
+  }
+
+  console.log(
+    `      Schleife: ${String(ticks)} Takte in 3 s · Ruhebild: ${String(idleFrames)} Bilder in 2 s · ` +
+      `beim Wischen: ${String(dragFrames)} Bilder in ca. 1 s`,
+  );
+  return errors;
+}
 
 /**
  * Spielt die Testseite check.html einmal im Schnelldurchlauf durch („?schnell“):
@@ -161,6 +232,10 @@ try {
       errors.push(
         `Querformat-Hinweis ist ${report.rotateHintVisible ? "sichtbar" : "unsichtbar"}, erwartet: ${device.expectRotateHint ? "sichtbar" : "unsichtbar"}.`,
       );
+    }
+
+    if (device.name === "tablet-quer") {
+      errors.push(...(await checkGameLoop(page)));
     }
 
     const status = errors.length === 0 ? "OK" : "PROBLEM";

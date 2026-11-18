@@ -15,4 +15,15 @@ interface Window {
   kkSceneReady?: boolean;
   /** Zeigt einen deutschen Fehler-Hinweis (definiert in index.html). */
   kkShowError?: (title: string, details: string) => void;
+  /** Messwerte des laufenden Spiels für das Prüf-Skript (gesetzt in app/startGame.ts). */
+  kkStats?: {
+    /** Anzahl der gerechneten Wirtschafts-Takte */
+    readonly tick: number;
+    /** Anzahl der gezeichneten Bilder */
+    readonly renderedFrames: number;
+    /** Ist gerade Ruhebild? */
+    readonly idle: boolean;
+    readonly seed: number;
+    readonly maxFps: number;
+  };
 }
