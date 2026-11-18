@@ -6,9 +6,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 - **Phase:** 1 von 10 – Fundament & Setup
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
-- **Erledigt:** 1.1, 1.2, 1.3, 1.4.
-- **In Arbeit:** Unterphase **1.5 – Geräte-Check & Leistungsbudget.** Die Testseite ist fertig und online: https://nicozim14-pixel.github.io/kontor-und-krone/check.html
-- **Nächster Schritt:** Der Nutzer führt den Test auf dem Tablet durch und schickt den kopierten Text. Danach schreibt Claude docs/LEISTUNGSBUDGET.md, erklärt die Zahlen und holt die Bestätigung ein. Dabei das Build-Ziel Chrome 111 mit der Chrome-Version des Tablets abgleichen.
+- **Erledigt:** 1.1, 1.2, 1.3, 1.4, 1.5.
+- **Nächster Schritt:** Unterphase **1.6 – Kern-Architektur.** docs/ARCHITEKTUR.md erarbeiten (Schichten, Spielzustand, 0,5-s-Takt, Ereignis-Bus, Befehle, Datendateien mit Prüfschema, Zufall mit Seed, Leistungs-Grundsätze, UI-Empfehlung, Tests), dem Nutzer als verständliche Zusammenfassung vorlegen, Zustimmung einholen, dann das Grundgerüst mit Tests bauen. Dabei beachten: Bildraten-Begrenzer 60 FPS (E-015) und gedrosselte Bildrate im Leerlauf gehören in den Zeichen-Takt.
 
 ## Unterphasen von Phase 1
 
@@ -18,7 +17,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 | 1.2 | Konten, Repository & Verbindung zu Claude | ✅ erledigt | 18.11.2026 |
 | 1.3 | Projektgerüst & leere 3D-Szene | ✅ erledigt | 18.11.2026 |
 | 1.4 | Automatische Veröffentlichung (Hosting) | ✅ erledigt (Tablet-Test bestätigt, Laptop entfällt) | 18.11.2026 |
-| 1.5 | Geräte-Check & Leistungsbudget | 🟡 Testseite fertig, Tablet-Ergebnis offen | – |
+| 1.5 | Geräte-Check & Leistungsbudget | ✅ erledigt | 18.11.2026 |
 | 1.6 | Kern-Architektur | ⏳ offen | – |
 | 1.7 | Durchstich, Abnahme & Übergabe | ⏳ offen | – |
 
@@ -28,6 +27,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **Repository:** https://github.com/nicozim14-pixel/kontor-und-krone (öffentlich, Hauptzweig `main`; E-003, E-004)
 - **Hosting:** GitHub Pages über GitHub Actions (E-004, E-010). Der Nutzer hat die Pages-Quelle auf „GitHub Actions“ gestellt.
 - **Spiel-Link:** https://nicozim14-pixel.github.io/kontor-und-krone/ (eingerichtet und auf dem Tablet bestätigt)
+- **Geräte-Check:** https://nicozim14-pixel.github.io/kontor-und-krone/check.html (Testseite aus 1.5; `?schnell` = Schnelldurchlauf für Claudes Prüfung)
+- **Tablet:** Samsung SM-X210R (vermutlich Galaxy Tab A9+), Android 16, Chrome 157, Adreno 619, ca. 4 GB, 1920 × 1200, Pixeldichte 1,5, 90 Hz. Budget siehe [LEISTUNGSBUDGET.md](LEISTUNGSBUDGET.md).
 
 ## Hinweise für den nächsten Chat
 
@@ -40,6 +41,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   - **Nicht möglich aus der Cloud-Umgebung:** die Live-Seite auf github.io öffnen (curl und WebFetch werden blockiert) und die Pages-Einstellungen per API lesen/ändern (`/pages` gesperrt). Die Live-Seite prüft deshalb der Nutzer.
   - Claude darf Workflow-Dateien hochladen (getestet).
 - **Technik-Stand (E-005 bis E-011):** TypeScript 6.0.3 (nicht 7, wegen typescript-eslint), Build-Ziel Chrome 111 (E-013), Bildschärfe max. doppelte Pixeldichte, Link-Zusatz `?aufloesung=50`, Update-Hinweis über `version.json`. Babylon.js 9 hat „.pure“-Module; wir importieren bewusst die normalen Module (z. B. `@babylonjs/core/Engines/engine`), weil diese ihre Zusatzfunktionen selbst einbinden.
+- **Hinweis für 1.7:** Die Debug-Anzeige soll zusätzlich **Dreiecke und Draw Calls** zeigen (Prüfverfahren aus LEISTUNGSBUDGET.md, Abschnitt 7).
+- **Links in der Claude-App** öffnen sich in deren eingebautem Browser, nicht in Chrome. Für Tests den Nutzer bitten, den Link zu kopieren und in der Chrome-App zu öffnen.
 - **Nutzer-Vorlieben:** Rückfragen immer als anklickbare Auswahl. Prompts zum Einfügen (z. B. für den nächsten Chat) immer in einem eigenen Code-Block, damit es einen Kopieren-Knopf gibt. Kurze Antworten, da oft auf Tablet/Handy gelesen.
 
 ## Offene Fragen
@@ -57,3 +60,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   1.4 weitgehend erledigt: Veröffentlichungs-Ablauf mit GitHub Actions (prüft, baut, veröffentlicht), Nutzer hat die Pages-Quelle eingestellt, erste Veröffentlichung erfolgreich. Update-Hinweis „Neue Version verfügbar“ auf Wunsch des Nutzers eingebaut (E-011). Spiel-Link in der README. Tablet-Test vom Nutzer bestätigt; Laptop-Test folgt im nächsten Chat.
 - **18.11.2026 (Chat 3):** Auf Wunsch des Nutzers ist das Spiel jetzt ein **reines Tablet-Spiel**, der Laptop entfällt (E-012). Damit ist 1.4 abgeschlossen. Technische Folgen (E-013): Build-Ziel Chrome 111 statt 87, Maus nur noch für Claudes Tests, 1.5 nur für das Tablet. Alle Dokumente angepasst, auch die Projekt-Dokumente „Grundlagen/Gesamtplan.txt“ und „Phasen/Phase_01_Fundament_und_Setup.txt“ (Prompt-Version 1.1).
   1.5 begonnen: Testseite `check.html` (Geräte-Angaben + Belastungstest mit 16 Stufen: 500/2.000/10.000/30.000 Greybox-Bäume als Thin Instances, mit/ohne Schatten, volle/halbe Auflösung; Zeitlimit, Abbrechen, Schutz gegen Einfrieren, kopierbarer Ergebnistext). Selbst geprüft im unsichtbaren Chrome (Schnelldurchlauf `?schnell`), 39 Tests grün.
+  1.5 abgeschlossen: Messfehler beim Start des Tests behoben (Vollbild-Wechsel abwarten, Vorwärmen), Draw-Call-Stufen ergänzt. Test in Google Chrome 157 auf dem Tablet: 10.000 Bäume mit Schatten bei voller Auflösung = 49 FPS, 1.000 Draw Calls = 90 FPS. docs/LEISTUNGSBUDGET.md geschrieben und vom Nutzer bestätigt (E-014); Bildraten-Begrenzer 60 FPS gewählt (E-015). Projekt in claude.ai vom Nutzer in „Anno 1701 like Browser Game Tablet“ umbenannt.

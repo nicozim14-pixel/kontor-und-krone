@@ -33,7 +33,7 @@ Bei Widersprüchen gilt dieser Gesamtplan (er ersetzt die Unity-Vorgaben des Mas
 | GPU Instancing | Thin Instances |
 | Object Pooling | bleibt gleich |
 | Spielstände JSON/Binary | Browser-Speicher (IndexedDB) + Export/Import als Datei |
-| 60 FPS | Ziel-Bildrate wird in Phase 1 nach dem Geräte-Check festgelegt |
+| 60 FPS | höchstens 60 FPS, nie unter 30 (festgelegt in Phase 1, siehe LEISTUNGSBUDGET.md) |
 | Simulations-Takt 0,5 s | bleibt gleich |
 | iPadOS / Android-App | Webseite in Chrome, später als App-Symbol installierbar (PWA) |
 

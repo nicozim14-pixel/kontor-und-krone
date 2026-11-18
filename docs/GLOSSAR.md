@@ -34,6 +34,9 @@ Eine kleine Erweiterung bei GitHub, die Claude erlaubt, in ausgewählte Reposito
 **Commit**
 Ein gespeicherter Zwischenstand des Codes mit einer kurzen Notiz, was sich geändert hat, z. B. „Meer hinzugefügt“. Wie ein Spielstand: Man kann jederzeit zu jedem früheren Commit zurück.
 
+**Draw Call (Zeichenauftrag)**
+Ein einzelner Auftrag des Prozessors an den Grafikchip: „Zeichne dieses Objekt.“ Jeder Auftrag kostet Verwaltungsaufwand, egal wie klein das Objekt ist. Thin Instances fassen viele gleiche Objekte zu einem einzigen Auftrag zusammen.
+
 **Dreieck (Polygon)**
 Jede 3D-Form besteht aus vielen kleinen Dreiecken, wie ein Fußball aus Flicken. Je mehr Dreiecke, desto feiner die Form, aber desto mehr Arbeit für den Grafikchip. Unser Test-Baum hat 88 Dreiecke.
 
@@ -70,6 +73,9 @@ Ein Dienst, der eine Webseite ins Internet stellt, damit man sie über einen Lin
 **Kreisel-Kamera (ArcRotateCamera)**
 Eine einfache Kamera von Babylon.js, die immer auf einen Punkt schaut und darum herumkreist, wie man um ein Modell auf dem Tisch herumgeht. Unsere vorläufige Kamera bis Phase 2.
 
+**Leistungsbudget**
+Verbindliche Obergrenzen dafür, wie viel das Spiel dem Tablet zumuten darf (Bildrate, Dreiecke, Draw Calls, Ladezeit). Wie ein Haushaltsbudget: Jede neue Funktion kostet etwas, und die Summe muss in den Rahmen passen. Steht in `docs/LEISTUNGSBUDGET.md`.
+
 **Link-Zusatz (URL-Parameter)**
 Ein Anhängsel am Ende eines Links nach einem Fragezeichen, z. B. `?aufloesung=50`. Damit kann man einer Webseite eine Einstellung mitgeben, ohne etwas zu installieren.
 
@@ -87,6 +93,9 @@ Ein Werkzeug, das den Code automatisch einheitlich formatiert (Einrückungen, Ze
 
 **Prüfkürzel (Hash)**
 Eine kurze Buchstabenfolge, die aus dem Inhalt einer Datei berechnet wird, z. B. `CfjoKiQ4` in `index-CfjoKiQ4.js`. Ändert sich der Inhalt, ändert sich das Kürzel und damit der Dateiname. So kann der Browser keine veraltete Datei verwenden.
+
+**Qualitätsstufe (Grafik)**
+Eine Sammel-Einstellung für die Bildqualität, bei uns Hoch, Mittel und Niedrig. Niedrigere Stufen sehen etwas schlichter aus, laufen aber flüssiger und sparen Akku.
 
 **README**
 Die „Visitenkarte“ eines Repositorys: eine Textdatei, die GitHub auf der Startseite des Repositorys anzeigt. Sie erklärt, worum es geht.

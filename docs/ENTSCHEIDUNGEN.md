@@ -191,3 +191,31 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
      - *Nachteil:* keiner. Geplant, getestet und optimiert wird aber nur für das Tablet.
      - *Alternative:* Maus abschalten. Das bringt keinen Nutzen und erschwert die Tests.
   3. **Geräte-Check und Leistungsbudget (1.5) nur für das Tablet.** Das Prüf-Skript `npm run screenshot` macht keine Laptop-Bildschirmfotos mehr, sondern nur noch Tablet quer und hoch.
+
+---
+
+## E-014 · Leistungsbudget für das Tablet
+
+- **Datum:** 18.11.2026 · Unterphase 1.5
+- **Frage:** Welche Grenzen gelten für Grafik, Ladezeit und Download, damit das Spiel auf dem Tablet flüssig bleibt?
+- **Gewählt:** das Budget in [LEISTUNGSBUDGET.md](LEISTUNGSBUDGET.md): normal 60 FPS, nie unter 30; sichtbare Dreiecke Richtwert 750.000 / Obergrenze 1 Mio.; Draw Calls 300 / 600; eine Sonne mit Schatten-Karte 1024; Qualitätsstufen Hoch (100 %, Schatten), Mittel (75 %, Schatten), Niedrig (50 %, ohne Schatten); erster Start ≤ 5 s, Programmcode ≤ 1 MB komprimiert, Gesamt-Download ≤ 20 MB.
+- **Grundlage:** Geräte-Check in Google Chrome 157 auf dem Tablet (Samsung SM-X210R, Adreno 619, ca. 4 GB, 1920 × 1200, 90 Hz). Beispiel: 10.000 Bäume (880.000 Dreiecke) mit Schatten bei voller Auflösung = 49 FPS.
+- **Vorteile:** klare Zahlen, gegen die jede neue Funktion geprüft wird. Ca. 40 % Reserve für Wasser, Gelände, Texturen, Figuren, Simulation und Wärme-Drosselung.
+- **Nachteile:** Die Reserve verschenkt etwas mögliche Pracht. Animierte Figuren und Karren sind noch nicht gemessen (folgt in Phase 3 bzw. 8).
+- **Alternative:** knapper an die gemessene Grenze gehen (mehr Objekte, aber Ruckelgefahr in großen Städten und bei warmem Gerät).
+- **Weitere Folgen:** Die Pixeldichte-Grenze 2 aus E-008 bleibt (das Tablet hat 1,5, also volle Schärfe). Das Build-Ziel Chrome 111 aus E-013 passt nachweislich (Tablet: Chrome 157).
+- **Begründung:** Vom Nutzer bestätigt („Einverstanden“), entsprach der Empfehlung.
+
+---
+
+## E-015 · Bildraten-Begrenzer: höchstens 60 Bilder pro Sekunde
+
+- **Datum:** 18.11.2026 · Unterphase 1.5
+- **Frage:** Der Bildschirm des Tablets kann 90 Bilder pro Sekunde. Wie viele soll das Spiel höchstens zeichnen?
+- **Gewählt:** **höchstens 60**
+- **Andere Optionen:** bis zu 90 (am flüssigsten, aber mehr Akku und Wärme) · höchstens 30 (längste Akkulaufzeit, aber spürbar weniger flüssig)
+- **Vorteile:** sehr flüssig, schont Akku, hält das Tablet kühler und verzögert die Wärme-Drosselung.
+- **Nachteile:** minimal weniger flüssig als 90. Bei 90 Hz passt 60 nicht glatt hinein; das kann minimal ungleichmäßig wirken.
+- **Umsetzung:** im Zeichen-Takt (Unterphase 1.6/1.7), zusammen mit der gedrosselten Bildrate im Leerlauf. Claude prüft die Gleichmäßigkeit mit dem Nutzer am Tablet; wirkt es unruhig, wird 45 FPS als Alternative vorgeschlagen.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
