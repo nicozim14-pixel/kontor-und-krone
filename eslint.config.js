@@ -27,9 +27,9 @@ export default defineConfig(
   },
 
   // Babylon.js baut manche Klassen (z. B. StandardMaterial) über „Mixins“ zusammen.
-  // Diese Regel erkennt das nicht und meldet Fehlalarme, deshalb ist sie für render/ aus.
+  // Diese Regel erkennt das nicht und meldet Fehlalarme, deshalb ist sie für render/ und debug/ aus.
   {
-    files: ["src/render/**/*.ts"],
+    files: ["src/render/**/*.ts", "src/debug/**/*.ts"],
     rules: { "@typescript-eslint/no-unsafe-class-instance-assignment": "off" },
   },
 

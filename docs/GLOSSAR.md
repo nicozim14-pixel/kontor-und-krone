@@ -13,6 +13,12 @@ Ein kleines Prüfprogramm, das selbstständig kontrolliert, ob ein Stück Code r
 **Babylon.js**
 Die Browser-3D-Engine, die wir verwenden. Kostenlos, ausgereift und gut für Tablets geeignet.
 
+**Belastungstest (Stresstest)**
+Ein Test, der das Gerät absichtlich immer stärker fordert (z. B. immer mehr Bäume), um zu sehen, wo es anfängt zu ruckeln. Wie ein Probelauf mit immer schwererem Gepäck. Bei uns auf der Testseite `check.html`.
+
+**Bildwiederholrate**
+Wie oft pro Sekunde der Bildschirm ein neues Bild anzeigen kann, meist 60-mal (60 Hz). Mehr Bilder pro Sekunde, als der Bildschirm zeigt, sind nicht möglich.
+
 **Branch („Zweig“)**
 Eine parallele Fassung des Codes im Repository. Der Hauptzweig heißt bei uns `main`. Man kann sich das wie eine Kopie eines Textes vorstellen, an der man in Ruhe arbeitet, bevor man sie übernimmt.
 
@@ -28,11 +34,17 @@ Eine kleine Erweiterung bei GitHub, die Claude erlaubt, in ausgewählte Reposito
 **Commit**
 Ein gespeicherter Zwischenstand des Codes mit einer kurzen Notiz, was sich geändert hat, z. B. „Meer hinzugefügt“. Wie ein Spielstand: Man kann jederzeit zu jedem früheren Commit zurück.
 
+**Dreieck (Polygon)**
+Jede 3D-Form besteht aus vielen kleinen Dreiecken, wie ein Fußball aus Flicken. Je mehr Dreiecke, desto feiner die Form, aber desto mehr Arbeit für den Grafikchip. Unser Test-Baum hat 88 Dreiecke.
+
 **ESLint (Lint)**
 Ein „Rechtschreibprüfer“ für Code. Er findet typische Fehler und unsaubere Stellen, bevor das Spiel läuft. „Lint“ heißt diese Prüfung.
 
 **Fehler 403**
 Eine Rückmeldung eines Servers, die „Zutritt verboten“ bedeutet: Man ist zwar bekannt, darf das Gewünschte aber nicht tun. Bei uns trat er auf, solange die Claude GitHub App noch fehlte.
+
+**FPS (Bilder pro Sekunde)**
+Wie viele Bilder das Spiel pro Sekunde zeichnet. Ab etwa 30 wirkt alles flüssig, darunter beginnt es zu ruckeln. Wie bei einem Daumenkino: Je schneller man blättert, desto flüssiger die Bewegung.
 
 **GitHub**
 Eine Webseite, auf der Repositories gespeichert werden. Dort liegt unser gesamter Code mit allen früheren Fassungen.
@@ -82,8 +94,14 @@ Die „Visitenkarte“ eines Repositorys: eine Textdatei, die GitHub auf der Sta
 **Repository („Repo“)**
 Ein Online-Ordner für den gesamten Code eines Projekts, der sich jede frühere Fassung merkt. Ein Ordner mit eingebauter Zeitmaschine.
 
+**Schatten-Karte**
+Ein unsichtbares Hilfsbild, auf dem die Sonne „sieht“, was im Schatten liegt. Je größer (z. B. 1024 × 1024 Bildpunkte), desto schärfer die Schatten, aber desto mehr Arbeit. Schatten kosten deshalb spürbar Leistung.
+
 **Szene**
 Alles, was in der 3D-Welt existiert: Meer, Insel, Licht, Kamera. Wie eine Theaterbühne mit Kulissen und Scheinwerfern.
+
+**Thin Instances**
+Ein Trick von Babylon.js: Ein Objekt (z. B. ein Baum) wird nur einmal an den Grafikchip geschickt, zusammen mit einer Liste von Positionen. Der Grafikchip zeichnet es dann tausendfach auf einmal. Wie ein Stempel statt tausend einzelner Zeichnungen.
 
 **TypeScript**
 Die Programmiersprache, in der Claude den Code schreibt. Sie ist eine strengere Form von JavaScript (der Sprache aller Webseiten) und findet viele Fehler schon beim Schreiben. Vor dem Veröffentlichen wird sie in JavaScript übersetzt.
@@ -102,6 +120,9 @@ Das Bau-Werkzeug: Es macht aus unserem Code die fertigen Dateien für den Browse
 
 **WebGL**
 Die Technik, mit der ein Browser 3D-Grafik über den Grafikchip zeichnet. Babylon.js nutzt sie. WebGL2 ist die neuere, leistungsfähigere Fassung.
+
+**WebGPU**
+Eine neuere Technik für 3D-Grafik im Browser, der Nachfolger von WebGL. Schneller, aber noch nicht auf allen Geräten verfügbar. Unsere Testseite prüft, ob das Tablet sie kann.
 
 **Zwei-Faktor-Anmeldung (2FA)**
 Ein zweites Schloss für ein Konto: Zusätzlich zum Passwort braucht man einen Code, z. B. aus einer App auf dem Handy. Selbst wer das Passwort kennt, kommt dann nicht hinein.

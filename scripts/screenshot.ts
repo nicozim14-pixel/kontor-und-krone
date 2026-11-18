@@ -64,6 +64,59 @@ const READ_PAGE_REPORT = `(() => {
   };
 })()`;
 
+/**
+ * Spielt die Testseite check.html einmal im Schnelldurchlauf durch („?schnell“):
+ * Geräte-Angaben, Belastungstest mit allen Stufen, kopierbarer Ergebnistext.
+ */
+async function checkDeviceCheckPage(): Promise<number> {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+    deviceScaleFactor: 1.5,
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      errors.push(message.text());
+    }
+  });
+
+  await page.goto(`${url}check.html?schnell`, { waitUntil: "load" });
+  await page.waitForFunction("window.kkCheckInfoReady === true", null, { timeout: 30_000 });
+  await page.screenshot({ path: `${OUTPUT_DIR}/check-info.png`, fullPage: true });
+
+  await page.click("#start-button");
+  // Der Schnelldurchlauf dauert nur wenige Sekunden, deshalb früh fotografieren.
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${OUTPUT_DIR}/check-belastung.png` });
+  if (!(await page.isHidden("#panel"))) {
+    errors.push("Während des Tests ist die Info-Seite noch sichtbar.");
+  }
+  await page.waitForFunction("window.kkCheckDone === true", null, { timeout: 300_000 });
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${OUTPUT_DIR}/check-ergebnis.png`, fullPage: true });
+
+  const report = await page.inputValue("#report");
+  const resultLines = report.split("\n").filter((line) => /^\s?\d+\. /.test(line));
+  if (resultLines.length !== 16) {
+    errors.push(`Erwartet 16 Ergebniszeilen, gefunden: ${String(resultLines.length)}.`);
+  }
+  if (!(await page.isHidden("#error-box"))) {
+    errors.push("Fehler-Hinweis ist sichtbar.");
+  }
+
+  console.log(`${errors.length === 0 ? "OK" : "PROBLEM"}  check.html (Schnelldurchlauf):`);
+  console.log(report.replace(/^/gm, "      "));
+  for (const error of errors) {
+    console.log(`      - ${error}`);
+  }
+  await context.close();
+  return errors.length > 0 ? 1 : 0;
+}
+
 const server = await preview({ logLevel: "warn", preview: { port: 4173 } });
 const url = server.resolvedUrls?.local[0] ?? "http://localhost:4173/";
 const browser = await chromium.launch({
@@ -122,6 +175,8 @@ try {
     }
     await context.close();
   }
+
+  problems += await checkDeviceCheckPage();
 } finally {
   await browser.close();
   await server.close();

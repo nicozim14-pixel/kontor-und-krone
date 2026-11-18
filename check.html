@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1b3a4b" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Geräte-Check · Kontor &amp; Krone</title>
+    <script type="module" src="./src/debug/check/checkPage.ts"></script>
+  </head>
+  <body>
+    <main id="panel">
+      <header>
+        <h1>Geräte-Check</h1>
+        <p class="subtitle">Kontor &amp; Krone · Version <span id="version">…</span></p>
+        <p><a href="./">← zurück zum Spiel</a></p>
+      </header>
+
+      <section>
+        <h2>1. Dein Gerät</h2>
+        <p id="info-status">Wird ausgelesen …</p>
+        <table class="info-table">
+          <tbody id="info-body"></tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>2. Belastungstest</h2>
+        <p>
+          Der Test zeigt nacheinander immer mehr einfache Bäume, mit und ohne Schatten, in voller
+          und halber Auflösung, und misst, wie flüssig das Bild bleibt.
+        </p>
+        <ul class="hints">
+          <li>
+            Tablet im <strong>Querformat</strong> halten und während des Tests nicht berühren.
+          </li>
+          <li>Energiesparmodus möglichst ausschalten, andere Apps schließen.</li>
+          <li>Wird es zu langsam, endet eine Stufe von selbst. „Abbrechen“ geht jederzeit.</li>
+        </ul>
+        <button id="start-button" class="primary" type="button" disabled>Test starten</button>
+        <p id="start-hint" class="hint" role="status"></p>
+
+        <div class="table-scroll">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>Nr.</th>
+                <th>Objekte</th>
+                <th>Schatten</th>
+                <th>Auflösung</th>
+                <th>FPS</th>
+                <th>langsamstes Bild</th>
+                <th>Bewertung</th>
+              </tr>
+            </thead>
+            <tbody id="result-body"></tbody>
+          </table>
+        </div>
+        <p id="result-note" class="hint" role="status"></p>
+        <p class="legend">
+          FPS = Bilder pro Sekunde. ✅ ab 30 flüssig · ⚠️ 20–29 knapp · ❌ unter 20 ruckelig.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. Ergebnis an Claude schicken</h2>
+        <p>Tippe auf „Alles kopieren“ und füge den Text im Chat mit Claude ein.</p>
+        <button id="copy-button" class="primary" type="button">Alles kopieren</button>
+        <span id="copy-status" role="status"></span>
+        <textarea id="report" readonly rows="14" aria-label="Ergebnis als Text"></textarea>
+      </section>
+    </main>
+
+    <canvas id="stress-canvas" hidden aria-label="Belastungstest"></canvas>
+
+    <div id="stress-overlay" hidden>
+      <span id="stress-progress"></span>
+      <span id="stress-fps"></span>
+      <button id="cancel-button" type="button">Abbrechen</button>
+    </div>
+
+    <div id="error-box" role="alert" hidden>
+      <strong>Ein Fehler ist aufgetreten</strong>
+      <p id="error-text"></p>
+      <p>Bitte mach ein Bildschirmfoto davon und schick es an Claude.</p>
+    </div>
+
+    <noscript>Bitte JavaScript aktivieren, um den Geräte-Check zu nutzen.</noscript>
+  </body>
+</html>

@@ -16,6 +16,8 @@ Unten rechts im Spiel steht die Version (Bauzeitpunkt + Commit-Kürzel). Ist onl
 
 Notfalls von Hand neu laden: in Chrome oben rechts auf **⋮** tippen, dann auf den runden Pfeil **↻**.
 
+**Geräte-Check:** https://nicozim14-pixel.github.io/kontor-und-krone/check.html – zeigt, was das Tablet kann, und misst mit einem Belastungstest, wie viel es schafft.
+
 ## Aktueller Stand
 
 Phase 1 von 10: Fundament & Setup.

@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
@@ -61,6 +62,13 @@ export default defineConfig(({ command }) => {
       // Babylon.js allein ist ca. 1,1 MB groß (ca. 265 kB komprimiert übertragen).
       // Warnung erst ab 1,4 MB; das verbindliche Download-Budget folgt in Unterphase 1.5.
       chunkSizeWarningLimit: 1400,
+      rolldownOptions: {
+        // Zwei Seiten: das Spiel und die Testseite für den Geräte-Check (Unterphase 1.5).
+        input: {
+          main: fileURLToPath(new URL("./index.html", import.meta.url)),
+          check: fileURLToPath(new URL("./check.html", import.meta.url)),
+        },
+      },
     },
     test: {
       include: ["src/**/*.test.ts"],

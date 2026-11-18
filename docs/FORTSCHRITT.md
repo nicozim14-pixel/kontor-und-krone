@@ -7,7 +7,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **Phase:** 1 von 10 – Fundament & Setup
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
 - **Erledigt:** 1.1, 1.2, 1.3, 1.4.
-- **Nächster Schritt:** Unterphase **1.5 – Geräte-Check & Leistungsbudget** (Testseite mit Geräte-Infos und Stresstest, Nutzer testet auf dem Tablet, docs/LEISTUNGSBUDGET.md, Build-Ziel Chrome 111 mit der echten Chrome-Version des Tablets abgleichen)
+- **In Arbeit:** Unterphase **1.5 – Geräte-Check & Leistungsbudget.** Die Testseite ist fertig und online: https://nicozim14-pixel.github.io/kontor-und-krone/check.html
+- **Nächster Schritt:** Der Nutzer führt den Test auf dem Tablet durch und schickt den kopierten Text. Danach schreibt Claude docs/LEISTUNGSBUDGET.md, erklärt die Zahlen und holt die Bestätigung ein. Dabei das Build-Ziel Chrome 111 mit der Chrome-Version des Tablets abgleichen.
 
 ## Unterphasen von Phase 1
 
@@ -17,7 +18,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 | 1.2 | Konten, Repository & Verbindung zu Claude | ✅ erledigt | 18.11.2026 |
 | 1.3 | Projektgerüst & leere 3D-Szene | ✅ erledigt | 18.11.2026 |
 | 1.4 | Automatische Veröffentlichung (Hosting) | ✅ erledigt (Tablet-Test bestätigt, Laptop entfällt) | 18.11.2026 |
-| 1.5 | Geräte-Check & Leistungsbudget | ⏳ offen | – |
+| 1.5 | Geräte-Check & Leistungsbudget | 🟡 Testseite fertig, Tablet-Ergebnis offen | – |
 | 1.6 | Kern-Architektur | ⏳ offen | – |
 | 1.7 | Durchstich, Abnahme & Übergabe | ⏳ offen | – |
 
@@ -55,3 +56,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **18.11.2026 (Chat 2):** 1.3 abgeschlossen: Technik-Bündel (E-005 bis E-008) nach Erklärung bestätigt. Projektgerüst mit Vite 8, TypeScript 6, Babylon.js 9, Prettier, ESLint, Vitest. Leere Szene mit Himmel, Dunst-Horizont, türkisem Meer, Sandwürfel, Sonne und Kreisel-Kamera. Tablet-Grundlagen (Gesten-Sperre, Vollbild-Knopf, Querformat-Hinweis, Auflösungs-Begrenzung), Versionsanzeige, Startprüfung mit deutschem Fehler-Hinweis. Selbst geprüft: 13 Tests grün, Bildschirmfotos und simulierte Maus-/Finger-Bedienung im unsichtbaren Chrome in Ordnung.
   1.4 weitgehend erledigt: Veröffentlichungs-Ablauf mit GitHub Actions (prüft, baut, veröffentlicht), Nutzer hat die Pages-Quelle eingestellt, erste Veröffentlichung erfolgreich. Update-Hinweis „Neue Version verfügbar“ auf Wunsch des Nutzers eingebaut (E-011). Spiel-Link in der README. Tablet-Test vom Nutzer bestätigt; Laptop-Test folgt im nächsten Chat.
 - **18.11.2026 (Chat 3):** Auf Wunsch des Nutzers ist das Spiel jetzt ein **reines Tablet-Spiel**, der Laptop entfällt (E-012). Damit ist 1.4 abgeschlossen. Technische Folgen (E-013): Build-Ziel Chrome 111 statt 87, Maus nur noch für Claudes Tests, 1.5 nur für das Tablet. Alle Dokumente angepasst, auch die Projekt-Dokumente „Grundlagen/Gesamtplan.txt“ und „Phasen/Phase_01_Fundament_und_Setup.txt“ (Prompt-Version 1.1).
+  1.5 begonnen: Testseite `check.html` (Geräte-Angaben + Belastungstest mit 16 Stufen: 500/2.000/10.000/30.000 Greybox-Bäume als Thin Instances, mit/ohne Schatten, volle/halbe Auflösung; Zeitlimit, Abbrechen, Schutz gegen Einfrieren, kopierbarer Ergebnistext). Selbst geprüft im unsichtbaren Chrome (Schnelldurchlauf `?schnell`), 39 Tests grün.

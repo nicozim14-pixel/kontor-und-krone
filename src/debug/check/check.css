@@ -1,0 +1,191 @@
+/*
+ * Stil der Testseite check.html.
+ * Anders als das Spiel ist diese Seite eine normale, scrollbare Webseite.
+ */
+
+:root {
+  color-scheme: light;
+  --ink: #1b2a33;
+  --muted: #55656e;
+  --accent: #1b3a4b;
+  --line: #d5dde1;
+  --paper: #f7f4ec;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#panel {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 48px
+    max(20px, env(safe-area-inset-left));
+}
+
+h1 {
+  margin: 8px 0 0;
+  font-size: 1.7rem;
+}
+
+h2 {
+  margin: 28px 0 8px;
+  font-size: 1.25rem;
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 4px;
+}
+
+.subtitle,
+.legend,
+.hint {
+  color: var(--muted);
+}
+
+a {
+  color: var(--accent);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.info-table th {
+  width: 34%;
+  font-weight: 600;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.result-table th {
+  white-space: nowrap;
+  background: #ebe6d8;
+}
+
+.result-table td {
+  white-space: nowrap;
+}
+
+.hints {
+  padding-left: 20px;
+}
+
+button {
+  font: inherit;
+  min-height: 48px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  background: #fff;
+  color: var(--accent);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#copy-status {
+  margin-left: 12px;
+  color: var(--muted);
+}
+
+#report {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: ui-monospace, "Roboto Mono", monospace;
+  font-size: 0.8rem;
+  background: #fff;
+}
+
+/* ---------- Während des Belastungstests ---------- */
+
+#stress-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+#stress-overlay {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 8px 6px 16px;
+  border-radius: 14px;
+  background: rgba(20, 45, 60, 0.75);
+  color: #fff;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+#stress-fps {
+  font-weight: 700;
+  min-width: 4.5em;
+}
+
+#cancel-button {
+  min-height: 40px;
+  padding: 6px 14px;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #fff;
+}
+
+/* ---------- Fehler ---------- */
+
+#error-box {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #7a1f1f;
+  color: #fff;
+  user-select: text;
+}
