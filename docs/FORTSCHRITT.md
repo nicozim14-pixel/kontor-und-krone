@@ -35,7 +35,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   2. Die Claude GitHub App ist installiert und hat Zugriff auf `kontor-und-krone`. Ohne sie kann Claude das Repository nur lesen, und das Hochladen scheitert mit Fehler 403.
 - **Sitzungsstart:** Repository `nicozim14-pixel/kontor-und-krone` mit Schreibzugriff an die Sitzung anhängen, klonen, dann diese Datei lesen.
 - **Für 1.4 prüfen:** ob Claude Workflow-Dateien (`.github/workflows/…`) hochladen darf. Falls nicht, Ausweg wählen (siehe Phase-1-Prompt, Abschnitt 1.4).
-- **Nutzer-Vorlieben:** Rückfragen immer als anklickbare Auswahl; kurze Antworten, da oft auf Tablet/Handy gelesen.
+- **Nutzer-Vorlieben:** Rückfragen immer als anklickbare Auswahl. Prompts zum Einfügen (z. B. für den nächsten Chat) immer in einem eigenen Code-Block, damit es einen Kopieren-Knopf gibt. Kurze Antworten, da oft auf Tablet/Handy gelesen.
 
 ## Offene Fragen
 
