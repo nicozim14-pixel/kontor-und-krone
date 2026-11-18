@@ -16,8 +16,14 @@ Die Browser-3D-Engine, die wir verwenden. Kostenlos, ausgereift und gut für Tab
 **Branch („Zweig“)**
 Eine parallele Fassung des Codes im Repository. Der Hauptzweig heißt bei uns `main`. Man kann sich das wie eine Kopie eines Textes vorstellen, an der man in Ruhe arbeitet, bevor man sie übernimmt.
 
+**Claude GitHub App**
+Eine kleine Erweiterung bei GitHub, die Claude erlaubt, in ausgewählte Repositories zu schreiben. Die Verbindung im Claude-Konto ist wie ein Besucherausweis, die App ist der Schlüssel für ein bestimmtes Repository. Sie lässt sich bei GitHub jederzeit wieder entfernen.
+
 **Commit**
 Ein gespeicherter Zwischenstand des Codes mit einer kurzen Notiz, was sich geändert hat, z. B. „Meer hinzugefügt“. Wie ein Spielstand: Man kann jederzeit zu jedem früheren Commit zurück.
+
+**Fehler 403**
+Eine Rückmeldung eines Servers, die „Zutritt verboten“ bedeutet: Man ist zwar bekannt, darf das Gewünschte aber nicht tun. Bei uns trat er auf, solange die Claude GitHub App noch fehlte.
 
 **GitHub**
 Eine Webseite, auf der Repositories gespeichert werden. Dort liegt unser gesamter Code mit allen früheren Fassungen.
