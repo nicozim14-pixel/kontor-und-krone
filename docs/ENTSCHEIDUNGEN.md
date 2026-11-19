@@ -378,4 +378,20 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 
 ---
 
-**Nächste freie Nummer: E-026**
+## E-026 · Git-Tags legt der Nutzer über die GitHub-Webseite an
+
+- **Datum:** 19.11.2026 · Unterphase 2.2 (Nachtrag zum Abschluss von Phase 1)
+- **Anlass:** Aus Claudes Umgebung lassen sich keine Git-Tags hochladen (`git push` eines Tags: Fehler 403; GitHub-Schnittstelle: „Write access to this GitHub API path is not permitted through this proxy“). Commits und Zweige gehen.
+- **Frage:** Wie setzen wir die Tags am Ende jeder Phase (z. B. `phase-1`)?
+- **Gewählt:** **Der Nutzer legt sie selbst an**, über „Releases → Draft a new release“ auf der GitHub-Webseite (Anleitung von Claude, ca. 2 Minuten pro Phase).
+  - Am Ende einer Phase zeigt `main` auf den Abschluss-Stand; als Ziel („Target“) genügt dann `main`.
+  - Liegt der Abschluss-Stand schon zurück (wie bei `phase-1`), legt Claude vorher einen Hilfs-Zweig `stand-phase-N` auf genau diesen Commit, und der Nutzer wählt ihn als Ziel.
+- **Andere Option:** *Ohne Git-Tags* (Abschluss-Stand nur mit Commit-Kürzel in FORTSCHRITT.md): kein Aufwand, aber kein Lesezeichen direkt auf GitHub.
+- **Vorteile:** offizieller Weg, alles wie im Plan; jeder Phasen-Abschluss ist auf GitHub als „Release“ sichtbar und herunterladbar.
+- **Nachteile:** etwas Aufwand für den Nutzer am Ende jeder Phase.
+- **Sicherheit:** Tags und Neben-Zweige lösen keine Veröffentlichung aus (der Ablauf „Veröffentlichen“ startet nur bei `main`); die Spielseite bleibt unverändert.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung. Claude versucht nicht, die Sperre auf anderem Weg zu umgehen.
+
+---
+
+**Nächste freie Nummer: E-027**

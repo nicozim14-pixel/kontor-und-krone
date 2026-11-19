@@ -51,6 +51,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   1. Claude-Connector „GitHub Integration“ ist verbunden (eingerichtet im Browser über claude.ai/customize/connectors; in der Claude-App fand der Nutzer diesen Punkt nicht).
   2. Die Claude GitHub App ist installiert und hat Zugriff auf `kontor-und-krone`. Ohne sie kann Claude das Repository nur lesen, und das Hochladen scheitert mit Fehler 403.
 - **Sitzungsstart:** Repository `nicozim14-pixel/kontor-und-krone` mit Schreibzugriff an die Sitzung anhängen, klonen, dann diese Datei lesen. Danach `npm install`.
+- **Git-Tags am Phasenende (E-026):** Claude kann keine Tags hochladen. Der Nutzer legt sie mit Claudes Klick-Anleitung über die GitHub-Webseite an (Releases → Draft a new release → Choose a tag → Target → Publish release).
 - **Selbst prüfen:** `npm run check` (lint, test, build), danach `npm run screenshot` (Bildschirmfotos in `screenshots/`, Chrome liegt in der Cloud-Umgebung unter `/usr/bin/google-chrome`).
 - **Veröffentlichung prüfen:** Jedes Hochladen auf `main` startet den Ablauf „Veröffentlichen“ (`.github/workflows/deploy.yml`, ca. 1 Minute). Den Status liest Claude mit `gh api repos/nicozim14-pixel/kontor-und-krone/actions/runs?per_page=1` (auch `…/runs/<id>/jobs` und `…/deployments` funktionieren).
   - **Nicht möglich aus der Cloud-Umgebung:** die Live-Seite auf github.io öffnen (curl und WebFetch werden blockiert) und die Pages-Einstellungen per API lesen/ändern (`/pages` gesperrt). Die Live-Seite prüft deshalb der Nutzer.
@@ -95,7 +96,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 ## Bekannte Probleme
 
-- **Git-Tags lassen sich aus Claudes Umgebung nicht hochladen** (19.11.2026): `git push origin phase-1` endet mit Fehler 403, die GitHub-Schnittstelle meldet „Write access to this GitHub API path is not permitted through this proxy“. Commits auf `main` funktionieren. Der Tag `phase-1` soll auf Commit `06f83f4` zeigen. Lösung mit dem Nutzer klären (z. B. Tag über die GitHub-Webseite anlegen); nicht weiter versuchen, die Sperre zu umgehen.
+- **Git-Tags lassen sich aus Claudes Umgebung nicht hochladen** (Fehler 403). Lösung (E-026): Der Nutzer legt Tags über die GitHub-Webseite an („Releases → Draft a new release“). Für `phase-1` liegt der Hilfs-Zweig `stand-phase-1` auf dem Abschluss-Commit `06f83f4`; der Nutzer wählt ihn als „Target“. **Offen:** Bestätigung des Nutzers, dass `phase-1` angelegt ist (prüfen mit `git ls-remote origin`); danach den Hilfs-Zweig löschen (`git push origin :refs/heads/stand-phase-1`; falls gesperrt, stehen lassen, er stört nicht).
 - Download beim Start: ca. 310 kB komprimiert, Budget 1 MB (Messweise in LEISTUNGSBUDGET.md, Abschnitt 8).
 
 ## Verlauf
