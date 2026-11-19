@@ -4,10 +4,10 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 ## Aktueller Stand
 
-- **Phase:** 1 von 10 – Fundament & Setup
+- **Phase 1 abgeschlossen** (19.11.2026, Git-Tag `phase-1`)
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
-- **Erledigt:** 1.1, 1.2, 1.3, 1.4, 1.5, 1.6; 1.7 bis auf die Bestätigung des Tablet-Tests.
-- **Nächster Schritt:** Der Nutzer testet am Tablet die Schritte 1–6 des Durchstichs (siehe „Offene Fragen“). Meldet er „klappt“, dann: diese Datei auf **„Phase 1 abgeschlossen“** setzen (Status-Tabelle, Abnahme-Checkliste alle Punkte ✅), Git-Tag `phase-1` auf den Stand setzen und hochladen (`git tag -a phase-1 -m "…"`, `git push origin phase-1`). Danach startet Phase 2 in einem neuen Chat mit dem Prompt aus dem Projekt-Dokument „Phasen/Phase_02_Welt_Kamera_Bauen.txt“ (von Claude entworfen, der Nutzer prüft ihn vorher). Meldet er ein Problem: erst beheben, dann abschließen.
+- **Erledigt:** 1.1 bis 1.7, alle Punkte der Abnahme-Checkliste.
+- **Nächster Schritt:** Phase 2 „Greybox-Prototyp: Welt, Kamera & Bauen“ mit dem Prompt aus dem Projekt-Dokument „Phasen/Phase_02_Welt_Kamera_Bauen.txt“.
 
 ## Unterphasen von Phase 1
 
@@ -19,7 +19,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 | 1.4 | Automatische Veröffentlichung (Hosting) | ✅ erledigt (Tablet-Test bestätigt, Laptop entfällt) | 18.11.2026 |
 | 1.5 | Geräte-Check & Leistungsbudget | ✅ erledigt | 18.11.2026 |
 | 1.6 | Kern-Architektur | ✅ erledigt | 18.11.2026 |
-| 1.7 | Durchstich, Abnahme & Übergabe | 🔧 fast fertig: gebaut, selbst geprüft, Leistungs-Check und Rückschau erledigt; Tablet-Test Schritte 1–6 und Git-Tag offen | – |
+| 1.7 | Durchstich, Abnahme & Übergabe | ✅ erledigt (Tablet-Test Schritte 1–6 vom Nutzer bestätigt) | 19.11.2026 |
 
 ## Wichtige Eckdaten
 
@@ -55,10 +55,10 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - ✅ Keine störenden Browser-Gesten; Vollbild und Querformat-Hinweis funktionieren (Nutzer, 19.11.2026)
 - ✅ Geräte-Check durchgeführt; Leistungsbudget dokumentiert und bestätigt (E-014), Leistungs-Check Phase 1 in LEISTUNGSBUDGET.md, Abschnitt 8
 - ✅ docs/ARCHITEKTUR.md erklärt den Aufbau verständlich; Nutzer hat zugestimmt (E-016)
-- ⏳ „Holz“ wird aus einer JSON-Datei geladen, im 0,5-s-Takt verrechnet und in der Debug-Anzeige gezeigt; Pause und Geschwindigkeit funktionieren: **automatisch geprüft (Tests + unsichtbarer Chrome), Bestätigung am Tablet offen**
+- ✅ „Holz“ wird aus einer JSON-Datei geladen, im 0,5-s-Takt verrechnet und in der Debug-Anzeige gezeigt; Pause und Geschwindigkeit funktionieren (automatisch geprüft und vom Nutzer am Tablet bestätigt, 19.11.2026)
 - ✅ build, test und lint fehlerfrei (116 Tests); Tests decken Takt und Datenprüfung ab
 - ✅ docs/ENTSCHEIDUNGEN.md, GLOSSAR.md, FORTSCHRITT.md und IDEEN-SPAETER.md sind aktuell
-- ⏳ Git-Tag „phase-1“ (nach der Bestätigung)
+- ✅ Git-Tag „phase-1“ gesetzt (19.11.2026)
 - ✅ Phase 2 starten: neuer Chat mit dem Prompt aus „Phasen/Phase_02_Welt_Kamera_Bauen.txt“
 
 ## Rückschau Phase 1 (19.11.2026)
@@ -75,7 +75,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 ## Offene Fragen
 
-- **Tablet-Test Durchstich (Nutzer, steht aus):** Spiel-Link in Chrome öffnen. 1. Versionsanzeige endet auf 8f4d13e (oder neuer). 2. Debug-Anzeige oben links, brauner Würfel auf der Insel. 3. Takt und Holz zählen je 2 pro Sekunde und sind gleich groß. 4. Pause hält an, 4× zählt 8 pro Sekunde. 5. Beim Drehen ca. 60 FPS, danach „Ruhebild“ (bereits bestätigt). 6. Knopf mit drei Balken klappt die Anzeige ein und aus.
+- Keine.
 
 ## Bekannte Probleme
 
@@ -92,3 +92,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **18.11.2026 (Chat 4):** 1.6 abgeschlossen. docs/ARCHITEKTUR.md mit Brettspiel-Vergleich und Diagramm geschrieben; Nutzer hat zugestimmt (E-016), dazu Bedienoberfläche mit HTML/CSS (E-017) und „läuft beim Zurückkehren sofort weiter“ (E-018). Grundgerüst gebaut: Uhr mit Tempo und Schutz vor der Aufhol-Lawine, Ereignis-Bus, Zufall mit Seed (sfc32, getrennte Ströme), Spielzustand mit Versionsnummer und Spielstand-Format, Befehle (Test-Befehl `debugAddGoods`), Daten-Lader mit zod und deutschen Fehlermeldungen, eigene Spiel-Schleife mit Bildraten-Begrenzer 60 FPS und Ruhebild, Schichten-Regeln in ESLint (mit Probedateien geprüft). 95 Tests grün; im unsichtbaren Chrome: 6 Takte in 3 s, Ruhebild 2 Bilder in 2 s, beim Wischen 60 Bilder pro Sekunde.
 - **18.11.2026 (Chat 5):** 1.7 begonnen. Durchstich nach Bestätigung des Nutzers gebaut (E-019): Holz und Test-Holzfäller als Datendateien mit Querverweis-Prüfung, Gebäude per Befehl, System „Produktion“, Platzhalter-Würfel in der Inselmitte, Debug-Anzeige mit FPS, Takt, Holz, Dreiecken, Draw Calls, Seed und Tempo-Knöpfen. 116 Tests grün; im unsichtbaren Chrome: Holz = Takte, Pause hält an, 4× = ca. 16 Takte in 2 s.
   Tablet-Test teilweise: Nutzer bestätigt ca. 60 FPS beim Drehen, 60 FPS wirkt gleichmäßiger als 45 (E-015 bleibt), Vollbild, Querformat-Hinweis und Gesten-Sperre funktionieren. Schritte 1–6 testet er später. Leistungs-Check Phase 1 eingetragen (LEISTUNGSBUDGET.md, Abschnitt 8). Rückschau: weniger Rückfragen ab Phase 2 (E-020). Prompt für Phase 2 als Projekt-Dokument entworfen.
+- **19.11.2026 (Chat 6):** Nutzer bestätigt den Tablet-Test des Durchstichs („Test alle ok“). **Phase 1 abgeschlossen**, Git-Tag `phase-1` gesetzt.
