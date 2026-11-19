@@ -6,6 +6,10 @@ Hier wird das Spiel „gerechnet“: Waren, Gebäude, Produktion, Bevölkerung, 
 - `world.ts` – das Kachel-Raster der Welt (Gelände, Höhe, Insel, Baum, Belegung je Kachel) und die Inseln
 - `worldSpace.ts` – Umrechnung Kachel ↔ Position in der 3D-Welt und Höhe in Meter (die einzige Stelle dafür)
 - `footprint.ts` – Grundfläche und Drehung von Gebäuden
+- `worldgen/` – der Weltgenerator: macht aus dem Seed die Inselwelt (Inseln, Küsten, Strände, Berge, Rohstoffe, Fruchtbarkeiten, Wälder), Regeln aus `data/worldgen.json`
+- `newGame.ts` – neue Partie: Spielzustand anlegen und Welt erzeugen
+- `islandStats.ts` – Größe und Mitte jeder Insel
+- `startArea.ts` – Startplatz auf der größten Insel (vorläufig für den Test-Holzfäller)
 - `save.ts` – das Spielstand-Format: Text hin und zurück, Prüfung, Umwandlung alter Versionen
 - `simulation.ts` – der Spielleiter: `step()` rechnet einen Takt, `execute()` führt einen Befehl aus
 - `systems.ts` – Liste aller Systeme (Teile der Spiellogik), die pro Takt in fester Reihenfolge laufen

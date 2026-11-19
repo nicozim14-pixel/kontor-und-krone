@@ -127,3 +127,18 @@ Messungen lassen sich jederzeit wiederholen: https://nicozim14-pixel.github.io/k
 Messweise Download: alle Dateien, die das Spiel bis zum ersten Bild lädt, mit gzip gepackt (so überträgt sie GitHub Pages). Mit derselben Messweise lag der Stand vor Unterphase 1.7 bei 305 kB; der Durchstich kostet also ca. 5 kB.
 Der Geräte-Check `check.html` wurde am 18.11.2026 gemacht (Abschnitt 2) und ist seitdem unverändert; er wird ab Phase 2 am Ende jeder Phase wiederholt.
 **Ergebnis:** Phase 1 liegt weit innerhalb des Budgets. Aussagekräftig wird der Check ab Phase 2 mit Inselwelt und vielen Gebäuden.
+
+## 9. Zwischenstand Phase 2 (Unterphase 2.3, Cloud-Messung)
+
+- **Datum:** 19.11.2026 · Inselwelt mit Wäldern (Seed 1701: 7 Inseln, 2.320 Bäume)
+- **Gemessen im unsichtbaren Chrome** (Dreiecke, Draw Calls und Download hängen nicht vom Gerät ab; die Bildrate dort ist ohne Grafikchip nicht aussagekräftig):
+
+| Messwert | Ergebnis | Budget | Bewertung |
+| --- | --- | --- | --- |
+| Dreiecke pro Bild | ca. 90.000–130.000 (je nach Blick, mit Einblendungen) | 750.000 / 1.000.000 | ✅ |
+| Draw Calls pro Bild | 8–11, mit allen Einblendungen 28 | 300 / 600 | ✅ |
+| Weltgenerator | 35–130 ms | Teil der Ladezeit ≤ 5 s | ✅ |
+| Aufbau der 3D-Szene | ca. 110–140 ms | Teil der Ladezeit ≤ 5 s | ✅ |
+| Programmcode beim Start (Download) | 337 kB komprimiert (26 Dateien) | ≤ 1 MB | ✅ |
+
+Die Bildrate auf dem Tablet misst der Nutzer beim Test von 2.3; der vollständige Leistungs-Check mit vielen Gebäuden folgt in Unterphase 2.7.

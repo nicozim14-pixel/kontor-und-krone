@@ -394,4 +394,37 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 
 ---
 
-**Nächste freie Nummer: E-027**
+## E-027 · Weltgenerator und Greybox-Darstellung der Inselwelt
+
+- **Datum:** 19.11.2026 · Unterphase 2.3
+- **Festgelegt (von Claude, E-020):** technische Umsetzung und **Startwerte für Aussehen und Spielregeln der Welt**. Die Startwerte stehen alle in `src/data/worldgen.json` und lassen sich ohne Programmieren ändern. Ob die Welten gefallen, beurteilt der Nutzer beim Tablet-Test (Abnahme von 2.3); Änderungswünsche werden dann hier nachgetragen.
+- **Technik (Generator in `sim/worldgen/`):**
+  1. **Sechs Schritte:** Inseln planen → Umrisse → Gelände und Höhen → Rohstoffvorkommen → Fruchtbarkeiten → Wälder. Gewürfelt wird nur mit dem Zufalls-Strom „world“. *Warum:* jeder Schritt einzeln verständlich und testbar; ein neues Ereignis im Spiel ändert die Karte zum selben Seed nicht.
+  2. **Inselplatzierung „bester Vorschlag“:** Für jede Insel (die größten zuerst) werden 16 Plätze ausgewürfelt; es gewinnt der mit dem meisten Freiraum zu anderen Inseln und zum Kartenrand. Passt nichts, wird die Insel bis zu viermal um 12 % verkleinert. *Warum:* Inseln verteilen sich gleichmäßig, nie überlappend, und es gibt immer eine Lösung.
+  3. **Unregelmäßige Küsten mit „Rauschen“** (sanfte Zufallsfelder), danach Glätten, nur das größte Landstück behalten, **Seen auffüllen** (vorerst keine Seen). Das Rauschen rechnet nur mit Grundrechenarten, nicht mit Winkelfunktionen, damit jedes Gerät exakt dieselbe Welt baut.
+  4. **Abstände per „Chamfer-Verfahren“** (zwei Durchgänge über die Karte) für Strandbreite, Flachwasser und Bergform. *Warum:* schnell (wenige Millisekunden) und überall gleich.
+  5. **Laufzeit:** in der Cloud-Umgebung 35–130 ms pro Welt (Budget erster Start ≤ 5 s); automatisch getestet (Grenze 1 s).
+- **Startwerte (worldgen.json):**
+  - Karte 256 × 256 Kacheln (E-021), 8 Kacheln Meer am Rand, mindestens 12 Kacheln Wasser zwischen Inseln (Platz für Schiffe ab Phase 4).
+  - Inseln: 1–2 große (64–80 Kacheln breit, 2–3 Gebirge), 2–3 mittlere (46–58, 1–2 Gebirge), 3 kleine (32–42, 0–1 Gebirge), zusammen 6–8.
+  - Strände 1–3 Kacheln breit, Flachwasser 5 Kacheln. Ebenen ganz flach auf 1 m Höhe (E-023). Berge 7–15 m hoch, mindestens 3 Kacheln vom Wasser entfernt; **mindestens 55 % jeder Insel bleiben bebaubare Ebene**.
+  - **Rohstoffvorkommen:** 1 pro Gebirge, **am Fuß des Berges** (dort kann später eine Mine stehen); Häufigkeit Eisenerz 4 : Marmor 3 : Gold 1 : Edelsteine 1; pro Insel jeder Rohstoff höchstens einmal; **jeder Rohstoff kommt auf der Karte mindestens einmal vor**.
+  - **Fruchtbarkeiten:** jede Insel 2–3 von 6; jede Fruchtbarkeit wächst auf mindestens einer Insel; keine Insel hat alle (wird schon beim Laden von worldgen.json geprüft).
+  - **Wälder (E-024):** 40 % der Ebene sind Waldgebiet, darin auf 80 % der Kacheln ein Baum, außerhalb vereinzelt (2 %). Ergibt etwa 1.600–2.500 Bäume.
+- **Darstellung (`render/`):**
+  - **Ein Netz pro Insel** (Land plus Flachwasser drumherum), Höhen auf den Kachel-Ecken; Ecken an einer Ebene liegen genau auf Ebenen-Höhe, damit Bauflächen flach bleiben. Farben aus terrain.json, an den Ecken gemischt.
+  - **Meer aus zwei Flächen:** dunkler Meeresboden und darüber durchscheinendes Wasser (55 % deckend). Nahe der Küste scheint der helle, sandige Boden durch. *Warum:* schöne Lagunen-Farben für nur vier Dreiecke. *Nachteil:* durchscheinende Flächen kosten etwas Zeichenzeit auf dem ganzen Bildschirm; laut Budget unkritisch.
+  - **Bäume als Thin Instances:** ein Modell (Stamm + zwei Kegel, 36 Dreiecke), leicht versetzt, gedreht, unterschiedlich groß und gefärbt. Ein Zeichenauftrag für alle Bäume.
+  - **Noch keine Schatten** (kommen spätestens mit Licht und Wasser in Phase 8, siehe IDEEN-SPAETER.md).
+  - Gemessen im unsichtbaren Chrome: ca. 90.000–130.000 Dreiecke und 8–28 Draw Calls (Budget 750.000 bzw. 300). Download beim Start 337 kB komprimiert (vorher 310 kB; Budget 1 MB).
+- **Übergangslösungen bis 2.4/2.5:**
+  - **Vorläufige Kamera:** die Kreisel-Kamera aus E-007, jetzt für die ganze Karte: 1 Finger dreht, 2 Finger zoomen und verschieben. Sie schaut beim Start auf die größte Insel. Die richtige Spiel-Kamera folgt in 2.4.
+  - **Test-Holzfäller** steht auf einer freien, flachen 3 × 3-Fläche ohne Bäume nahe der Mitte der größten Insel (`sim/startArea.ts`); ab 2.5 wird er gebaut.
+- **Debug-Werkzeuge:** Seed eingeben (Zahl oder Wort) oder „Neue Welt (Zufall)“; beides lädt die Seite mit dem neuen Seed im Link (`?seed=…`), deshalb lässt sich jede Welt per Link teilen und wiederholen. Einblendungen „Raster“, „Rohstoffe“ (leuchtende Kristalle) und „Inseln“ (Schilder mit Größe, Fruchtbarkeiten, Rohstoffen); die Debug-Anzeige merkt sich, welche eingeschaltet sind. Zusammenfassung „Inseln · Bäume · Laufzeit des Generators“.
+- **Prüf-Skript:** macht jetzt auch Bilder vom Überblick und mit Einblendungen, prüft Seed-Laden und „Neue Welt“ und misst die Download-Größe beim Start. Takt und Ruhebild prüft es bei einem Viertel der Auflösung (`?aufloesung=25`), weil die Cloud-Umgebung ohne Grafikchip zeichnet und die volle Inselwelt dort den ganzen Browser bremst.
+- **Vorteile:** abwechslungsreiche Welten, die schon wie Inseln aussehen; alle Regeln in einer Datei; weit im Leistungsbudget.
+- **Nachteile:** Die Startwerte sind Schätzungen und brauchen das Urteil des Nutzers am Tablet. Die vorläufige Kamera ist noch nicht die Anno-typische Steuerung.
+
+---
+
+**Nächste freie Nummer: E-028**

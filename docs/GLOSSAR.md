@@ -70,6 +70,9 @@ Das „Lautsprecher-System“ des Spiels: Die Simulation macht Durchsagen („Ho
 **ESLint (Lint)**
 Ein „Rechtschreibprüfer“ für Code. Er findet typische Fehler und unsaubere Stellen, bevor das Spiel läuft. „Lint“ heißt diese Prüfung.
 
+**Einblendung (Overlay)**
+Eine Zusatz-Anzeige, die man über das Bild legen und wieder wegnehmen kann, z. B. das Kachel-Raster oder die Schilder über den Inseln in der Debug-Anzeige.
+
 **Fahrplan-Prinzip**
 Bewegungen (Karren, Schiffe) werden als Fahrplan gespeichert: Start, Ziel, Abfahrtszeit, Geschwindigkeit. Wie bei der Bahn weiß man damit jederzeit, wo etwas gerade ist, ohne ständig nachzusehen. Spart Rechenzeit.
 
@@ -136,6 +139,9 @@ Verbindliche Obergrenzen dafür, wie viel das Spiel dem Tablet zumuten darf (Bil
 **Link-Zusatz (URL-Parameter)**
 Ein Anhängsel am Ende eines Links nach einem Fragezeichen, z. B. `?aufloesung=50`. Damit kann man einer Webseite eine Einstellung mitgeben, ohne etwas zu installieren.
 
+**Mesh (Netz aus Dreiecken)**
+Die Form eines 3D-Objekts, zusammengesetzt aus vielen kleinen Dreiecken, wie ein Drahtgitter mit Haut. Jede Insel ist bei uns ein einziges Mesh; das kostet nur einen Zeichenauftrag.
+
 **Migration (Spielstand-Umwandlung)**
 Ein kleines Umbau-Programm, das einen alten Spielstand an eine neue Spielversion anpasst. Dafür trägt jeder Spielstand eine Versionsnummer.
 
@@ -165,6 +171,9 @@ Eine Sammel-Einstellung für die Bildqualität, bei uns Hoch, Mittel und Niedrig
 
 **Querverweis**
 Eine Angabe in einer Datendatei, die auf einen Eintrag in einer anderen Datei zeigt. Beispiel: Der Test-Holzfäller in `buildings.json` stellt die Ware „wood“ her, die in `goods.json` stehen muss. Der Daten-Lader prüft, ob jeder Querverweis ein Ziel hat.
+
+**Rauschen (Noise)**
+Ein sanftes Zufallsfeld: eine Landschaft aus Hügeln und Tälern in Zahlenform, ohne harte Sprünge. Der Weltgenerator verbeult damit die Küsten, formt Berge und legt Waldgebiete fest. Gleicher Seed, gleiches Rauschen.
 
 **README**
 Die „Visitenkarte“ eines Repositorys: eine Textdatei, die GitHub auf der Startseite des Repositorys anzeigt. Sie erklärt, worum es geht.
@@ -210,6 +219,9 @@ Ein Trick von Babylon.js: Ein Objekt (z. B. ein Baum) wird nur einmal an den Gra
 
 **TypeScript**
 Die Programmiersprache, in der Claude den Code schreibt. Sie ist eine strengere Form von JavaScript (der Sprache aller Webseiten) und findet viele Fehler schon beim Schreiben. Vor dem Veröffentlichen wird sie in JavaScript übersetzt.
+
+**Transparenz (durchscheinend)**
+Eine Fläche, durch die man hindurchsieht, wie gefärbtes Glas. Unser Wasser ist zu 55 % deckend: Nahe der Küste scheint der helle Sandboden durch, draußen der dunkle Meeresboden.
 
 **Unsichtbarer Chrome (Headless)**
 Ein Chrome-Browser ohne Fenster, den Claude in der Cloud-Umgebung startet, um das Spiel selbst zu prüfen und Bildschirmfotos zu machen.

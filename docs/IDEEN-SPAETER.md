@@ -22,5 +22,10 @@ Jede Idee bekommt ein Datum und, wenn klar, die passende Phase.
 | 19.11.2026 | Prüf-Skript misst die Download-Größe beim Start automatisch (Messweise aus LEISTUNGSBUDGET.md, Abschnitt 8). | Phase 2 oder 8 |
 | 19.11.2026 | Spielstand mit „Legende“: Neben den Gelände-Nummern die Kennungen in ihrer Reihenfolge speichern (z. B. `["deep_water", "shallow_water", …]`) und beim Laden umrechnen. Dann darf `terrain.json` auch umsortiert werden. | Phase 3 (Speichern/Laden) |
 | 19.11.2026 | Spielstand-Prüfung der Welt ergänzen: Inselnummern eindeutig und passend zur Ebene `island`, Fruchtbarkeiten und Rohstoffe aus den Datendateien, Vorkommen auf der Karte, Gebäudenummern in `occupancy` vorhanden. | Phase 3 (Speichern/Laden) |
+| 19.11.2026 | Schatten für Bäume, Berge und Gebäude (eine Sonne, Schatten-Karte 1024, siehe LEISTUNGSBUDGET.md). In Phase 2 noch ohne Schatten; sie würden die Tiefe besser zeigen. | Phase 8 (oder früher, wenn das Bauen davon profitiert) |
+| 19.11.2026 | Seen und Flüsse auf den Inseln (der Generator füllt Seen derzeit auf). | Phase 8 bzw. Endlosspiel-Konfigurator (Phase 7) |
+| 19.11.2026 | Inseln mit Namen (z. B. barocke Namen aus einer Datendatei) statt „Insel 3“. | Phase 3 bzw. 4 |
+| 19.11.2026 | Verschiedene Baumarten (Laub- und Nadelbäume, je nach Fruchtbarkeit oder Klima der Insel). | Phase 8 |
+| 19.11.2026 | Insel-Schilder der Debug-Anzeige überlappen sich im weiten Überblick; die richtige Anzeige im Spiel braucht eine Lösung dafür. | Phase 3 (Oberfläche) |
 
 Bereits bekannte offene Entscheidungen für später stehen im [GESAMTPLAN.md](GESAMTPLAN.md), Abschnitt 5.

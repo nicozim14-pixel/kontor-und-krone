@@ -20,7 +20,7 @@ Notfalls von Hand neu laden: in Chrome oben rechts auf **⋮** tippen, dann auf 
 
 ## Aktueller Stand
 
-Phase 1 von 10: Fundament & Setup.
+Phase 2 von 10: Greybox-Prototyp: Welt, Kamera & Bauen (Phase 1 ist abgeschlossen).
 Was erledigt ist und was als Nächstes kommt, steht in [docs/FORTSCHRITT.md](docs/FORTSCHRITT.md).
 
 ## Dokumente
@@ -52,6 +52,6 @@ Voraussetzung: Node.js ab Version 22.12. Einmalig `npm install`, danach:
 
 Aufbau des Codes: siehe [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) und die READMEs in den Ordnern unter `src/`.
 
-Link-Zusätze zum Testen: `?seed=42` (Startnummer der Welt), `?fps=45` (Höchst-Bildrate), `?aufloesung=50` (Auflösung in Prozent).
+Link-Zusätze zum Testen: `?seed=42` oder `?seed=Barock` (Startnummer der Inselwelt, Zahl oder Wort), `?fps=45` (Höchst-Bildrate), `?aufloesung=50` (Auflösung in Prozent).
 
 Der gesamte Code wird von Claude geschrieben.

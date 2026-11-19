@@ -3,8 +3,8 @@
 Dieses Dokument beschreibt, wie die Teile des Spiels zusammenarbeiten.
 Es gilt für alle Phasen. Wer Code schreibt, hält sich daran; Änderungen werden hier und in [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) festgehalten.
 
-- **Stand:** 19.11.2026 · Unterphase 2.2
-- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6, Durchstich in 1.7 (E-019), Welt-Datenmodell in 2.2 (E-025).
+- **Stand:** 19.11.2026 · Unterphase 2.3
+- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6, Durchstich in 1.7 (E-019), Welt-Datenmodell in 2.2 (E-025), Weltgenerator in 2.3 (E-027).
 
 ---
 
@@ -21,6 +21,7 @@ Stell dir Kontor & Krone als Brettspiel vor, das von einer Fernsehkamera gefilmt
 | **Rundenglocke**, die alle 0,5 Sekunden läutet | **Wirtschafts-Takt** | `core/` |
 | **Lautsprecher-Durchsagen** („Holz +2!“) | **Ereignis-Bus** | `core/` |
 | **Würfel mit Startnummer**: gleiche Nummer, gleiche Würfe | **Zufallsgenerator mit Seed** | `core/` |
+| **Bühnenbildner**, der vor Spielbeginn nach Bauplan die Inseln aufs Brett legt | **Weltgenerator** | `sim/worldgen/` |
 | **Wunschzettel** des Spielers an den Spielleiter („Bitte baue hier einen Holzfäller“) | **Befehle** | `sim/` |
 | **Hände des Spielers** | **Eingabe** (Touch) | `input/` |
 | **Fernsehkamera**, die das Brett hübsch filmt – sie darf nichts verschieben | **Darstellung** (Babylon.js) | `render/` |
@@ -149,6 +150,21 @@ Dazu kommt eine kurze Liste der **Inseln** (`islands`): Nummer, Fruchtbarkeiten 
 - **Reihenfolge in `terrain.json` nicht ändern,** neue Geländearten nur hinten anhängen: Die Kacheln speichern die Position in dieser Liste. Ab Phase 3 bekommt der Spielstand eine „Legende“, dann ist auch Umsortieren sicher (IDEEN-SPAETER.md).
 - **Im Spielstand** steht jede Ebene **lauflängen-kodiert** (`core/runLength.ts`): statt „0, 0, 0, 0, 0“ steht dort „0, 5“ (Wert, Anzahl). Eine Ebene nur aus Meer schrumpft so von 65.536 Zahlen auf 2. Beim Einlesen wird jede Ebene geprüft (Länge, erlaubte Werte).
 
+### 4.2 Der Weltgenerator
+
+Bei einer neuen Partie baut der Weltgenerator (`sim/worldgen/`) aus dem Seed die Inselwelt, wie ein Bühnenbildner in sechs Schritten (E-027):
+
+1. **Inseln planen** (`islandPlan.ts`): wie viele, wie groß, wo. Die größten zuerst, jeweils auf den Platz mit dem meisten Freiraum.
+2. **Umrisse zeichnen** (`landShape.ts`): ein Kreis, dessen Rand ein „Rauschen“ (sanftes Zufallsfeld, `noise.ts`) verbeult; danach glätten, Krümel entfernen, Seen auffüllen.
+3. **Gelände und Höhen** (`terrainShaping.ts`): Flachwasser und tiefes Wasser, Strand an der Küste, Ebene, Gebirge aus mehreren Kuppen. Ebenen sind ganz flach. Abstände (z. B. „wie weit bis zur Küste?“) misst `distance.ts`.
+4. **Rohstoffvorkommen** (`deposits.ts`) am Fuß der Berge.
+5. **Fruchtbarkeiten** (`fertilities.ts`) je Insel, keine Insel hat alle.
+6. **Wälder** (`forests.ts`) auf den Ebenen.
+
+Alle Regeln und Häufigkeiten stehen in `data/worldgen.json`. Gewürfelt wird nur mit dem Zufalls-Strom „world“, deshalb ergibt der gleiche Seed auf jedem Gerät die gleiche Welt. `sim/newGame.ts` legt eine neue Partie an und ruft den Generator auf.
+
+Die Darstellung liest nur das Ergebnis: ein Netz pro Insel (`render/terrainView.ts`), Meeresboden und durchscheinendes Wasser (`render/seaView.ts`), Bäume als Thin Instances (`render/treeView.ts`).
+
 ## 5. Die Uhr: Wirtschafts-Takt und Zeichen-Takt
 
 Das Spiel hat zwei getrennte Takte, wie ein Uhrwerk mit zwei Rädern:
@@ -199,6 +215,7 @@ Waren, Gebäude, Produktionsketten, Bevölkerungsstufen usw. stehen in **JSON-Da
 | `terrain.json` | Geländearten (tiefes Wasser, Flachwasser, Strand, Ebene, Berg) mit Greybox-Farbe; die fünf sind Pflicht, weil Weltgenerator und Bauregeln sie kennen |
 | `resources.json` | Rohstoffvorkommen in den Bergen (Eisenerz, Marmor, Gold, Edelsteine) |
 | `fertilities.json` | Fruchtbarkeiten der Inseln (Kakao, Tabak, Zuckerrohr, Gewürze, Baumwolle, Weinreben) |
+| `worldgen.json` | Regeln des Weltgenerators: Kartengröße, Inselklassen, Küsten, Berge, Häufigkeit der Rohstoffe, Fruchtbarkeiten pro Insel, Wälder (Abschnitt 4.2) |
 
 Englische Namen als feste Kennung, deutsche Texte für die Anzeige:
 
@@ -283,12 +300,16 @@ Ein Hilfs-Baukasten für die Oberfläche (z. B. Preact oder Lit) wird erst in Ph
 | Grundfläche | Drehung in 90°-Schritten, Breite/Tiefe tauschen, belegte Kacheln, Gebäude mittig unter dem Finger |
 | Lauflängen-Kodierung | hin und zurück gleich; kaputte Daten mit deutscher Meldung |
 | Spieldaten | die echten Dateien sind gültig; absichtlich fehlerhafte Beispiel-Dateien (Waren, Gebäude, Gelände) liefern die erwartete deutsche Meldung; Pflicht-Geländearten, unbekannter Untergrund, Farben, höchstens 256 Geländearten |
+| Weltgenerator | gleicher Seed → gleiche Welt, anderer Seed → andere Welt; nur der Strom „world“ wird benutzt; für 12 Seeds alle Regeln (6–8 Inseln, Abstand zum Rand und zwischen Inseln, Küste immer Strand, Ebenen flach, Wasser unter und Land über dem Meeresspiegel, Bäume nur auf Ebenen, genug Baufläche, Fruchtbarkeiten und Vorkommen richtig verteilt); Spielstand hin und zurück; Laufzeit unter 1 s |
+| Rauschen und Abstände | Werte im erlaubten Bereich, gleich für gleiche Eingabe, glatt; Abstände gerade/schräg richtig |
+| Startplatz | freie, flache Fläche ohne Bäume auf der größten Insel |
+| Regeln in worldgen.json | absichtlich fehlerhafte Datei liefert deutsche Meldungen; unbekannte oder fehlende Rohstoffe; keine Insel darf alle Fruchtbarkeiten bekommen können; Inseln müssen auf die Karte passen |
 | Simulation | gleicher Seed + gleiche Befehle → gleiches Ergebnis; Gebäude per Befehl; Produktion pro Takt stimmt |
 | Durchstich | echte Datendateien + Uhr + Simulation: 10 Takte = 10 Holz; Pause erzeugt nichts; 2× und 4× doppelt bzw. viermal so viel |
 | Bildraten-Begrenzer | bei 90 Hz entstehen im Schnitt 60 Bilder pro Sekunde; Ruhebild greift und endet richtig |
 | Schichten-Regeln | ESLint (Abschnitt 3) |
 
-Darstellung und Oberfläche prüft Claude mit dem Bildschirmfoto-Skript im unsichtbaren Chrome (u. a. Holz = Takte, Pause, 4×, Debug-Anzeige ein- und ausklappen); das Gefühl am Tablet prüft der Nutzer.
+Darstellung und Oberfläche prüft Claude mit dem Bildschirmfoto-Skript im unsichtbaren Chrome (u. a. Holz = Takte, Pause, 4×, Debug-Anzeige ein- und ausklappen, Inselwelt mit Überblick und Einblendungen, Seed laden, „Neue Welt“, Download-Größe beim Start); das Gefühl am Tablet prüft der Nutzer.
 Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die alte Version online.
 
 ## 14. Wo steht was im Code
@@ -311,6 +332,10 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 | `sim/footprint.ts` | Grundfläche und Drehung von Gebäuden |
 | `sim/readonly.ts` | schreibgeschützte Sicht für Darstellung und Oberfläche |
 | `sim/save.ts` | das Spielstand-Format |
+| `sim/newGame.ts` | neue Partie: Spielzustand anlegen und Welt erzeugen |
+| `sim/worldgen/` | der Weltgenerator (Abschnitt 4.2) mit seinen Schritten und Tests |
+| `sim/islandStats.ts` | Größe und Mitte jeder Insel |
+| `sim/startArea.ts` | Startplatz auf der größten Insel (vorläufig für den Test-Holzfäller) |
 | `sim/commands.ts` | die Befehle |
 | `sim/events.ts` | die Liste aller Durchsagen |
 | `sim/simulation.ts` | der Spielleiter: `step()` und `execute()` |
@@ -318,9 +343,17 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 | `sim/production.ts` | System „Produktion“ (vorläufig: feste Menge pro Takt) |
 | `render/frameScheduler.ts` | der Zeichen-Takt: Bildraten-Begrenzer und Ruhebild |
 | `render/activity.ts` | meldet Kamera-Bewegungen an den Zeichen-Takt |
-| `render/buildingView.ts` | zeigt Gebäude als Platzhalter-Würfel |
+| `render/worldScene.ts` | baut die 3D-Szene der Inselwelt (Himmel, Licht, Meer, Inseln, Wälder, Kamera) |
+| `render/terrainView.ts` | Gelände: ein Netz pro Insel |
+| `render/seaView.ts` | Meeresboden und durchscheinendes Wasser |
+| `render/treeView.ts` | Bäume als Thin Instances |
+| `render/previewCamera.ts` | vorläufige Kamera bis Unterphase 2.4 |
+| `render/gridOverlay.ts`, `render/depositMarkers.ts` | Einblendungen Raster und Rohstoffe (Debug-Anzeige) |
+| `render/colors.ts` | Farben aus den Datendateien, Mischen, kleine Abweichungen für die Optik |
+| `render/buildingView.ts` | zeigt Gebäude als Platzhalter-Blöcke in der Größe ihrer Grundfläche |
 | `render/renderStats.ts` | misst Dreiecke und Draw Calls |
-| `debug/debugPanel.ts` | die Debug-Anzeige oben links |
+| `debug/debugPanel.ts` | die Debug-Anzeige oben links, mit Welt-Werkzeugen |
+| `debug/islandLabels.ts` | Insel-Schilder mit Größe, Fruchtbarkeiten und Rohstoffen (Debug-Anzeige) |
 | `app/gameLoop.ts` | die Spiel-Schleife |
 | `app/startGame.ts` | die Regie: baut alles auf und verbindet es |
 | `app/urlOptions.ts` | Link-Zusätze wie `?seed=42` |
@@ -330,5 +363,6 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 - **Unterphase 1.6 (erledigt):** Uhr mit Tempo, Ereignis-Bus, Zufallsgenerator, Spielzustand mit Versionsnummer, Spielstand-Format, Befehls-Grundgerüst, Daten-Lader mit Prüfschema, Bildraten-Begrenzer und Ruhebild, Schichten-Regeln in ESLint – alles mit Tests.
 - **Unterphase 1.7 (erledigt):** Test-Ware „Holz“ als echte Datendatei, Gebäudearten mit Querverweis-Prüfung, Test-Holzfäller per Befehl, System „Produktion“, Test-Lager, Debug-Anzeige.
 - **Unterphase 2.2 (erledigt):** Kachel-Raster im Spielzustand (Abschnitt 4.1), Datendateien für Gelände, Rohstoffe und Fruchtbarkeiten, Gebäudegröße und Untergrund, Umrechnung Kachel ↔ 3D, Grundfläche und Drehung, Lauflängen-Kodierung im Spielstand.
-- **Phase 2, weiter:** Weltgenerator (2.3), Spiel-Kamera (2.4), Bausystem mit Platzierungsregeln (2.5), Straßen und Pipette (2.6).
+- **Unterphase 2.3 (gebaut, Tablet-Test steht aus):** Weltgenerator mit Regeln in worldgen.json, Greybox-Darstellung von Inseln, Meer und Wäldern, Debug-Werkzeuge (Seed, Raster, Rohstoffe, Inseln).
+- **Phase 2, weiter:** Spiel-Kamera (2.4), Bausystem mit Platzierungsregeln (2.5), Straßen und Pipette (2.6).
 - **Später:** Speichern/Laden im Browser-Speicher (Phase 3), Rückgängig (bei Bedarf), Oberflächen-Baukasten (Phase 3).
