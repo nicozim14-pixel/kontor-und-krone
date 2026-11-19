@@ -84,6 +84,128 @@ export type FertilityDefinition = z.infer<typeof fertilitySchema>;
 /** Kennung einer Fruchtbarkeit, z. B. "cocoa". */
 export type FertilityId = FertilityDefinition["id"];
 
+// ─── Regeln des Weltgenerators (ab Unterphase 2.3) ──────────────────────────────────
+
+/** Höchstens so viele Inseln: Jede Kachel speichert ihre Insel als Zahl von 0 bis 255. */
+export const MAX_TOTAL_ISLANDS = 255;
+
+/** Ein Bereich „von … bis …“ aus ganzen Zahlen, z. B. { "min": 2, "max": 3 }. */
+function intRangeSchema(min: number, max: number) {
+  const value = z.int().check(z.gte(min), z.lte(max));
+  return z.strictObject({ min: value, max: value }).check(
+    z.refine((range) => range.min <= range.max, {
+      error: "„min“ darf nicht größer als „max“ sein.",
+    }),
+  );
+}
+
+/** Ein Bereich „von … bis …“ aus Kommazahlen, z. B. { "min": 7, "max": 16 }. */
+function numberRangeSchema(min: number, max: number) {
+  const value = z.number().check(z.gte(min), z.lte(max));
+  return z.strictObject({ min: value, max: value }).check(
+    z.refine((range) => range.min <= range.max, {
+      error: "„min“ darf nicht größer als „max“ sein.",
+    }),
+  );
+}
+
+/** Ein Anteil von 0 (nichts) bis 1 (alles), z. B. 0,35 = 35 %. */
+function shareSchema() {
+  return z.number().check(z.gte(0), z.lte(1));
+}
+
+/** Eine Größenklasse von Inseln, z. B. „groß“: wie viele, wie breit, wie viele Gebirge. */
+export const islandClassSchema = z.strictObject({
+  /** Feste englische Kennung, z. B. "large" */
+  id: idSchema(),
+  /** Deutscher Anzeigename, z. B. "groß" */
+  name: displayTextSchema(),
+  /** Wie viele Inseln dieser Klasse entstehen */
+  count: intRangeSchema(0, 64),
+  /** Größte Breite der Insel in Kacheln (die Küste ist unregelmäßig, im Mittel etwas schmaler) */
+  diameter: intRangeSchema(12, 400),
+  /** Wie viele Gebirge die Insel bekommt (0 = keine Berge, also auch keine Rohstoffe) */
+  mountainRanges: intRangeSchema(0, 8),
+});
+
+/** Häufigkeit einer Rohstoff-Art beim Verteilen der Vorkommen (größere Zahl = häufiger). */
+export const depositWeightSchema = z.strictObject({
+  /** Kennung aus resources.json, z. B. "iron_ore" */
+  resource: idSchema(),
+  /** Gewicht, z. B. 4 bei Eisenerz und 1 bei Gold: Eisenerz kommt etwa viermal so oft vor */
+  weight: z.number().check(z.gt(0), z.lte(1000)),
+});
+
+/**
+ * Die Regeln, nach denen der Weltgenerator aus einem Seed eine Inselwelt baut. Datei: worldgen.json
+ * Alle Längen in Kacheln (1 Kachel = 2 m), Höhen in Metern über dem Meeresspiegel.
+ */
+export const worldGenSchema = z.strictObject({
+  /** Größe der Karte und Abstände */
+  map: z.strictObject({
+    /** Breite und Höhe der Karte in Kacheln (E-021: 256 × 256) */
+    width: z.int().check(z.gte(64), z.lte(1024)),
+    height: z.int().check(z.gte(64), z.lte(1024)),
+    /** So viele Kacheln Meer bleiben mindestens am Kartenrand frei */
+    edgeMargin: z.int().check(z.gte(2), z.lte(64)),
+    /** Mindestabstand zwischen zwei Inseln in Kacheln (Platz für Schiffe ab Phase 4) */
+    islandGap: z.int().check(z.gte(4), z.lte(64)),
+  }),
+  /** Größenklassen der Inseln, die größte zuerst (sie wird zuerst platziert) */
+  islandClasses: z.array(islandClassSchema).check(z.minLength(1)),
+  /** Küsten und Wasser */
+  coast: z.strictObject({
+    /** Wie stark die Küste ausfranst: 0 = kreisrund, 0,4 = sehr unregelmäßig */
+    roughness: z.number().check(z.gte(0), z.lte(0.5)),
+    /** Stärke kleiner Buchten und Landzungen: 0 = keine */
+    bayStrength: z.number().check(z.gte(0), z.lte(0.4)),
+    /** Breite der Strände in Kacheln */
+    beachWidth: intRangeSchema(1, 6),
+    /** Breite des hellen Flachwassers vor der Küste in Kacheln */
+    shallowWaterWidth: z.int().check(z.gte(1), z.lte(12)),
+  }),
+  /** Berge (unbebaubar); jedes Gebirge besteht aus mehreren runden „Kuppen“ in einer Reihe */
+  mountains: z.strictObject({
+    /** Kuppen pro Gebirge */
+    blobsPerRange: intRangeSchema(1, 6),
+    /** Radius einer Kuppe in Kacheln */
+    blobRadius: intRangeSchema(2, 16),
+    /** Höhe des Gipfels in Metern über der Ebene */
+    peakHeight: numberRangeSchema(2, 24),
+    /** So viele Kacheln bleiben zwischen Gebirgsmitte und Küste mindestens frei */
+    minCoastDistance: z.int().check(z.gte(1), z.lte(32)),
+  }),
+  /** Höhe der flachen Bauflächen (Ebenen) in Metern über dem Meeresspiegel */
+  plainHeight: z.number().check(z.gte(0.25), z.lte(4)),
+  /** Mindestanteil der Ebene an der Landfläche jeder Insel (bebaubare Fläche) */
+  minBuildableShare: shareSchema(),
+  /** Wie viele Fruchtbarkeiten jede Insel bekommt (immer weniger als es insgesamt gibt) */
+  fertilitiesPerIsland: intRangeSchema(1, 32),
+  /** Wie viele Rohstoffvorkommen jedes Gebirge bekommt */
+  depositsPerRange: intRangeSchema(0, 4),
+  /** Häufigkeit der Rohstoff-Arten; jede Art aus resources.json braucht einen Eintrag */
+  deposits: z.array(depositWeightSchema).check(z.minLength(1)),
+  /** Wälder auf den Ebenen (E-024) */
+  forests: z.strictObject({
+    /** Anteil der Ebene, der in Waldgebieten liegt, z. B. 0,35 = 35 % */
+    coverage: shareSchema(),
+    /** Wie dicht die Bäume in einem Waldgebiet stehen (Anteil der Kacheln mit Baum) */
+    density: shareSchema(),
+    /** Einzelne Bäume außerhalb der Wälder (Anteil der Kacheln) */
+    scatter: shareSchema(),
+  }),
+});
+
+export type WorldGenRules = z.infer<typeof worldGenSchema>;
+
+export type IslandClassDefinition = z.infer<typeof islandClassSchema>;
+
+/** Ein Bereich „von … bis …“, z. B. { min: 2, max: 3 }. */
+export interface Range {
+  readonly min: number;
+  readonly max: number;
+}
+
 // ─── Waren und Gebäude ──────────────────────────────────────────────────────────────
 
 /** Eine Ware, z. B. Holz. Datei: goods.json */

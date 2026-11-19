@@ -1,0 +1,116 @@
+{
+  "map": {
+    "width": 32,
+    "height": 256,
+    "edgeMargin": 8,
+    "islandGap": 12
+  },
+  "islandClasses": [
+    {
+      "id": "large",
+      "name": "groß",
+      "count": {
+        "min": 3,
+        "max": 2
+      },
+      "diameter": {
+        "min": 62,
+        "max": 76
+      },
+      "mountainRanges": {
+        "min": 2,
+        "max": 3
+      }
+    },
+    {
+      "id": "medium",
+      "name": "mittel",
+      "count": {
+        "min": 2,
+        "max": 3
+      },
+      "diameter": {
+        "min": 46,
+        "max": 56
+      },
+      "mountainRanges": {
+        "min": 1,
+        "max": 2
+      }
+    },
+    {
+      "id": "small",
+      "name": "klein",
+      "count": {
+        "min": 3,
+        "max": 3
+      },
+      "diameter": {
+        "min": 30,
+        "max": 40
+      },
+      "mountainRanges": {
+        "min": 0,
+        "max": 1
+      }
+    }
+  ],
+  "coast": {
+    "roughness": 0.9,
+    "bayStrength": 0.14,
+    "beachWidth": {
+      "min": 1,
+      "max": 3
+    },
+    "shallowWaterWidth": 5
+  },
+  "mountains": {
+    "blobsPerRange": {
+      "min": 2,
+      "max": 3
+    },
+    "blobRadius": {
+      "min": 3,
+      "max": 6
+    },
+    "peakHeight": {
+      "min": 7,
+      "max": 15
+    },
+    "minCoastDistance": 6
+  },
+  "plainHeight": 1,
+  "minBuildableShare": 0.55,
+  "fertilitiesPerIsland": {
+    "min": 2,
+    "max": 3
+  },
+  "depositsPerRange": {
+    "min": 1,
+    "max": 1
+  },
+  "deposits": [
+    {
+      "resource": "iron_ore",
+      "weight": 4
+    },
+    {
+      "resource": "marble",
+      "weight": 3
+    },
+    {
+      "resource": "gold",
+      "weight": 1
+    },
+    {
+      "resource": "gems",
+      "weight": 1
+    }
+  ],
+  "forests": {
+    "coverage": "viel",
+    "density": 0.8,
+    "scatter": 0.02
+  },
+  "seaLevel": 0
+}

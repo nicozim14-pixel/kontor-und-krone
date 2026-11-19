@@ -25,6 +25,9 @@ import {
   type ResourceId,
   type TerrainDefinition,
   type TerrainId,
+  type WorldGenRules,
+  MAX_TOTAL_ISLANDS,
+  worldGenSchema,
 } from "./schemas";
 import { checkWithSchema, findDuplicateIds, type CheckResult } from "./validation";
 
@@ -35,6 +38,7 @@ export interface RawGameDataFiles {
   readonly terrain: unknown;
   readonly resources: unknown;
   readonly fertilities: unknown;
+  readonly worldGen: unknown;
 }
 
 /** Geprüfte Spieldaten. Sie ändern sich während des Spiels nie. */
@@ -52,6 +56,8 @@ export interface GameData {
   readonly terrainCode: Readonly<Record<RequiredTerrainId, number>>;
   readonly resources: ReadonlyMap<ResourceId, Readonly<ResourceDefinition>>;
   readonly fertilities: ReadonlyMap<FertilityId, Readonly<FertilityDefinition>>;
+  /** Regeln des Weltgenerators (worldgen.json) */
+  readonly worldGen: Readonly<WorldGenRules>;
 }
 
 /** Dateinamen für die Fehlermeldungen. */
@@ -61,6 +67,7 @@ export const DATA_FILE_NAMES = {
   terrain: "terrain.json",
   resources: "resources.json",
   fertilities: "fertilities.json",
+  worldGen: "worldgen.json",
 } as const satisfies Record<keyof RawGameDataFiles, string>;
 
 /**
@@ -111,6 +118,21 @@ export function loadGameData(files: RawGameDataFiles): CheckResult<GameData> {
     errors,
   );
 
+  const worldGenResult = checkWithSchema(DATA_FILE_NAMES.worldGen, worldGenSchema, files.worldGen);
+  let worldGen: WorldGenRules | undefined;
+  if (worldGenResult.ok) {
+    worldGen = worldGenResult.value;
+    errors.push(
+      ...findDuplicateIds(
+        `${DATA_FILE_NAMES.worldGen} → Feld „islandClasses“`,
+        worldGen.islandClasses,
+      ),
+    );
+    errors.push(...checkWorldGenNumbers(worldGen));
+  } else {
+    errors.push(...worldGenResult.errors);
+  }
+
   if (terrains !== undefined) {
     errors.push(...checkTerrainList(terrains));
   }
@@ -121,7 +143,8 @@ export function loadGameData(files: RawGameDataFiles): CheckResult<GameData> {
     buildings === undefined ||
     terrains === undefined ||
     resources === undefined ||
-    fertilities === undefined
+    fertilities === undefined ||
+    worldGen === undefined
   ) {
     return { ok: false, errors };
   }
@@ -129,6 +152,10 @@ export function loadGameData(files: RawGameDataFiles): CheckResult<GameData> {
   const terrainCodes = new Map(terrains.map((terrain, index) => [terrain.id, index]));
   errors.push(...findUnknownGoods(buildings, goodsById));
   errors.push(...findUnknownTerrain(buildings, terrainCodes));
+  // Erst prüfen, wenn alles andere stimmt; sonst entstehen Folgefehler (z. B. durch doppelte Kennungen).
+  if (errors.length === 0) {
+    errors.push(...checkWorldGenReferences(worldGen, byId(resources), byId(fertilities)));
+  }
 
   if (errors.length > 0) {
     return { ok: false, errors };
@@ -143,6 +170,7 @@ export function loadGameData(files: RawGameDataFiles): CheckResult<GameData> {
       terrainCode: requiredTerrainCodes(terrainCodes),
       resources: byId(resources),
       fertilities: byId(fertilities),
+      worldGen,
     },
   };
 }
@@ -216,5 +244,68 @@ function findUnknownTerrain(
       }
     }
   });
+  return errors;
+}
+
+/** Prüft die Zahlen in worldgen.json, die voneinander abhängen. */
+function checkWorldGenNumbers(rules: WorldGenRules): string[] {
+  const source = DATA_FILE_NAMES.worldGen;
+  const errors: string[] = [];
+  const minTotal = rules.islandClasses.reduce((sum, entry) => sum + entry.count.min, 0);
+  const maxTotal = rules.islandClasses.reduce((sum, entry) => sum + entry.count.max, 0);
+  if (minTotal < 1) {
+    errors.push(`${source} → Feld „islandClasses“: Es muss mindestens eine Insel entstehen.`);
+  }
+  if (maxTotal > MAX_TOTAL_ISLANDS) {
+    errors.push(
+      `${source} → Feld „islandClasses“: Höchstens ${String(MAX_TOTAL_ISLANDS)} Inseln erlaubt ` +
+        `(eingestellt: bis zu ${String(maxTotal)}).`,
+    );
+  }
+  const shortestEdge = Math.min(rules.map.width, rules.map.height);
+  rules.islandClasses.forEach((entry, index) => {
+    if (entry.diameter.max + 2 * rules.map.edgeMargin > shortestEdge) {
+      errors.push(
+        `${source} → Feld „islandClasses“ → Eintrag ${String(index + 1)} („${entry.id}“) → ` +
+          `Feld „diameter“: Inseln mit ${String(entry.diameter.max)} Kacheln passen mit dem Rand ` +
+          `(„edgeMargin“) nicht auf eine Karte mit ${String(shortestEdge)} Kacheln.`,
+      );
+    }
+  });
+  return errors;
+}
+
+/** Prüft die Querverweise von worldgen.json auf resources.json und fertilities.json. */
+function checkWorldGenReferences(
+  rules: WorldGenRules,
+  resources: ReadonlyMap<ResourceId, ResourceDefinition>,
+  fertilities: ReadonlyMap<FertilityId, FertilityDefinition>,
+): string[] {
+  const source = DATA_FILE_NAMES.worldGen;
+  const errors: string[] = [];
+  const knownResources = Array.from(resources.keys()).join(", ");
+  const seen = new Set<string>();
+  rules.deposits.forEach((entry, index) => {
+    const where = `${source} → Feld „deposits“ → Eintrag ${String(index + 1)}`;
+    if (!resources.has(entry.resource)) {
+      errors.push(
+        `${where}: Den Rohstoff „${entry.resource}“ gibt es nicht. Bekannte Rohstoffe: ${knownResources}.`,
+      );
+    }
+    if (seen.has(entry.resource)) {
+      errors.push(`${where}: Der Rohstoff „${entry.resource}“ steht doppelt in der Liste.`);
+    }
+    seen.add(entry.resource);
+  });
+  const missing = Array.from(resources.keys()).filter((id) => !seen.has(id));
+  if (missing.length > 0) {
+    errors.push(`${source} → Feld „deposits“: Es fehlt die Häufigkeit für ${missing.join(", ")}.`);
+  }
+  if (rules.fertilitiesPerIsland.max >= fertilities.size) {
+    errors.push(
+      `${source} → Feld „fertilitiesPerIsland“ → Feld „max“: Muss kleiner als die Zahl aller ` +
+        `Fruchtbarkeiten (${String(fertilities.size)}) sein, damit keine Insel alles hat.`,
+    );
+  }
   return errors;
 }

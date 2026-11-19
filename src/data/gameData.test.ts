@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { loadBundledGameData } from "./bundledData";
+import { BUNDLED_DATA_FILES, loadBundledGameData } from "./bundledData";
 import { loadGameData } from "./gameData";
 import { REQUIRED_TERRAIN_IDS } from "./schemas";
 import { testBuilding, testDataFiles } from "./testFixtures";
 import invalidBuildings from "./testdata/buildings.invalid.json";
 import invalidGoods from "./testdata/goods.invalid.json";
 import invalidTerrain from "./testdata/terrain.invalid.json";
+import invalidWorldGen from "./testdata/worldgen.invalid.json";
 
 const WOOD = { id: "wood", name: "Holz" };
 const WOODCUTTER = testBuilding({
@@ -230,6 +231,72 @@ describe("Daten der Welt: Gelände, Rohstoffe, Fruchtbarkeiten (Unterphase 2.2)"
     expect(result.ok ? [] : result.errors).toEqual([
       "resources.json → Eintrag 1 („Gold“) → Feld „id“: Nur Kleinbuchstaben (a–z), Ziffern und Unterstriche erlaubt, Beginn mit einem Buchstaben (z. B. „wood“).",
       "resources.json → Eintrag 1 („Gold“) → Feld „color“: Erwartet eine Farbe wie „#8fb565“ (# und sechs Zeichen aus 0–9 und a–f).",
+    ]);
+  });
+});
+
+describe("Regeln des Weltgenerators: worldgen.json (Unterphase 2.3)", () => {
+  const validRules = (): Record<string, unknown> =>
+    JSON.parse(JSON.stringify(BUNDLED_DATA_FILES.worldGen)) as Record<string, unknown>;
+
+  it("lädt die mitgelieferten Regeln mit 6 bis 8 Inseln auf 256 × 256 Kacheln (E-021)", () => {
+    const rules = loadBundled().worldGen;
+    expect(rules.map).toMatchObject({ width: 256, height: 256 });
+    const min = rules.islandClasses.reduce((sum, entry) => sum + entry.count.min, 0);
+    const max = rules.islandClasses.reduce((sum, entry) => sum + entry.count.max, 0);
+    expect([min, max]).toEqual([6, 8]);
+  });
+
+  it("meldet alle Fehler einer absichtlich fehlerhaften Regel-Datei auf Deutsch", () => {
+    const result = loadGameData(testDataFiles({ worldGen: invalidWorldGen }));
+    expect(result.ok ? [] : result.errors).toEqual([
+      "worldgen.json → Feld „map“ → Feld „width“: Muss mindestens 64 sein.",
+      "worldgen.json → Feld „islandClasses“ → Eintrag 1 („large“) → Feld „count“: „min“ darf nicht größer als „max“ sein.",
+      "worldgen.json → Feld „coast“ → Feld „roughness“: Darf höchstens 0.5 sein.",
+      "worldgen.json → Feld „forests“ → Feld „coverage“: Erwartet eine Zahl, gefunden den Text „viel“.",
+      "worldgen.json: Unbekanntes Feld „seaLevel“. Tippfehler?",
+    ]);
+  });
+
+  it("findet unbekannte und fehlende Rohstoffe", () => {
+    const rules = validRules();
+    rules.deposits = [
+      { resource: "iron_ore", weight: 4 },
+      { resource: "silber", weight: 1 },
+      { resource: "iron_ore", weight: 2 },
+    ];
+    const result = loadGameData(testDataFiles({ worldGen: rules }));
+    expect(result.ok ? [] : result.errors).toEqual([
+      "worldgen.json → Feld „deposits“ → Eintrag 2: Den Rohstoff „silber“ gibt es nicht. Bekannte Rohstoffe: iron_ore, marble, gold, gems.",
+      "worldgen.json → Feld „deposits“ → Eintrag 3: Der Rohstoff „iron_ore“ steht doppelt in der Liste.",
+      "worldgen.json → Feld „deposits“: Es fehlt die Häufigkeit für marble, gold, gems.",
+    ]);
+  });
+
+  it("verhindert, dass eine Insel alle Fruchtbarkeiten bekommen kann", () => {
+    const rules = validRules();
+    rules.fertilitiesPerIsland = { min: 2, max: 6 };
+    const result = loadGameData(testDataFiles({ worldGen: rules }));
+    expect(result.ok ? [] : result.errors).toEqual([
+      "worldgen.json → Feld „fertilitiesPerIsland“ → Feld „max“: Muss kleiner als die Zahl aller Fruchtbarkeiten (6) sein, damit keine Insel alles hat.",
+    ]);
+  });
+
+  it("prüft, dass die Inseln auf die Karte passen und es mindestens eine gibt", () => {
+    const rules = validRules();
+    rules.islandClasses = [
+      {
+        id: "huge",
+        name: "riesig",
+        count: { min: 0, max: 1 },
+        diameter: { min: 200, max: 250 },
+        mountainRanges: { min: 0, max: 0 },
+      },
+    ];
+    const result = loadGameData(testDataFiles({ worldGen: rules }));
+    expect(result.ok ? [] : result.errors).toEqual([
+      "worldgen.json → Feld „islandClasses“: Es muss mindestens eine Insel entstehen.",
+      "worldgen.json → Feld „islandClasses“ → Eintrag 1 („huge“) → Feld „diameter“: Inseln mit 250 Kacheln passen mit dem Rand („edgeMargin“) nicht auf eine Karte mit 256 Kacheln.",
     ]);
   });
 });

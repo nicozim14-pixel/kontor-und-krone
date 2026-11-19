@@ -9,6 +9,7 @@ import fertilities from "./fertilities.json";
 import goods from "./goods.json";
 import resources from "./resources.json";
 import terrain from "./terrain.json";
+import worldGen from "./worldgen.json";
 
 /** Die mitgelieferten Datendateien, noch ungeprüft. */
 export const BUNDLED_DATA_FILES: RawGameDataFiles = {
@@ -17,6 +18,7 @@ export const BUNDLED_DATA_FILES: RawGameDataFiles = {
   terrain,
   resources,
   fertilities,
+  worldGen,
 };
 
 /** Prüft und lädt die mitgelieferten Spieldaten. */

@@ -14,14 +14,14 @@
  * - `occupancy` Belegung: 0 = frei, positive Zahl = Nummer des Gebäudes, das hier steht,
  *               negative Zahl = Straße (−1 − Nummer der Straßenart, ab Unterphase 2.6)
  */
-import type { FertilityId, ResourceId } from "../data/schemas";
+import { MAX_TOTAL_ISLANDS, type FertilityId, type ResourceId } from "../data/schemas";
 import { SEA_LEVEL_CODE } from "./worldSpace";
 
 /** Größte erlaubte Kantenlänge der Karte in Kacheln (Schutz vor riesigen Spielständen). */
 export const MAX_WORLD_EDGE = 1024;
 
 /** Höchstens so viele Inseln: Jede Kachel speichert ihre Insel als Zahl von 0 bis 255. */
-export const MAX_ISLANDS = 255;
+export const MAX_ISLANDS = MAX_TOTAL_ISLANDS;
 
 /** Inselnummer für Kacheln, die zu keiner Insel gehören (Meer). */
 export const NO_ISLAND = 0;
