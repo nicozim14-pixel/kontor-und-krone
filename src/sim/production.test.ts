@@ -1,31 +1,32 @@
 import { describe, expect, it } from "vitest";
 import { EventBus } from "../core/eventBus";
-import { loadGameData, type GameData } from "../data/gameData";
+import type { GameData } from "../data/gameData";
+import { loadTestData, testBuilding } from "../data/testFixtures";
 import type { SimEvents } from "./events";
 import { Simulation } from "./simulation";
 import { createInitialState } from "./state";
 import { GAME_SYSTEMS } from "./systems";
 
 function testData(): GameData {
-  const result = loadGameData({
+  return loadTestData({
     goods: [
       { id: "wood", name: "Holz" },
       { id: "fish", name: "Fisch" },
     ],
     buildings: [
-      {
+      testBuilding({
         id: "test_woodcutter",
         name: "Test-Holzfäller",
         produces: { good: "wood", amountPerTick: 1 },
-      },
-      { id: "test_fisher", name: "Test-Fischer", produces: { good: "fish", amountPerTick: 3 } },
-      { id: "test_house", name: "Test-Wohnhaus" },
+      }),
+      testBuilding({
+        id: "test_fisher",
+        name: "Test-Fischer",
+        produces: { good: "fish", amountPerTick: 3 },
+      }),
+      testBuilding({ id: "test_house", name: "Test-Wohnhaus" }),
     ],
   });
-  if (!result.ok) {
-    throw new Error(result.errors.join("\n"));
-  }
-  return result.value;
 }
 
 function createSimulation(...buildings: string[]) {

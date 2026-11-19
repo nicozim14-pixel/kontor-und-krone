@@ -9,11 +9,14 @@
 import { createRandomState, type RandomState } from "../core/random";
 import type { BuildingTypeId, GoodId } from "../data/schemas";
 import type { DeepReadonly } from "./readonly";
+import { createEmptyWorld, type IslandState, type WorldState } from "./world";
 
 /**
  * Version des Spielstand-Formats. Bei jeder Änderung am Aufbau des Spielzustands erhöhen
  * und in save.ts eine Umwandlung („Migration“) für die vorige Version ergänzen.
- * Solange es noch kein Speichern gibt (bis Phase 3), bleibt sie bei 1.
+ * Solange es noch kein Speichern gibt (bis Phase 3), bleibt sie bei 1, auch wenn sich der
+ * Aufbau ändert (wie in Unterphase 2.2 durch das Kachel-Raster): Es gibt noch keine alten
+ * Spielstände, die umgewandelt werden müssten (E-025).
  */
 export const SAVE_VERSION = 1;
 
@@ -40,6 +43,10 @@ export interface GameState {
     /** für Ereignisse während des Spiels */
     events: RandomState;
   };
+  /** Das Kachel-Raster der Welt: Gelände, Höhe, Inseln, Bäume, Belegung (world.ts) */
+  world: WorldState;
+  /** Alle Inseln mit Fruchtbarkeiten und Rohstoffvorkommen; Insel n steht an Stelle n − 1 */
+  islands: IslandState[];
   /** Anzahl der bisher gerechneten Wirtschafts-Takte (1 Takt = 0,5 s Spielzeit) */
   tick: number;
   /** Nächste freie Nummer für ein neues Ding auf der Karte */
@@ -62,8 +69,15 @@ export function buildingKey(id: EntityId): string {
 /** Schreibgeschützte Sicht für Darstellung und Oberfläche. */
 export type ReadonlyGameState = DeepReadonly<GameState>;
 
-/** Erzeugt den Zustand einer neuen Partie. */
-export function createInitialState(seed: number): GameState {
+/**
+ * Erzeugt den Zustand einer neuen Partie.
+ * @param world Kachel-Raster; ohne Angabe eine leere Welt (0 × 0 Kacheln), z. B. für Tests,
+ *   die keine Karte brauchen. Die Inselwelt erzeugt der Weltgenerator (ab Unterphase 2.3).
+ */
+export function createInitialState(
+  seed: number,
+  world: WorldState = createEmptyWorld(0, 0),
+): GameState {
   return {
     saveVersion: SAVE_VERSION,
     seed,
@@ -71,6 +85,8 @@ export function createInitialState(seed: number): GameState {
       world: createRandomState(seed, "world"),
       events: createRandomState(seed, "events"),
     },
+    world,
+    islands: [],
     tick: 0,
     nextEntityId: 1,
     buildings: {},

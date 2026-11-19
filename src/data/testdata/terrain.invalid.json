@@ -1,0 +1,6 @@
+[
+  { "id": "deep_water", "name": "Tiefes Wasser", "water": true, "color": "#1f7f94" },
+  { "id": "shallow_water", "name": "Flachwasser", "water": "ja", "color": "#3db8b4" },
+  { "id": "beach", "name": "Strand", "water": false, "color": "sandgelb" },
+  { "id": "plain", "name": "Ebene", "water": false }
+]

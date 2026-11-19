@@ -2,11 +2,97 @@
   {
     "id": "test_woodcutter",
     "name": "Test-Holzfäller",
-    "produces": { "good": "wood", "amountPerTick": 1 }
+    "size": {
+      "width": 2,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"],
+    "produces": {
+      "good": "wood",
+      "amountPerTick": 1
+    }
   },
-  { "id": "fisher", "name": "Fischer", "produces": { "good": "fish", "amountPerTick": 0 } },
-  { "id": "sawmill", "name": "Sägewerk", "produces": { "good": "planks", "amountPerTick": 1.5 } },
-  { "id": "quarry", "produces": { "good": "stone", "amountPerTick": 1 } },
-  { "id": "hunter", "name": "Jagdhütte", "produces": { "good": "meat", "amount": 1 } },
-  { "id": "Weber", "name": "Webstube" }
+  {
+    "id": "fisher",
+    "name": "Fischer",
+    "size": {
+      "width": 2,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"],
+    "produces": {
+      "good": "fish",
+      "amountPerTick": 0
+    }
+  },
+  {
+    "id": "sawmill",
+    "name": "Sägewerk",
+    "size": {
+      "width": 2,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"],
+    "produces": {
+      "good": "planks",
+      "amountPerTick": 1.5
+    }
+  },
+  {
+    "id": "quarry",
+    "size": {
+      "width": 2,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"],
+    "produces": {
+      "good": "stone",
+      "amountPerTick": 1
+    }
+  },
+  {
+    "id": "hunter",
+    "name": "Jagdhütte",
+    "size": {
+      "width": 2,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"],
+    "produces": {
+      "good": "meat",
+      "amount": 1
+    }
+  },
+  {
+    "id": "Weber",
+    "name": "Webstube",
+    "size": {
+      "width": 2,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"]
+  },
+  {
+    "id": "chapel",
+    "name": "Kapelle",
+    "size": {
+      "width": 0,
+      "depth": 2
+    },
+    "allowedTerrain": ["plain"]
+  },
+  {
+    "id": "market",
+    "name": "Marktplatz",
+    "size": {
+      "width": 4,
+      "depth": 13
+    },
+    "allowedTerrain": []
+  },
+  {
+    "id": "house",
+    "name": "Wohnhaus",
+    "allowedTerrain": ["plain"]
+  }
 ]

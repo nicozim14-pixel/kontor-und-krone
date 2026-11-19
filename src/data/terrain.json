@@ -1,0 +1,7 @@
+[
+  { "id": "deep_water", "name": "Tiefes Wasser", "water": true, "color": "#1f7f94" },
+  { "id": "shallow_water", "name": "Flachwasser", "water": true, "color": "#3db8b4" },
+  { "id": "beach", "name": "Strand", "water": false, "color": "#e6d29a" },
+  { "id": "plain", "name": "Ebene", "water": false, "color": "#93b86a" },
+  { "id": "mountain", "name": "Berg", "water": false, "color": "#9a8f80" }
+]

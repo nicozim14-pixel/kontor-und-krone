@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { EventBus } from "../core/eventBus";
 import { nextInt } from "../core/random";
-import { loadGameData, type GameData } from "../data/gameData";
+import type { GameData } from "../data/gameData";
+import { loadTestData, testBuilding } from "../data/testFixtures";
 import type { Command } from "./commands";
 import type { SimEvents } from "./events";
 import { serializeGameState } from "./save";
@@ -9,14 +10,10 @@ import { Simulation, type SimSystem } from "./simulation";
 import { createInitialState } from "./state";
 
 function testData(): GameData {
-  const result = loadGameData({
+  return loadTestData({
     goods: [{ id: "wood", name: "Holz" }],
-    buildings: [{ id: "test_woodcutter", name: "Test-Holzfäller" }],
+    buildings: [testBuilding({ id: "test_woodcutter", name: "Test-Holzfäller" })],
   });
-  if (!result.ok) {
-    throw new Error(result.errors.join("\n"));
-  }
-  return result.value;
 }
 
 function createSimulation(seed = 1701, systems: readonly SimSystem[] = []) {

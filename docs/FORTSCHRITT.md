@@ -7,15 +7,15 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **Phase:** 2 von 10 – Greybox-Prototyp: Welt, Kamera & Bauen (Prompt: Projekt-Dokument „Phasen/Phase_02_Welt_Kamera_Bauen.txt“)
 - **Phase 1 abgeschlossen** am 19.11.2026 (Abschluss-Commit `06f83f4`; der Git-Tag `phase-1` ist noch offen, siehe „Bekannte Probleme“).
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
-- **Erledigt in Phase 2:** 2.1.
-- **Nächster Schritt:** 2.2 „Raster & Welt-Datenmodell“.
+- **Erledigt in Phase 2:** 2.1, 2.2.
+- **Nächster Schritt:** 2.3 „Insel- & Weltgenerator“ (Generator in `sim/` mit Zufallsstrom „world“, Regeln in einer Datendatei; Greybox-Gelände, Meer und Wälder in `render/`, ersetzt die Test-Insel; Debug-Werkzeuge: neue Welt per Seed, Raster/Rohstoffe/Fruchtbarkeiten einblenden; Tests und Laufzeit gegen das Ladezeit-Budget). Der Test-Holzfäller bleibt bis 2.5 ohne Platz auf der Karte (`debugPlaceBuilding`); wo er bis dahin angezeigt wird, entscheidet 2.3 (z. B. auf einer Ebene der größten Insel).
 
 ## Unterphasen von Phase 2
 
 | Nr. | Unterphase | Status | Erledigt am |
 | --- | --- | --- | --- |
 | 2.1 | Start, Überblick & Grundentscheidungen | ✅ erledigt (E-021 bis E-024) | 19.11.2026 |
-| 2.2 | Raster & Welt-Datenmodell | 🔧 in Arbeit | – |
+| 2.2 | Raster & Welt-Datenmodell | ✅ erledigt (E-025) | 19.11.2026 |
 | 2.3 | Insel- & Weltgenerator | offen | – |
 | 2.4 | Spiel-Kamera per Touch | offen | – |
 | 2.5 | Bausystem: Platzieren, Drehen, Abriss | offen | – |
@@ -57,6 +57,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
   - Claude darf Workflow-Dateien hochladen (getestet).
 - **Technik-Stand (E-005 bis E-011):** TypeScript 6.0.3 (nicht 7, wegen typescript-eslint), Build-Ziel Chrome 111 (E-013), Bildschärfe max. doppelte Pixeldichte, Link-Zusatz `?aufloesung=50`, Update-Hinweis über `version.json`. Babylon.js 9 hat „.pure“-Module; wir importieren bewusst die normalen Module (z. B. `@babylonjs/core/Engines/engine`), weil diese ihre Zusatzfunktionen selbst einbinden.
 - **Debug-Anzeige:** zeigt auch **Dreiecke und Draw Calls** (Prüfverfahren aus LEISTUNGSBUDGET.md, Abschnitt 7). Leere Szene mit Holzfäller: 26 Dreiecke, 3 Draw Calls.
+- **Welt-Datenmodell (2.2, E-025):** Kachel-Raster in `sim/world.ts` (Zahlenfelder `terrain`, `elevation`, `island`, `trees`, `occupancy`; Inseln mit Fruchtbarkeiten und Vorkommen in `state.islands`), Umrechnung Kachel ↔ 3D nur in `sim/worldSpace.ts` (Kachel 0/0 = Südwest, x Ost, y Nord, 2 m pro Kachel), Grundfläche/Drehung in `sim/footprint.ts`. Beschreibung: ARCHITEKTUR.md, Abschnitt 4.1. `createInitialState(seed)` erzeugt noch eine leere 0 × 0-Welt; der Generator (2.3) füllt sie. Tests geben Daten über `data/testFixtures.ts` an (`loadTestData`, `testBuilding`).
 - **Architektur (E-016):** Bauplan in [ARCHITEKTUR.md](ARCHITEKTUR.md), Abschnitt 14 listet alle Dateien. ESLint überwacht die Schichten-Regeln (wer wen importieren darf; in `core/`, `data/`, `sim/` keine Browser-Zugriffe, kein `Math.random()`, keine Uhrzeit). Alles, was sich bewegt, muss dem Zeichen-Takt `markActivity` melden, sonst greift das Ruhebild.
 - **Prüf-Skript:** `npm run screenshot` prüft auch die Spiel-Schleife (Takte pro Sekunde, Ruhebild, Aufwachen beim Wischen) und die Debug-Anzeige (Holz = Takte, Pause, 4×, Ein-/Ausklappen) über `window.kkStats`.
 - **Links in der Claude-App** öffnen sich in deren eingebautem Browser, nicht in Chrome. Für Tests den Nutzer bitten, den Link zu kopieren und in der Chrome-App zu öffnen.
@@ -108,4 +109,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **18.11.2026 (Chat 4):** 1.6 abgeschlossen. docs/ARCHITEKTUR.md mit Brettspiel-Vergleich und Diagramm geschrieben; Nutzer hat zugestimmt (E-016), dazu Bedienoberfläche mit HTML/CSS (E-017) und „läuft beim Zurückkehren sofort weiter“ (E-018). Grundgerüst gebaut: Uhr mit Tempo und Schutz vor der Aufhol-Lawine, Ereignis-Bus, Zufall mit Seed (sfc32, getrennte Ströme), Spielzustand mit Versionsnummer und Spielstand-Format, Befehle (Test-Befehl `debugAddGoods`), Daten-Lader mit zod und deutschen Fehlermeldungen, eigene Spiel-Schleife mit Bildraten-Begrenzer 60 FPS und Ruhebild, Schichten-Regeln in ESLint (mit Probedateien geprüft). 95 Tests grün; im unsichtbaren Chrome: 6 Takte in 3 s, Ruhebild 2 Bilder in 2 s, beim Wischen 60 Bilder pro Sekunde.
 - **18.11.2026 (Chat 5):** 1.7 begonnen. Durchstich nach Bestätigung des Nutzers gebaut (E-019): Holz und Test-Holzfäller als Datendateien mit Querverweis-Prüfung, Gebäude per Befehl, System „Produktion“, Platzhalter-Würfel in der Inselmitte, Debug-Anzeige mit FPS, Takt, Holz, Dreiecken, Draw Calls, Seed und Tempo-Knöpfen. 116 Tests grün; im unsichtbaren Chrome: Holz = Takte, Pause hält an, 4× = ca. 16 Takte in 2 s.
   Tablet-Test teilweise: Nutzer bestätigt ca. 60 FPS beim Drehen, 60 FPS wirkt gleichmäßiger als 45 (E-015 bleibt), Vollbild, Querformat-Hinweis und Gesten-Sperre funktionieren. Schritte 1–6 testet er später. Leistungs-Check Phase 1 eingetragen (LEISTUNGSBUDGET.md, Abschnitt 8). Rückschau: weniger Rückfragen ab Phase 2 (E-020). Prompt für Phase 2 als Projekt-Dokument entworfen.
-- **19.11.2026 (Chat 6):** Nutzer bestätigt den Tablet-Test des Durchstichs („Test alle ok“). **Phase 1 abgeschlossen** (Git-Tag konnte nicht hochgeladen werden, siehe „Bekannte Probleme“). **Phase 2 begonnen:** 2.1 erledigt; Grundbegriffe erklärt, Entscheidungen E-021 bis E-024 (alle wie empfohlen).
+- **19.11.2026 (Chat 6):** Nutzer bestätigt den Tablet-Test des Durchstichs („Test alle ok“). **Phase 1 abgeschlossen** (Git-Tag konnte nicht hochgeladen werden, siehe „Bekannte Probleme“). **Phase 2 begonnen:** 2.1 erledigt; Grundbegriffe erklärt, Entscheidungen E-021 bis E-024 (alle wie empfohlen). 2.2 erledigt: Kachel-Raster im Spielzustand, Datendateien `terrain.json`, `resources.json`, `fertilities.json`, Gebäude mit Größe und Untergrund, Umrechnung Kachel ↔ 3D, Grundfläche und Drehung, Lauflängen-Kodierung im Spielstand (E-025). 149 Tests grün; im unsichtbaren Chrome läuft das Spiel unverändert (für den Nutzer noch nichts Neues sichtbar).

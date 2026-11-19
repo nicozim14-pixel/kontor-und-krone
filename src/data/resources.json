@@ -1,0 +1,6 @@
+[
+  { "id": "iron_ore", "name": "Eisenerz", "color": "#8a4b32" },
+  { "id": "marble", "name": "Marmor", "color": "#f2efe6" },
+  { "id": "gold", "name": "Gold", "color": "#e8b923" },
+  { "id": "gems", "name": "Edelsteine", "color": "#b03a8c" }
+]

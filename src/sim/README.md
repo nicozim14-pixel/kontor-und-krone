@@ -3,6 +3,9 @@
 Hier wird das Spiel „gerechnet“: Waren, Gebäude, Produktion, Bevölkerung, Handel. Im Brettspiel-Vergleich der Spielleiter mit dem Spielbrett.
 
 - `state.ts` – der Spielzustand: ein Datenpaket aus einfachen Daten, mit Versionsnummer
+- `world.ts` – das Kachel-Raster der Welt (Gelände, Höhe, Insel, Baum, Belegung je Kachel) und die Inseln
+- `worldSpace.ts` – Umrechnung Kachel ↔ Position in der 3D-Welt und Höhe in Meter (die einzige Stelle dafür)
+- `footprint.ts` – Grundfläche und Drehung von Gebäuden
 - `save.ts` – das Spielstand-Format: Text hin und zurück, Prüfung, Umwandlung alter Versionen
 - `simulation.ts` – der Spielleiter: `step()` rechnet einen Takt, `execute()` führt einen Befehl aus
 - `systems.ts` – Liste aller Systeme (Teile der Spiellogik), die pro Takt in fester Reihenfolge laufen

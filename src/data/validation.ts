@@ -32,6 +32,18 @@ export function idSchema(): z.ZodMiniString {
   );
 }
 
+/** Erlaubte Form einer Farbe: „#“ und sechs Hex-Ziffern, z. B. "#8fb565" (Rot, Grün, Blau). */
+export const COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+
+/** Schema-Baustein für eine Farbe, z. B. die Greybox-Farbe einer Geländeart. */
+export function colorSchema(): z.ZodMiniString {
+  return z.string().check(
+    z.regex(COLOR_PATTERN, {
+      error: "Erwartet eine Farbe wie „#8fb565“ (# und sechs Zeichen aus 0–9 und a–f).",
+    }),
+  );
+}
+
 /** Schema-Baustein für einen Anzeigetext, der nicht leer sein darf. */
 export function displayTextSchema(): z.ZodMiniString {
   return z.string().check(z.minLength(1, { error: "Darf nicht leer sein." }));
@@ -88,7 +100,9 @@ function describeIssue(issue: z.core.$ZodIssue): string {
           : `Muss mindestens ${min} Zeichen lang sein.`;
       }
       if (issue.origin === "array") {
-        return `Braucht mindestens ${min} Einträge.`;
+        return issue.minimum === 1
+          ? "Braucht mindestens einen Eintrag."
+          : `Braucht mindestens ${min} Einträge.`;
       }
       return issue.inclusive === false
         ? `Muss größer als ${min} sein.`

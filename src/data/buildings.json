@@ -2,6 +2,8 @@
   {
     "id": "test_woodcutter",
     "name": "Test-Holzfäller",
+    "size": { "width": 3, "depth": 3 },
+    "allowedTerrain": ["plain"],
     "produces": { "good": "wood", "amountPerTick": 1 }
   }
 ]

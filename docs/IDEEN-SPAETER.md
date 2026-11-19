@@ -20,5 +20,7 @@ Jede Idee bekommt ein Datum und, wenn klar, die passende Phase.
 | 19.11.2026 | Spielstand-Prüfung ergänzen: Der Schlüssel in `buildings` muss zur Nummer des Gebäudes passen, und die Gebäudeart muss in `buildings.json` stehen. | Phase 3 (Speichern/Laden) |
 | 19.11.2026 | Fehlermeldung verfeinern: Fehlt eine ganze Zahl, meldet die Prüfung „erwartet eine Zahl“ statt „erwartet eine ganze Zahl“. | Phase 9 |
 | 19.11.2026 | Prüf-Skript misst die Download-Größe beim Start automatisch (Messweise aus LEISTUNGSBUDGET.md, Abschnitt 8). | Phase 2 oder 8 |
+| 19.11.2026 | Spielstand mit „Legende“: Neben den Gelände-Nummern die Kennungen in ihrer Reihenfolge speichern (z. B. `["deep_water", "shallow_water", …]`) und beim Laden umrechnen. Dann darf `terrain.json` auch umsortiert werden. | Phase 3 (Speichern/Laden) |
+| 19.11.2026 | Spielstand-Prüfung der Welt ergänzen: Inselnummern eindeutig und passend zur Ebene `island`, Fruchtbarkeiten und Rohstoffe aus den Datendateien, Vorkommen auf der Karte, Gebäudenummern in `occupancy` vorhanden. | Phase 3 (Speichern/Laden) |
 
 Bereits bekannte offene Entscheidungen für später stehen im [GESAMTPLAN.md](GESAMTPLAN.md), Abschnitt 5.

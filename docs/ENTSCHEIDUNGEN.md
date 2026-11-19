@@ -358,3 +358,24 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Vorteile:** realistischerer Leistungs-Test (Tausende Bäume), Inseln wirken lebendig, Bauen bleibt flüssig.
 - **Nachteile:** etwas mehr Aufwand in Unterphase 2.3. Holzfäller, die Bäume tatsächlich brauchen, kommen erst in Phase 3.
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-025 · Technische Festlegungen zum Welt-Datenmodell
+
+- **Datum:** 19.11.2026 · Unterphase 2.2
+- **Festgelegt (von Claude, ohne spürbare Folgen für den Nutzer; E-020):**
+  1. **Kachel-Raster als Zahlenfelder** (`sim/world.ts`): pro Angabe eine lange Zahlenliste mit einer Zahl je Kachel (Gelände, Höhe, Insel, Baum, Belegung). *Warum:* 65.536 Kacheln brauchen so nur 512 kB statt mehrerer MB, und Weltgenerator und Bauregeln sind schnell. *Alternative:* ein Objekt pro Kachel (einfacher zu lesen, aber viel größer und langsamer).
+  2. **Belegung in einer Ebene:** 0 = frei, positive Zahl = Gebäudenummer, negative Zahl = Straße. *Warum:* Eine Kachel kann nie gleichzeitig Straße und Gebäude sein; das ist so automatisch sichergestellt. Bäume stehen in einer eigenen Ebene, weil Bauen sie wegräumt (E-024).
+  3. **Achsen und Größe:** Kachel 0/0 ist die südwestliche Ecke, x zeigt nach Osten, y nach Norden; eine Kachel ist 2 m groß (E-021). Umrechnung in die 3D-Welt nur in `sim/worldSpace.ts`.
+  4. **Höhe als ganze Zahl** in Stufen zu 0,125 m (−4 m bis knapp 28 m). *Warum:* ein Byte pro Kachel, und 0,125 rechnet der Computer ohne Rundungsfehler.
+  5. **Rohstoffvorkommen und Fruchtbarkeiten** stehen als kurze Liste bei der Insel, nicht in einer Ebene je Kachel. *Warum:* Es gibt nur wenige Vorkommen pro Insel.
+  6. **Spielstand:** Jede Ebene wird lauflängen-kodiert („Wert, Anzahl“) gespeichert und beim Einlesen geprüft. **Die Versionsnummer bleibt 1**, obwohl sich der Aufbau geändert hat: Gespeichert wird erst ab Phase 3, es gibt also noch keine alten Spielstände.
+  7. **Gebäudearten** bekommen in `buildings.json` eine Größe in Kacheln (Breite × Tiefe, 1 bis 12) und den erlaubten Untergrund (Liste von Geländearten). Der Test-Holzfäller ist 3 × 3 Kacheln groß und steht auf Ebenen. Drehung in 90°-Schritten im Uhrzeigersinn; bei 90° und 270° tauschen Breite und Tiefe.
+  8. **Startlisten der Welt-Daten** (vorläufig, jederzeit in den JSON-Dateien änderbar): Gelände *tiefes Wasser, Flachwasser, Strand, Ebene, Berg* (Pflicht, weil Generator und Bauregeln sie kennen); Rohstoffe *Eisenerz, Marmor, Gold, Edelsteine*; Fruchtbarkeiten *Kakao, Tabak, Zuckerrohr, Gewürze, Baumwolle, Weinreben*.
+- **Vorteile:** sparsam, schnell, vollständig speicherbar und gut testbar.
+- **Nachteile:** Die Position einer Geländeart in `terrain.json` ist zugleich ihre gespeicherte Nummer; bis Phase 3 neue Arten nur hinten anhängen (siehe IDEEN-SPAETER.md).
+
+---
+
+**Nächste freie Nummer: E-026**

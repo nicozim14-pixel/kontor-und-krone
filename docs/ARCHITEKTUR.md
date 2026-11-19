@@ -3,8 +3,8 @@
 Dieses Dokument beschreibt, wie die Teile des Spiels zusammenarbeiten.
 Es gilt für alle Phasen. Wer Code schreibt, hält sich daran; Änderungen werden hier und in [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) festgehalten.
 
-- **Stand:** 18.11.2026 · Unterphase 1.7
-- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6, Durchstich in 1.7 (E-019).
+- **Stand:** 19.11.2026 · Unterphase 2.2
+- **Status:** ✅ vom Nutzer bestätigt am 18.11.2026 (E-016, E-017, E-018). Grundgerüst umgesetzt in Unterphase 1.6, Durchstich in 1.7 (E-019), Welt-Datenmodell in 2.2 (E-025).
 
 ---
 
@@ -15,6 +15,7 @@ Stell dir Kontor & Krone als Brettspiel vor, das von einer Fernsehkamera gefilmt
 | Im Brettspiel | Im Code | Ordner |
 | --- | --- | --- |
 | **Spielbrett mit allen Figuren und Notizzetteln** – alles, was gerade gilt | **Spielzustand** | `sim/` |
+| **Karopapier auf dem Spielbrett** – jedes Kästchen weiß, was darauf liegt | **Kachel-Raster der Welt** | `sim/` |
 | **Spielleiter**, der die Regeln anwendet und das Brett verändert | **Simulation** (Spiellogik) | `sim/` |
 | **Regelbuch und Kartenkatalog** – welche Waren und Gebäude es gibt | **Spieldaten** (JSON-Dateien) | `data/` |
 | **Rundenglocke**, die alle 0,5 Sekunden läutet | **Wirtschafts-Takt** | `core/` |
@@ -54,7 +55,7 @@ Kurz: **Befehle gehen hinein, Ereignisse kommen heraus.** Dazwischen liegt nur d
 
 | Ordner | Aufgabe | darf benutzen |
 | --- | --- | --- |
-| `core/` | Takt (Uhr), Ereignis-Bus, Zufall, Versionsangaben | nichts anderes |
+| `core/` | Takt (Uhr), Ereignis-Bus, Zufall, Versionsangaben, Lauflängen-Kodierung | nichts anderes |
 | `data/` | Spieldaten (JSON), Prüfschemas, Daten-Lader | `core` |
 | `sim/` | Spielzustand, Spielregeln, Befehle, Spielstand-Format | `core`, `data` |
 | `render/` | 3D-Darstellung mit Babylon.js | `core`, `data`, `sim` (nur lesen) |
@@ -76,6 +77,7 @@ Alles, was ein Spielstand enthalten muss, steht in **einem** Objekt: dem Spielzu
 
 - **Nur einfache Daten:** Zahlen, Texte, Ja/Nein, Listen und einfache Objekte. Keine 3D-Objekte, keine Funktionen.
   Dadurch lässt er sich jederzeit 1 : 1 als Text (JSON) speichern und wieder laden.
+  Einzige Besonderheit: Das Kachel-Raster (Abschnitt 4.1) besteht aus **Zahlenfeldern**, langen Listen aus lauter Zahlen. Sie werden beim Speichern platzsparend als Text geschrieben (Lauflängen-Kodierung).
 - **Verweise über Nummern (IDs):** Ein Marktkarren merkt sich nicht „das Lagerhaus-Objekt“, sondern „Gebäude Nr. 17“.
   Wie Hausnummern statt Wegbeschreibungen: Nach dem Laden stimmen die Nummern immer noch.
   - Dinge auf der Karte (Gebäude, Karren, Schiffe) bekommen fortlaufende Nummern.
@@ -83,13 +85,23 @@ Alles, was ein Spielstand enthalten muss, steht in **einem** Objekt: dem Spielzu
 - **Versionsnummer:** Jeder Spielstand trägt eine Versionsnummer (`saveVersion`). Ändert sich später der Aufbau, wandelt ein kleines Umbau-Programm alte Spielstände automatisch um („Migration“).
 - **Nur die Simulation darf ihn ändern.** Darstellung und Oberfläche bekommen eine schreibgeschützte Sicht; TypeScript meldet jeden Änderungsversuch als Fehler.
 
-Beispiel (so sieht er nach Phase 1 aus, Zufalls-Zahlen gekürzt):
+Beispiel als Spielstand-Text (Stand Unterphase 2.2, Zahlen gekürzt):
 
 ```json
 {
   "saveVersion": 1,
   "seed": 1701,
   "random": { "world": [1, 2, 3, 4], "events": [5, 6, 7, 8] },
+  "world": {
+    "width": 256,
+    "height": 256,
+    "terrain": [0, 9120, 1, 4, 2, 3, 3, 11, "…"],
+    "elevation": ["…"],
+    "island": ["…"],
+    "trees": ["…"],
+    "occupancy": [0, 65536]
+  },
+  "islands": [{ "id": 1, "fertilities": ["cocoa", "tobacco"], "deposits": [{ "resource": "iron_ore", "x": 40, "y": 12 }] }],
   "tick": 1240,
   "nextEntityId": 2,
   "buildings": { "1": { "id": 1, "type": "test_woodcutter" } },
@@ -99,6 +111,43 @@ Beispiel (so sieht er nach Phase 1 aus, Zufalls-Zahlen gekürzt):
 
 Die Spielgeschwindigkeit gehört nicht zum Spielzustand, sondern zur Uhr (Abschnitt 5).
 Das Spielstand-Format (Text hin und zurück, Prüfung beim Einlesen, Umwandlung alter Versionen) steht in `sim/save.ts`; das Ablegen im Browser-Speicher kommt in Phase 3.
+Die Versionsnummer bleibt bis zum ersten echten Speichern in Phase 3 bei 1, auch wenn sich der Aufbau ändert: Es gibt noch keine alten Spielstände, die umgewandelt werden müssten (E-025).
+
+### 4.1 Die Welt als Kachel-Raster
+
+Die Welt ist mit einem Raster aus quadratischen **Kacheln** überzogen, wie Karopapier.
+Gebäude, Straßen und Bäume stehen immer genau auf Kacheln. Die Test-Welt hat 256 × 256 Kacheln, eine Kachel ist 2 × 2 Meter groß (so breit wie ein Feldweg), die Karte also 512 × 512 Meter (E-021).
+
+**Achsen** (Blick von oben, Karte ausgenordet):
+
+```
+        Norden (+y bei Kacheln, +z in der 3D-Welt)
+          ▲
+          │   Kachel (x, y) liegt zwischen den Ecken (x, y) und (x + 1, y + 1)
+          │
+   (0, 0) └──────────▶ Osten (+x)
+```
+
+Kachel 0/0 ist die südwestliche Ecke der Karte. In der 3D-Welt zeigt die dritte Achse (bei Babylon.js „y“) nach oben; der Meeresspiegel liegt bei 0.
+
+**Der „Notizzettel“ jeder Kachel** besteht aus fünf Angaben. Statt eines Objekts pro Kachel (65.536 Stück!) gibt es pro Angabe ein langes **Zahlenfeld** mit einer Zahl pro Kachel, Zeile für Zeile von Süden nach Norden. Das braucht für die ganze Karte nur 512 kB und ist schnell.
+
+| Ebene | Zahl je Kachel | Bedeutung |
+| --- | --- | --- |
+| `terrain` | 0–255 | Geländeart: Position in `terrain.json` (0 = erster Eintrag, z. B. tiefes Wasser, 3 = Ebene) |
+| `elevation` | 0–255 | Höhe in Stufen zu 0,125 m; 32 = Meeresspiegel, also −4 m bis knapp 28 m |
+| `island` | 0–255 | Inselnummer, 0 = Meer |
+| `trees` | 0–255 | 0 = kein Baum, 1 = Baum (E-024: Bauen räumt Bäume weg) |
+| `occupancy` | ganze Zahl | Belegung: 0 = frei, positive Zahl = Nummer des Gebäudes, negative Zahl = Straße (ab 2.6) |
+
+Dazu kommt eine kurze Liste der **Inseln** (`islands`): Nummer, Fruchtbarkeiten (z. B. Kakao, Tabak) und Rohstoffvorkommen in den Bergen (Art und Kachel).
+
+**Wichtige Regeln:**
+- **Umrechnung Kachel ↔ 3D-Position an genau einer Stelle:** `sim/worldSpace.ts`. Darstellung (`render/`) und Eingabe (`input/`) benutzen sie, z. B. um aus dem Punkt unter dem Finger die Kachel zu bestimmen. So rechnen alle mit denselben Zahlen.
+- **Grundfläche und Drehung** eines Gebäudes berechnet `sim/footprint.ts`: Jede Gebäudeart hat in `buildings.json` eine Größe in Kacheln (z. B. 3 × 3) und den erlaubten Untergrund (z. B. nur Ebene). Gedreht wird in 90°-Schritten; dabei tauschen Breite und Tiefe die Rollen.
+- **Schreibschutz:** Darstellung und Oberfläche sehen die Zahlenfelder nur lesend; jeder Änderungsversuch ist ein TypeScript-Fehler.
+- **Reihenfolge in `terrain.json` nicht ändern,** neue Geländearten nur hinten anhängen: Die Kacheln speichern die Position in dieser Liste. Ab Phase 3 bekommt der Spielstand eine „Legende“, dann ist auch Umsortieren sicher (IDEEN-SPAETER.md).
+- **Im Spielstand** steht jede Ebene **lauflängen-kodiert** (`core/runLength.ts`): statt „0, 0, 0, 0, 0“ steht dort „0, 5“ (Wert, Anzahl). Eine Ebene nur aus Meer schrumpft so von 65.536 Zahlen auf 2. Beim Einlesen wird jede Ebene geprüft (Länge, erlaubte Werte).
 
 ## 5. Die Uhr: Wirtschafts-Takt und Zeichen-Takt
 
@@ -141,7 +190,16 @@ Die Darstellung rechnet daraus bei jedem Bild die genaue Position aus, auch zwis
 
 ## 7. Spieldaten in Datendateien
 
-Waren, Gebäude, Produktionsketten, Bevölkerungsstufen usw. stehen in **JSON-Dateien** in `src/data/` (z. B. `goods.json`, `buildings.json`), nicht im Code.
+Waren, Gebäude, Produktionsketten, Bevölkerungsstufen usw. stehen in **JSON-Dateien** in `src/data/`, nicht im Code:
+
+| Datei | Inhalt |
+| --- | --- |
+| `goods.json` | Waren (bisher: Holz) |
+| `buildings.json` | Gebäudearten mit Größe in Kacheln, erlaubtem Untergrund und (vorläufig) Produktion |
+| `terrain.json` | Geländearten (tiefes Wasser, Flachwasser, Strand, Ebene, Berg) mit Greybox-Farbe; die fünf sind Pflicht, weil Weltgenerator und Bauregeln sie kennen |
+| `resources.json` | Rohstoffvorkommen in den Bergen (Eisenerz, Marmor, Gold, Edelsteine) |
+| `fertilities.json` | Fruchtbarkeiten der Inseln (Kakao, Tabak, Zuckerrohr, Gewürze, Baumwolle, Weinreben) |
+
 Englische Namen als feste Kennung, deutsche Texte für die Anzeige:
 
 ```json
@@ -149,7 +207,7 @@ Englische Namen als feste Kennung, deutsche Texte für die Anzeige:
 ```
 
 **Prüfschema:** Für jede Datei gibt es ein Schema, eine Art Formular-Vorlage: Welche Felder gibt es, welche Art von Wert, welche Grenzen?
-Beim Laden wird jede Datei damit kontrolliert, danach die Querverweise (Gibt es die Ware, die ein Gebäude herstellt? Ist jede Kennung nur einmal vergeben?).
+Beim Laden wird jede Datei damit kontrolliert, danach die Querverweise (Gibt es die Ware, die ein Gebäude herstellt? Gibt es die Geländeart, auf der es stehen darf? Ist jede Kennung nur einmal vergeben? Sind alle Pflicht-Geländearten da?).
 Fehler kommen als klare deutsche Meldung, z. B.:
 
 > buildings.json → Eintrag 1 („test_woodcutter“) → Feld „produces“ → Feld „good“: Die Ware „holz“ gibt es nicht. Bekannte Waren: wood.
@@ -219,8 +277,12 @@ Ein Hilfs-Baukasten für die Oberfläche (z. B. Preact oder Lit) wird erst in Ph
 | Uhr | 10 Takte bei 1× dauern 5 s; Pause erzeugt keine Takte; 4× ist 4-mal so schnell; keine Aufhol-Lawine nach langer Pause |
 | Ereignis-Bus | Durchsagen kommen beim richtigen Zuhörer an, erst nach dem Verteilen, Abmelden funktioniert |
 | Zufall | gleicher Seed → gleiche Zahlen; getrennte Ströme beeinflussen sich nicht; Speichern und Fortsetzen ergibt dieselbe Folge |
-| Spielzustand | Speichern als Text und Zurücklesen ergibt exakt denselben Zustand |
-| Spieldaten | die echten Dateien sind gültig; absichtlich fehlerhafte Beispiel-Dateien liefern die erwartete deutsche Meldung |
+| Spielzustand | Speichern als Text und Zurücklesen ergibt exakt denselben Zustand, auch mit Kachel-Raster; beschädigte Ebenen, zu große Karten und zu viele Inseln werden erkannt |
+| Kachel-Raster | jede Kachel an genau einer Stelle; leere Welt richtig gefüllt; Kacheln außerhalb der Karte erkannt; schreibgeschützt für die Darstellung (TypeScript-Prüfung) |
+| Umrechnung Kachel ↔ 3D | Mittelpunkt, Ecke, Kachel unter einem Punkt, hin und zurück; Höhe in Meter und zurück |
+| Grundfläche | Drehung in 90°-Schritten, Breite/Tiefe tauschen, belegte Kacheln, Gebäude mittig unter dem Finger |
+| Lauflängen-Kodierung | hin und zurück gleich; kaputte Daten mit deutscher Meldung |
+| Spieldaten | die echten Dateien sind gültig; absichtlich fehlerhafte Beispiel-Dateien (Waren, Gebäude, Gelände) liefern die erwartete deutsche Meldung; Pflicht-Geländearten, unbekannter Untergrund, Farben, höchstens 256 Geländearten |
 | Simulation | gleicher Seed + gleiche Befehle → gleiches Ergebnis; Gebäude per Befehl; Produktion pro Takt stimmt |
 | Durchstich | echte Datendateien + Uhr + Simulation: 10 Takte = 10 Holz; Pause erzeugt nichts; 2× und 4× doppelt bzw. viermal so viel |
 | Bildraten-Begrenzer | bei 90 Hz entstehen im Schnitt 60 Bilder pro Sekunde; Ruhebild greift und endet richtig |
@@ -236,11 +298,18 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 | `core/clock.ts` | die Uhr: Wirtschafts-Takt, Tempo, Schutz vor der Aufhol-Lawine |
 | `core/eventBus.ts` | der Ereignis-Bus |
 | `core/random.ts` | Zufall mit Seed (sfc32), Seed aus Zahl oder Wort |
+| `core/runLength.ts` | Lauflängen-Kodierung für den Spielstand |
 | `data/validation.ts` | Prüfen mit zod, deutsche Fehlermeldungen |
 | `data/schemas.ts` | die Prüfschemas der Datendateien |
 | `data/gameData.ts` | der Daten-Lader |
-| `data/*.json` | die Spieldaten: `goods.json` (Waren), `buildings.json` (Gebäudearten); `testdata/` enthält absichtlich fehlerhafte Beispiele für die Tests |
+| `data/*.json` | die Spieldaten (Abschnitt 7); `testdata/` enthält absichtlich fehlerhafte Beispiele für die Tests |
+| `data/bundledData.ts` | bindet die JSON-Dateien ins Spiel ein |
+| `data/testFixtures.ts` | Hilfen für Tests (nur die Daten angeben, um die es geht); landet nicht im Spiel |
 | `sim/state.ts` | der Spielzustand und seine Versionsnummer |
+| `sim/world.ts` | das Kachel-Raster der Welt und die Inseln (Abschnitt 4.1) |
+| `sim/worldSpace.ts` | Umrechnung Kachel ↔ 3D-Position und Höhe in Meter (die einzige Stelle dafür) |
+| `sim/footprint.ts` | Grundfläche und Drehung von Gebäuden |
+| `sim/readonly.ts` | schreibgeschützte Sicht für Darstellung und Oberfläche |
 | `sim/save.ts` | das Spielstand-Format |
 | `sim/commands.ts` | die Befehle |
 | `sim/events.ts` | die Liste aller Durchsagen |
@@ -260,4 +329,6 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 
 - **Unterphase 1.6 (erledigt):** Uhr mit Tempo, Ereignis-Bus, Zufallsgenerator, Spielzustand mit Versionsnummer, Spielstand-Format, Befehls-Grundgerüst, Daten-Lader mit Prüfschema, Bildraten-Begrenzer und Ruhebild, Schichten-Regeln in ESLint – alles mit Tests.
 - **Unterphase 1.7 (erledigt):** Test-Ware „Holz“ als echte Datendatei, Gebäudearten mit Querverweis-Prüfung, Test-Holzfäller per Befehl, System „Produktion“, Test-Lager, Debug-Anzeige.
+- **Unterphase 2.2 (erledigt):** Kachel-Raster im Spielzustand (Abschnitt 4.1), Datendateien für Gelände, Rohstoffe und Fruchtbarkeiten, Gebäudegröße und Untergrund, Umrechnung Kachel ↔ 3D, Grundfläche und Drehung, Lauflängen-Kodierung im Spielstand.
+- **Phase 2, weiter:** Weltgenerator (2.3), Spiel-Kamera (2.4), Bausystem mit Platzierungsregeln (2.5), Straßen und Pipette (2.6).
 - **Später:** Speichern/Laden im Browser-Speicher (Phase 3), Rückgängig (bei Bedarf), Oberflächen-Baukasten (Phase 3).

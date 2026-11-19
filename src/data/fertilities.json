@@ -1,0 +1,8 @@
+[
+  { "id": "cocoa", "name": "Kakao", "color": "#6b3e26" },
+  { "id": "tobacco", "name": "Tabak", "color": "#b88a3e" },
+  { "id": "sugarcane", "name": "Zuckerrohr", "color": "#9acd5a" },
+  { "id": "spices", "name": "Gewürze", "color": "#d2562b" },
+  { "id": "cotton", "name": "Baumwolle", "color": "#f4f1ea" },
+  { "id": "grapes", "name": "Weinreben", "color": "#6d2f6b" }
+]
