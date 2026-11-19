@@ -217,6 +217,7 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Vorteile:** sehr flüssig, schont Akku, hält das Tablet kühler und verzögert die Wärme-Drosselung.
 - **Nachteile:** minimal weniger flüssig als 90. Bei 90 Hz passt 60 nicht glatt hinein; das kann minimal ungleichmäßig wirken.
 - **Umsetzung:** im Zeichen-Takt (Unterphase 1.6/1.7), zusammen mit der gedrosselten Bildrate im Leerlauf. Claude prüft die Gleichmäßigkeit mit dem Nutzer am Tablet; wirkt es unruhig, wird 45 FPS als Alternative vorgeschlagen.
+- **Prüfung (19.11.2026, Unterphase 1.7):** Der Nutzer hat am Tablet 60 und 45 FPS verglichen. 60 wirkt gleichmäßig; es bleibt bei 60.
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
 
 ---
@@ -289,3 +290,17 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
   4. **Automatische Tests:** echte Datendateien gültig; absichtlich fehlerhafte `buildings.json` liefert deutsche Meldungen; unbekannte Ware wird erkannt; 10 Takte = 10 Holz; Pause erzeugt nichts; 2× und 4× ergeben in derselben Zeit doppelt bzw. viermal so viel Holz.
 - **Technische Kleinigkeiten (von Claude festgelegt):** Draw Calls werden mit Babylons Mess-Hilfe `SceneInstrumentation` gezählt (nur der Zähler, keine Zeitmessung), Dreiecke über die Zahl der gezeichneten Eckpunkt-Verweise. Die Spielstand-Versionsnummer bleibt bei 1, weil es bis Phase 3 noch keine gespeicherten Spielstände gibt.
 - **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-020 · Zusammenarbeit ab Phase 2: weniger Rückfragen bei Technik
+
+- **Datum:** 19.11.2026 · Rückschau am Ende von Phase 1 (Unterphase 1.7)
+- **Frage:** Was lief in Phase 1 gut, was ändern wir?
+- **Lief gut (Nutzer):** Auswahlfragen zum Anklicken; kleine Schritte.
+- **Gewählt:** **Weniger Rückfragen.** Rein technische Detailentscheidungen (Werkzeuge, Dateiaufbau, Zahlen ohne spürbare Folgen) trifft Claude ab Phase 2 selbst. Claude nennt sie in der Nachricht kurz mit Begründung und trägt sie hier ein. Der Nutzer kann jederzeit widersprechen.
+- **Bleibt unverändert:** Entscheidungen mit spürbaren Folgen für den Nutzer (Kosten, Privatsphäre, Aufwand für den Nutzer, Spielgefühl, Aussehen, Bedienung) kommen weiterhin einzeln als Auswahlfrage mit Vor- und Nachteilen.
+- **Vorteile:** weniger Unterbrechungen, schnellerer Fortschritt; der Nutzer entscheidet dort, wo es ihn wirklich betrifft.
+- **Nachteile:** Der Nutzer sieht technische Entscheidungen erst hinterher. Eine Fehlentscheidung fällt eventuell später auf (lässt sich dank der gespeicherten Versionen aber zurücknehmen).
+- **Umsetzung:** eingearbeitet in den Prompt für Phase 2 (Projekt-Dokument „Phasen/Phase_02_…“), Regel C.3.
+- **Begründung:** Wunsch des Nutzers.

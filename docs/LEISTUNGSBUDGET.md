@@ -95,9 +95,10 @@ Die Umschaltung im Spiel kommt mit dem Optionsmenü (spätestens Phase 9). Ob da
 Der Bildschirm kann 90 Bilder pro Sekunde. Mehr Bilder bedeuten etwas flüssigere Bewegungen, aber auch mehr Akkuverbrauch und Wärme.
 **Entschieden (E-015): Das Spiel zeichnet höchstens 60 Bilder pro Sekunde.** Das schont Akku und hält das Tablet kühler.
 
-Technischer Hinweis: Bei einem 90-Hz-Bildschirm passt 60 nicht glatt hinein (jedes dritte Bild des Bildschirms wird ausgelassen). Das kann minimal ungleichmäßig wirken. Claude prüft das bei der Umsetzung (Unterphase 1.6/1.7) mit dem Nutzer am Tablet. Wirkt es unruhig, wird eine Alternative (z. B. 45 FPS, das passt glatt in 90) zur Wahl gestellt.
+Technischer Hinweis: Bei einem 90-Hz-Bildschirm passt 60 nicht glatt hinein (jedes dritte Bild des Bildschirms wird ausgelassen). Das kann minimal ungleichmäßig wirken.
+**Geprüft am 19.11.2026 (Unterphase 1.7):** Der Nutzer hat am Tablet 60 FPS mit 45 FPS (Link-Zusatz `?fps=45`) verglichen. 60 wirkt gleichmäßig, es bleibt bei 60.
 
-Unabhängig davon: Im Leerlauf (nichts bewegt sich, kein Finger auf dem Bildschirm) wird die Bildrate stark gesenkt, um den Akku zu schonen. Das wird in Unterphase 1.6 geplant.
+Unabhängig davon: Im Leerlauf (nichts bewegt sich, kein Finger auf dem Bildschirm) zeigt das Spiel ein „Ruhebild“ und zeichnet nur noch etwa 1 Bild pro Sekunde, um den Akku zu schonen (umgesetzt in Unterphase 1.6).
 
 ## 7. So prüfen wir das Budget künftig
 
@@ -108,3 +109,21 @@ Unabhängig davon: Im Leerlauf (nichts bewegt sich, kein Finger auf dem Bildschi
 5. Wird eine Obergrenze überschritten, wird das sofort gemeldet und vor neuen Funktionen behoben.
 
 Messungen lassen sich jederzeit wiederholen: https://nicozim14-pixel.github.io/kontor-und-krone/check.html
+
+## 8. Leistungs-Check am Ende von Phase 1
+
+- **Datum:** 19.11.2026 · Unterphase 1.7
+- **Szene:** Test-Szene mit Meer, Test-Insel und Test-Holzfäller (die „vollste“ Szene von Phase 1)
+- **Gerät:** das Tablet aus Abschnitt 1, Google Chrome
+
+| Messwert | Ergebnis | Budget | Bewertung |
+| --- | --- | --- | --- |
+| Bildrate beim Drehen der Kamera | ca. 60 FPS (Tablet, Debug-Anzeige) | normal 60, nie unter 30 | ✅ |
+| Bildrate im Ruhebild | ca. 1 FPS | – | ✅ so gewollt (Akku sparen) |
+| Dreiecke pro Bild | 26 | 750.000 / 1.000.000 | ✅ |
+| Draw Calls pro Bild | 3 | 300 / 600 | ✅ |
+| Programmcode beim Start (Download) | ca. 310 kB komprimiert (24 Dateien) | ≤ 1 MB | ✅ |
+
+Messweise Download: alle Dateien, die das Spiel bis zum ersten Bild lädt, mit gzip gepackt (so überträgt sie GitHub Pages). Mit derselben Messweise lag der Stand vor Unterphase 1.7 bei 305 kB; der Durchstich kostet also ca. 5 kB.
+Der Geräte-Check `check.html` wurde am 18.11.2026 gemacht (Abschnitt 2) und ist seitdem unverändert; er wird ab Phase 2 am Ende jeder Phase wiederholt.
+**Ergebnis:** Phase 1 liegt weit innerhalb des Budgets. Aussagekräftig wird der Check ab Phase 2 mit Inselwelt und vielen Gebäuden.
