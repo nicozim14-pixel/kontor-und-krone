@@ -363,6 +363,6 @@ Alle Tests laufen vor jeder Veröffentlichung. Schlägt einer fehl, bleibt die a
 - **Unterphase 1.6 (erledigt):** Uhr mit Tempo, Ereignis-Bus, Zufallsgenerator, Spielzustand mit Versionsnummer, Spielstand-Format, Befehls-Grundgerüst, Daten-Lader mit Prüfschema, Bildraten-Begrenzer und Ruhebild, Schichten-Regeln in ESLint – alles mit Tests.
 - **Unterphase 1.7 (erledigt):** Test-Ware „Holz“ als echte Datendatei, Gebäudearten mit Querverweis-Prüfung, Test-Holzfäller per Befehl, System „Produktion“, Test-Lager, Debug-Anzeige.
 - **Unterphase 2.2 (erledigt):** Kachel-Raster im Spielzustand (Abschnitt 4.1), Datendateien für Gelände, Rohstoffe und Fruchtbarkeiten, Gebäudegröße und Untergrund, Umrechnung Kachel ↔ 3D, Grundfläche und Drehung, Lauflängen-Kodierung im Spielstand.
-- **Unterphase 2.3 (gebaut, Tablet-Test steht aus):** Weltgenerator mit Regeln in worldgen.json, Greybox-Darstellung von Inseln, Meer und Wäldern, Debug-Werkzeuge (Seed, Raster, Rohstoffe, Inseln).
+- **Unterphase 2.3 (erledigt):** Weltgenerator mit Regeln in worldgen.json, Greybox-Darstellung von Inseln, Meer und Wäldern, Debug-Werkzeuge (Seed, Raster, Rohstoffe, Inseln).
 - **Phase 2, weiter:** Spiel-Kamera (2.4), Bausystem mit Platzierungsregeln (2.5), Straßen und Pipette (2.6).
 - **Später:** Speichern/Laden im Browser-Speicher (Phase 3), Rückgängig (bei Bedarf), Oberflächen-Baukasten (Phase 3).

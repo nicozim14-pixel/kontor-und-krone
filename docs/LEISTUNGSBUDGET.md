@@ -141,4 +141,5 @@ Der Geräte-Check `check.html` wurde am 18.11.2026 gemacht (Abschnitt 2) und ist
 | Aufbau der 3D-Szene | ca. 110–140 ms | Teil der Ladezeit ≤ 5 s | ✅ |
 | Programmcode beim Start (Download) | 337 kB komprimiert (26 Dateien) | ≤ 1 MB | ✅ |
 
-Die Bildrate auf dem Tablet misst der Nutzer beim Test von 2.3; der vollständige Leistungs-Check mit vielen Gebäuden folgt in Unterphase 2.7.
+**Tablet (Nutzer, 19.11.2026):** Bildrate beim Drehen und Zoomen um 60 FPS ✅ (Rückmeldung „Alles gut“ zum Test von 2.3).
+Der vollständige Leistungs-Check mit vielen Gebäuden folgt in Unterphase 2.7.

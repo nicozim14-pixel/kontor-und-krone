@@ -424,6 +424,7 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Prüf-Skript:** macht jetzt auch Bilder vom Überblick und mit Einblendungen, prüft Seed-Laden und „Neue Welt“ und misst die Download-Größe beim Start. Takt und Ruhebild prüft es bei einem Viertel der Auflösung (`?aufloesung=25`), weil die Cloud-Umgebung ohne Grafikchip zeichnet und die volle Inselwelt dort den ganzen Browser bremst.
 - **Vorteile:** abwechslungsreiche Welten, die schon wie Inseln aussehen; alle Regeln in einer Datei; weit im Leistungsbudget.
 - **Nachteile:** Die Startwerte sind Schätzungen und brauchen das Urteil des Nutzers am Tablet. Die vorläufige Kamera ist noch nicht die Anno-typische Steuerung.
+- **Bestätigt:** Der Nutzer hat am Tablet mehrere Seeds ausprobiert: Die Welten gefallen, die Bildrate liegt um 60 FPS (19.11.2026). Die Startwerte bleiben.
 
 ---
 
