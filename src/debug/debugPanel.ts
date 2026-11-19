@@ -3,6 +3,8 @@
  *
  * Zeigt Bildrate (FPS), Takt-Nummer mit Spielzeit, Lagerbestände, Dreiecke, Draw Calls und Seed.
  * Mit den Knöpfen Pause / 1× / 2× / 4× lässt sich die Spielgeschwindigkeit einstellen.
+ * Welt-Werkzeuge (ab Unterphase 2.3): einen Seed laden oder eine zufällige neue Welt erzeugen,
+ * Raster, Rohstoffe und Insel-Beschriftungen einblenden.
  * Die Werte werden 4-mal pro Sekunde aufgefrischt und nur, solange die Anzeige offen ist.
  * Sie merkt sich im Browser, ob sie offen oder zu ist (beim ersten Start: offen).
  */
@@ -25,6 +27,27 @@ export interface DebugPanelOptions {
   readonly isIdle: () => boolean;
   /** Dreiecke und Draw Calls des zuletzt gezeichneten Bildes */
   readonly renderStats: () => RenderStats;
+  /** Welt-Werkzeuge (ab Unterphase 2.3) */
+  readonly world: WorldTools;
+}
+
+/** Eine Einblendung, die sich ein- und ausschalten lässt (z. B. das Raster). */
+export interface DebugOverlay {
+  /** Kurze Kennung für den Browser-Speicher, z. B. "grid" */
+  readonly id: string;
+  /** Aufschrift des Knopfs, z. B. "Raster" */
+  readonly label: string;
+  readonly setVisible: (visible: boolean) => void;
+}
+
+export interface WorldTools {
+  /** Kurzbeschreibung der Welt, z. B. „7 Inseln · 2.313 Bäume · 85 ms“ (Laufzeit des Generators) */
+  readonly summary: string;
+  readonly overlays: readonly DebugOverlay[];
+  /** Lädt die Welt zum eingegebenen Seed (Zahl oder Wort) */
+  loadSeed(seed: string): void;
+  /** Lädt eine Welt mit zufälligem Seed */
+  loadRandomSeed(): void;
 }
 
 /** So oft werden die Werte aufgefrischt (4-mal pro Sekunde). */
@@ -32,6 +55,9 @@ const UPDATE_INTERVAL_MS = 250;
 
 /** Name des Eintrags im Browser-Speicher, der sich „offen“ oder „zu“ merkt. */
 const STORAGE_KEY = "kontor-und-krone.debugPanelOpen";
+
+/** Name des Eintrags im Browser-Speicher, der sich die eingeschalteten Einblendungen merkt. */
+const OVERLAY_STORAGE_KEY = "kontor-und-krone.debugOverlays";
 
 const SPEED_LABELS: Readonly<Record<GameSpeed, string>> = {
   0: "Pause",
@@ -47,6 +73,24 @@ function readOpenState(): boolean {
   } catch {
     // Browser-Speicher nicht verfügbar (z. B. gesperrt): dann einfach offen.
     return true;
+  }
+}
+
+/** Liest, welche Einblendungen beim letzten Mal an waren (z. B. vor „Neue Welt“). */
+function readOverlayState(): Set<string> {
+  try {
+    const raw = localStorage.getItem(OVERLAY_STORAGE_KEY) ?? "";
+    return new Set(raw.split(",").filter((id) => id !== ""));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveOverlayState(active: ReadonlySet<string>): void {
+  try {
+    localStorage.setItem(OVERLAY_STORAGE_KEY, Array.from(active).join(","));
+  } catch {
+    // Nicht schlimm: Dann wird es eben nicht gemerkt.
   }
 }
 
@@ -109,7 +153,8 @@ export function createDebugPanel(options: DebugPanelOptions): void {
     return button;
   });
 
-  panel.append(list, speedGroup);
+  const worldSection = createWorldSection(options.world);
+  panel.append(list, speedGroup, worldSection);
   document.body.append(toggle, panel);
 
   // ── Werte auffrischen ──
@@ -176,4 +221,74 @@ export function createDebugPanel(options: DebugPanelOptions): void {
   });
 
   setOpen(readOpenState());
+}
+
+/** Der Abschnitt „Welt“: Seed laden, neue Welt, Einblendungen. */
+function createWorldSection(tools: WorldTools): HTMLElement {
+  const section = document.createElement("div");
+  section.className = "debug-world";
+
+  const summary = document.createElement("p");
+  summary.className = "debug-world-summary";
+  summary.textContent = tools.summary;
+
+  const form = document.createElement("form");
+  form.className = "debug-seed";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "seed";
+  input.placeholder = "Seed (Zahl oder Wort)";
+  input.autocomplete = "off";
+  input.enterKeyHint = "go";
+  input.setAttribute("aria-label", "Seed für eine neue Welt");
+  const loadButton = document.createElement("button");
+  loadButton.type = "submit";
+  loadButton.textContent = "Laden";
+  form.append(input, loadButton);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (text !== "") {
+      tools.loadSeed(text);
+    }
+  });
+
+  const randomButton = document.createElement("button");
+  randomButton.type = "button";
+  randomButton.className = "debug-new-world";
+  randomButton.textContent = "Neue Welt (Zufall)";
+  randomButton.addEventListener("click", () => {
+    tools.loadRandomSeed();
+  });
+
+  const overlayGroup = document.createElement("div");
+  overlayGroup.className = "debug-overlays";
+  overlayGroup.setAttribute("role", "group");
+  overlayGroup.setAttribute("aria-label", "Einblendungen");
+  const active = readOverlayState();
+  for (const overlay of tools.overlays) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.overlay = overlay.id;
+    button.textContent = overlay.label;
+    const apply = (on: boolean): void => {
+      button.setAttribute("aria-pressed", String(on));
+      overlay.setVisible(on);
+    };
+    apply(active.has(overlay.id));
+    button.addEventListener("click", () => {
+      const on = !active.has(overlay.id);
+      if (on) {
+        active.add(overlay.id);
+      } else {
+        active.delete(overlay.id);
+      }
+      saveOverlayState(active);
+      apply(on);
+    });
+    overlayGroup.append(button);
+  }
+
+  section.append(summary, form, randomButton, overlayGroup);
+  return section;
 }

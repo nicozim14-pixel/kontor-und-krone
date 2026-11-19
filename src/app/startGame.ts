@@ -8,8 +8,12 @@ import { GameClock } from "../core/clock";
 import { EventBus } from "../core/eventBus";
 import { loadBundledGameData } from "../data/bundledData";
 import { createDebugPanel } from "../debug/debugPanel";
+import { formatNumber } from "../debug/format";
+import { createIslandLabels } from "../debug/islandLabels";
 import { preventBrowserGestures } from "../input/browserGestures";
 import { trackCameraMovement } from "../render/activity";
+import { createDepositMarkers } from "../render/depositMarkers";
+import { createGridOverlay } from "../render/gridOverlay";
 import { showBuildings } from "../render/buildingView";
 import { createRenderEngine } from "../render/engine";
 import {
@@ -19,17 +23,18 @@ import {
 } from "../render/frameScheduler";
 import { trackRenderStats } from "../render/renderStats";
 import { parseRenderScalePercent } from "../render/resolution";
-import { createTestScene } from "../render/testScene";
+import { createWorldScene } from "../render/worldScene";
 import type { SimEvents } from "../sim/events";
+import { createNewGame } from "../sim/newGame";
 import { Simulation } from "../sim/simulation";
-import { createInitialState } from "../sim/state";
+import { findStartArea } from "../sim/startArea";
 import { GAME_SYSTEMS } from "../sim/systems";
 import { setupFullscreenButton } from "../ui/fullscreenButton";
 import { showUpdateBanner } from "../ui/updateBanner";
 import { showVersionBadge } from "../ui/versionBadge";
 import { browserLoopPlatform, GameLoop } from "./gameLoop";
 import { watchForNewerBuild } from "./updateCheck";
-import { readSeed } from "./urlOptions";
+import { readSeed, urlWithSeed } from "./urlOptions";
 
 /**
  * Gebäudeart, die beim Start als Test gebaut wird (Durchstich, Unterphase 1.7).
@@ -71,26 +76,33 @@ export function startGame(): void {
     return;
   }
 
-  // 2. Simulation: Spielzustand, Durchsagen, Uhr
+  // 2. Simulation: neue Partie mit Inselwelt aus dem Seed, Durchsagen, Uhr
+  const data = dataResult.value;
   const seed = readSeed(window.location.search);
+  const generationStart = performance.now();
+  const newGame = createNewGame(seed, data);
+  const generationMs = performance.now() - generationStart;
   const events = new EventBus<SimEvents>();
-  const simulation = new Simulation(
-    createInitialState(seed),
-    dataResult.value,
-    events,
-    GAME_SYSTEMS,
-  );
+  const simulation = new Simulation(newGame.state, data, events, GAME_SYSTEMS);
   const clock = new GameClock(1);
+  const testBuilding = data.buildings.get(TEST_BUILDING);
+  const startArea =
+    testBuilding === undefined
+      ? undefined
+      : findStartArea(simulation.state, data, testBuilding.size.width, testBuilding.size.depth);
 
   // 3. Darstellung mit Zeichen-Takt (höchstens 60 Bilder pro Sekunde, Ruhebild)
   const canvas = getElement("game-canvas", HTMLCanvasElement);
   const engine = createRenderEngine(canvas, parseRenderScalePercent(window.location.search));
-  const scene = createTestScene(engine);
+  const sceneStart = performance.now();
+  const world = createWorldScene(engine, simulation.state, data, startArea);
+  const { scene } = world;
+  const sceneMs = performance.now() - sceneStart;
   const scheduler = new FrameScheduler({
     ...DEFAULT_FRAME_SCHEDULER_OPTIONS,
     maxFps: parseMaxFps(window.location.search),
   });
-  showBuildings(scene, simulation.state, events, () => {
+  showBuildings(scene, simulation.state, data, events, startArea, data.worldGen.plainHeight, () => {
     scheduler.requestRender();
   });
   const readRenderStats = trackRenderStats(scene);
@@ -102,7 +114,8 @@ export function startGame(): void {
     contextLost = false;
   });
 
-  // 4. Test-Welt: ein Test-Holzfäller, der pro Takt 1 Holz herstellt (Werte aus buildings.json)
+  // 4. Test-Holzfäller, der pro Takt 1 Holz herstellt (Werte aus buildings.json).
+  //    Bis Unterphase 2.5 steht er auf dem Startplatz der größten Insel.
   const placed = simulation.execute({ type: "debugPlaceBuilding", building: TEST_BUILDING });
   if (!placed.ok) {
     window.kkShowError?.("Fehler beim Aufbau der Test-Welt", placed.reason);
@@ -155,14 +168,43 @@ export function startGame(): void {
     window.kkSceneReady = true;
   });
 
-  // 6. Debug-Anzeige oben links
+  // 6. Debug-Anzeige oben links, mit Welt-Werkzeugen
+  const sizeClassNames = newGame.islandSizeClasses.map(
+    (id) => data.worldGen.islandClasses.find((entry) => entry.id === id)?.name ?? id,
+  );
+  const withRedraw = (setVisible: (visible: boolean) => void) => (visible: boolean) => {
+    setVisible(visible);
+    scheduler.requestRender();
+    loop.wake();
+  };
+  const grid = createGridOverlay(scene, simulation.state, world.terrain);
+  const deposits = createDepositMarkers(scene, simulation.state, data, world.terrain);
+  const labels = createIslandLabels(scene, canvas, simulation.state, data, sizeClassNames);
   createDebugPanel({
     state: simulation.state,
-    data: dataResult.value,
+    data,
     clock,
     renderedFrames: () => loop.renderedFrames,
     isIdle: () => scheduler.isIdle(performance.now()),
     renderStats: readRenderStats,
+    world: {
+      summary:
+        `${String(simulation.state.islands.length)} Inseln · ${formatNumber(world.trees.count)} Bäume · ` +
+        `${formatNumber(Math.round(generationMs))} ms`,
+      overlays: [
+        { id: "grid", label: "Raster", setVisible: withRedraw(grid.setVisible) },
+        { id: "deposits", label: "Rohstoffe", setVisible: withRedraw(deposits.setVisible) },
+        { id: "islands", label: "Inseln", setVisible: withRedraw(labels.setVisible) },
+      ],
+      loadSeed: (text) => {
+        window.location.assign(urlWithSeed(window.location.href, text));
+      },
+      loadRandomSeed: () => {
+        // Eine gut abtippbare Zahl; echter Zufall ist hier (außerhalb der Simulation) erlaubt.
+        const seed = 1 + Math.floor(Math.random() * 999_999);
+        window.location.assign(urlWithSeed(window.location.href, String(seed)));
+      },
+    },
   });
 
   // Messwerte für Claudes automatische Prüfung (scripts/screenshot.ts)
@@ -184,6 +226,10 @@ export function startGame(): void {
     },
     seed,
     maxFps: scheduler.maxFps,
+    islands: simulation.state.islands.length,
+    trees: world.trees.count,
+    generationMs,
+    sceneMs,
   };
 
   loop.start();

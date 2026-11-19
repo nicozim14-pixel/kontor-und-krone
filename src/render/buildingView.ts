@@ -2,35 +2,37 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Scene } from "@babylonjs/core/scene";
+import type { GameData } from "../data/gameData";
 import type { SimEventBus } from "../sim/events";
+import type { Footprint } from "../sim/footprint";
 import { buildingKey, type BuildingState, type ReadonlyGameState } from "../sim/state";
-import { TEST_ISLAND_TOP_Y } from "./testScene";
+import { TILE_SIZE, tileRectCenterToWorld } from "../sim/worldSpace";
 
-/** Maße des Platzhalter-Würfels (Greybox) für ein Gebäude in Metern. */
-const BUILDING_WIDTH = 3;
-const BUILDING_HEIGHT = 2.4;
+/** Höhe des Platzhalter-Blocks (Greybox) für ein Gebäude in Metern. */
+const BUILDING_HEIGHT = 3;
 
-/** Abstand der Plätze auf der Test-Insel (3 × 3 Plätze). */
-const SLOT_SPACING = 3.6;
-const SLOTS_PER_ROW = 3;
-
-/** Reihenfolge, in der die Plätze belegt werden: zuerst die Mitte (Platz 4), dann rundherum. */
-const SLOT_ORDER = [4, 0, 1, 2, 5, 8, 7, 6, 3] as const;
+/** Der Block lässt am Rand der Grundfläche etwas Platz frei (Anteil der Kachelbreite). */
+const BUILDING_INSET = 0.15;
 
 /**
- * Zeigt gebaute Gebäude als Platzhalter-Würfel (Greybox) auf der Test-Insel.
+ * Zeigt gebaute Gebäude als Platzhalter-Blöcke (Greybox) in der Größe ihrer Grundfläche.
  *
  * Liest nur den Spielzustand und hört auf die Durchsage „buildingPlaced“.
- * Vorläufig (Durchstich, Unterphase 1.7): Gebäude haben noch keinen Platz auf der Karte,
- * deshalb stehen sie der Reihe nach auf 9 festen Plätzen der Insel. Ab Phase 2 entscheidet
- * die Position im Spielzustand.
+ * Vorläufig (bis Unterphase 2.5): Gebäude haben noch keinen Platz auf der Karte. Sie stehen
+ * deshalb auf dem Startplatz der größten Insel (sim/startArea.ts). Ab 2.5 entscheidet die
+ * Position im Spielzustand.
  *
+ * @param startArea Startplatz für Gebäude ohne eigene Position
+ * @param groundHeight Höhe des Bodens am Startplatz in Metern
  * @param onChange wird nach jeder sichtbaren Änderung aufgerufen (für den Zeichen-Takt: `requestRender`)
  */
 export function showBuildings(
   scene: Scene,
   state: ReadonlyGameState,
+  data: GameData,
   events: SimEventBus,
+  startArea: Footprint | undefined,
+  groundHeight: number,
   onChange: () => void,
 ): void {
   const material = new StandardMaterial("buildingMaterial", scene);
@@ -38,24 +40,21 @@ export function showBuildings(
   material.specularColor = Color3.Black();
   material.freeze();
 
-  let placed = 0;
   const addBuilding = (building: Readonly<BuildingState>): void => {
-    const slot = SLOT_ORDER[placed % SLOT_ORDER.length] ?? 0;
-    placed += 1;
-    const column = slot % SLOTS_PER_ROW;
-    const row = Math.floor(slot / SLOTS_PER_ROW);
-
+    const size = data.buildings.get(building.type)?.size ?? { width: 1, depth: 1 };
+    const area = startArea ?? { x: 0, y: 0, ...size };
+    const center = tileRectCenterToWorld(area.x, area.y, size.width, size.depth);
     const mesh = CreateBox(
       `building-${String(building.id)}`,
-      { width: BUILDING_WIDTH, height: BUILDING_HEIGHT, depth: BUILDING_WIDTH },
+      {
+        width: (size.width - BUILDING_INSET * 2) * TILE_SIZE,
+        height: BUILDING_HEIGHT,
+        depth: (size.depth - BUILDING_INSET * 2) * TILE_SIZE,
+      },
       scene,
     );
     mesh.material = material;
-    mesh.position.set(
-      (column - 1) * SLOT_SPACING,
-      TEST_ISLAND_TOP_Y + BUILDING_HEIGHT / 2,
-      (row - 1) * SLOT_SPACING,
-    );
+    mesh.position.set(center.x, groundHeight + BUILDING_HEIGHT / 2, center.z);
     // Gebäude bewegen sich nicht: Babylon.js spart sich dann die Neuberechnung der Lage.
     mesh.freezeWorldMatrix();
     onChange();

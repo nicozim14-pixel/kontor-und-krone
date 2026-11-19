@@ -15,3 +15,13 @@ export function readSeed(search: string): number {
   const raw = new URLSearchParams(search).get(SEED_URL_PARAMETER);
   return raw === null || raw.trim() === "" ? DEFAULT_SEED : parseSeed(raw);
 }
+
+/**
+ * Derselbe Link mit einem anderen Seed (für „Neue Welt“ in der Debug-Anzeige).
+ * Andere Link-Zusätze (z. B. `?fps=45`) bleiben erhalten.
+ */
+export function urlWithSeed(href: string, seed: string): string {
+  const url = new URL(href);
+  url.searchParams.set(SEED_URL_PARAMETER, seed.trim());
+  return url.toString();
+}

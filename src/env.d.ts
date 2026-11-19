@@ -29,5 +29,13 @@ interface Window {
     readonly idle: boolean;
     readonly seed: number;
     readonly maxFps: number;
+    /** Anzahl der Inseln der erzeugten Welt */
+    readonly islands: number;
+    /** Anzahl der gezeigten Bäume */
+    readonly trees: number;
+    /** Laufzeit des Weltgenerators in Millisekunden */
+    readonly generationMs: number;
+    /** Zeit für den Aufbau der 3D-Szene in Millisekunden */
+    readonly sceneMs: number;
   };
 }

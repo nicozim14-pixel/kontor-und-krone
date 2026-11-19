@@ -6,7 +6,8 @@
  * Ergebnis: Bilder im Ordner screenshots/ (wird nicht ins Repository gespeichert).
  * Der Pfad zu Chrome lässt sich mit der Umgebungsvariablen CHROME_PATH ändern.
  */
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
+import { gzipSync } from "node:zlib";
 import { chromium, type Page } from "playwright-core";
 import { preview } from "vite";
 
@@ -217,6 +218,136 @@ async function checkDebugPanel(page: Page): Promise<string[]> {
   return errors;
 }
 
+interface WorldStats {
+  readonly seed: number;
+  readonly islands: number;
+  readonly trees: number;
+  readonly generationMs: number;
+  readonly sceneMs: number;
+}
+
+const READ_WORLD_STATS = `(() => {
+  const s = window.kkStats;
+  return s
+    ? { seed: s.seed, islands: s.islands, trees: s.trees, generationMs: s.generationMs, sceneMs: s.sceneMs }
+    : null;
+})()`;
+
+async function readWorldStats(page: Page): Promise<WorldStats> {
+  const stats = await page.evaluate<WorldStats | null>(READ_WORLD_STATS);
+  if (stats === null) {
+    throw new Error("window.kkStats fehlt.");
+  }
+  return stats;
+}
+
+/** Obergrenze für den Programmcode beim Start, komprimiert (docs/LEISTUNGSBUDGET.md, Abschnitt 4). */
+const DOWNLOAD_LIMIT_BYTES = 1.5 * 1024 * 1024;
+
+/**
+ * Misst die Download-Größe beim Start: alle Dateien, die das Spiel bis zum ersten Bild lädt,
+ * mit gzip gepackt (so überträgt sie GitHub Pages). Messweise aus LEISTUNGSBUDGET.md, Abschnitt 8.
+ */
+async function measureStartDownload(
+  urls: readonly string[],
+): Promise<{ files: number; bytes: number }> {
+  const paths = new Set(
+    urls
+      .map((address) => new URL(address).pathname)
+      .filter((path) => /\.(js|css|html|svg)$/.test(path) || path === "/"),
+  );
+  let bytes = 0;
+  for (const path of paths) {
+    const file = path === "/" ? "dist/index.html" : `dist${path}`;
+    bytes += gzipSync(await readFile(file)).length;
+  }
+  return { files: paths.size, bytes };
+}
+
+/** Wartet, bis die Szene nach einem Neuladen wieder fertig ist. */
+async function waitForScene(page: Page): Promise<void> {
+  await page.waitForFunction("window.kkSceneReady === true", null, { timeout: 30_000 });
+  await page.waitForTimeout(500);
+}
+
+/**
+ * Prüft die Inselwelt (Unterphase 2.3): Kennzahlen, Überblick, Einblendungen,
+ * Seed laden und „Neue Welt“. Macht dabei Bildschirmfotos.
+ */
+async function checkWorld(page: Page): Promise<string[]> {
+  const errors: string[] = [];
+  const first = await readWorldStats(page);
+  if (first.islands < 6 || first.islands > 8) {
+    errors.push(`${String(first.islands)} Inseln, erwartet 6 bis 8.`);
+  }
+  if (first.trees < 1000) {
+    errors.push(`Nur ${String(first.trees)} Bäume, erwartet über 1.000.`);
+  }
+  if (first.generationMs > 1000) {
+    errors.push(`Weltgenerator brauchte ${first.generationMs.toFixed(0)} ms (Grenze 1.000 ms).`);
+  }
+  const panelText = await page.innerText("#debug-panel");
+  if (!panelText.includes(`${String(first.islands)} Inseln`)) {
+    errors.push("Debug-Anzeige: Zusammenfassung der Welt fehlt.");
+  }
+
+  // Einblendungen am Startplatz
+  for (const overlay of ["grid", "deposits", "islands"]) {
+    await page.tap(`#debug-panel button[data-overlay="${overlay}"]`);
+  }
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${OUTPUT_DIR}/tablet-quer-einblendungen.png` });
+  const visibleLabels = await page.locator(".island-label:visible").count();
+  if (visibleLabels === 0) {
+    errors.push("Insel-Beschriftungen: keine sichtbar.");
+  }
+
+  // Überblick: weit herauszoomen (Mausrad, wie zwei Finger zusammenziehen)
+  await page.mouse.move(900, 500);
+  for (let i = 0; i < 12; i++) {
+    await page.mouse.wheel(0, 400);
+    await page.waitForTimeout(60);
+  }
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: `${OUTPUT_DIR}/tablet-quer-ueberblick-einblendungen.png` });
+  const stats = await page.innerText("#debug-panel");
+  for (const overlay of ["grid", "deposits", "islands"]) {
+    await page.tap(`#debug-panel button[data-overlay="${overlay}"]`);
+  }
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${OUTPUT_DIR}/tablet-quer-ueberblick.png` });
+  const overviewTriangles = /Dreiecke\s+([\d.]+)/.exec(stats)?.[1] ?? "?";
+  const overviewDrawCalls = /Draw Calls\s+([\d.]+)/.exec(stats)?.[1] ?? "?";
+
+  // Seed als Wort laden
+  await page.fill("#debug-panel input[name=seed]", "Barock");
+  await page.tap("#debug-panel .debug-seed button");
+  await page.waitForURL(/seed=Barock/);
+  await waitForScene(page);
+  const barock = await readWorldStats(page);
+  if (barock.seed === first.seed) {
+    errors.push("Seed „Barock“ hat keine neue Welt erzeugt.");
+  }
+  await page.screenshot({ path: `${OUTPUT_DIR}/tablet-quer-seed-barock.png` });
+
+  // Neue Welt mit zufälligem Seed
+  await page.tap("#debug-panel .debug-new-world");
+  await page.waitForURL((target) => !target.search.includes("Barock"));
+  await waitForScene(page);
+  const random = await readWorldStats(page);
+  if (random.seed === barock.seed) {
+    errors.push("„Neue Welt (Zufall)“ hat keinen neuen Seed gewählt.");
+  }
+
+  console.log(
+    `      Welt: Seed ${String(first.seed)} · ${String(first.islands)} Inseln · ${String(first.trees)} Bäume · ` +
+      `Generator ${first.generationMs.toFixed(0)} ms · Szene ${first.sceneMs.toFixed(0)} ms · ` +
+      `Überblick mit Einblendungen: ${overviewTriangles} Dreiecke, ${overviewDrawCalls} Draw Calls · ` +
+      `Seed „Barock“ → ${String(barock.seed)} (${String(barock.islands)} Inseln) · Zufall → ${String(random.seed)}`,
+  );
+  return errors;
+}
+
 /**
  * Spielt die Testseite check.html einmal im Schnelldurchlauf durch („?schnell“):
  * Geräte-Angaben, Belastungstest mit allen Stufen, kopierbarer Ergebnistext.
@@ -297,6 +428,11 @@ try {
       }
     });
 
+    const loadedUrls: string[] = [];
+    const recordResponse = (response: { url(): string }): void => {
+      loadedUrls.push(response.url());
+    };
+    page.on("response", recordResponse);
     await page.goto(url, { waitUntil: "load" });
     try {
       await page.waitForFunction("window.kkSceneReady === true", null, { timeout: 30_000 });
@@ -304,7 +440,18 @@ try {
       errors.push("Szene wurde nicht innerhalb von 30 Sekunden fertig.");
     }
     await page.waitForTimeout(500);
+    page.off("response", recordResponse);
     await page.screenshot({ path: `${OUTPUT_DIR}/${device.name}.png` });
+    if (device.name === "tablet-quer") {
+      const download = await measureStartDownload(loadedUrls);
+      console.log(
+        `      Download beim Start: ${(download.bytes / 1024).toFixed(0)} kB komprimiert ` +
+          `(${String(download.files)} Dateien, Budget 1 MB, Obergrenze 1,5 MB)`,
+      );
+      if (download.bytes > DOWNLOAD_LIMIT_BYTES) {
+        errors.push("Download beim Start über der Obergrenze von 1,5 MB.");
+      }
+    }
     const report = await page.evaluate<PageReport>(READ_PAGE_REPORT);
 
     if (report.bootErrorVisible) {
@@ -317,6 +464,12 @@ try {
     }
 
     if (device.name === "tablet-quer") {
+      errors.push(...(await checkWorld(page)));
+      // Takt und Ruhebild bei einem Viertel der Auflösung prüfen: Die Cloud-Umgebung zeichnet
+      // ohne Grafikchip (nur mit dem Prozessor). Bei voller Auflösung bremst das Zeichnen der
+      // Inselwelt dort den ganzen Browser und damit die Uhr; auf dem Tablet passiert das nicht.
+      await page.goto(`${url}?aufloesung=25`, { waitUntil: "load" });
+      await waitForScene(page);
       errors.push(...(await checkGameLoop(page)));
       errors.push(...(await checkDebugPanel(page)));
     }
