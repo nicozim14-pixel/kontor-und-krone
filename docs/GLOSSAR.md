@@ -19,6 +19,9 @@ Ein kleines Prüfprogramm, das selbstständig kontrolliert, ob ein Stück Code r
 **Babylon.js**
 Die Browser-3D-Engine, die wir verwenden. Kostenlos, ausgereift und gut für Tablets geeignet.
 
+**Bau-Werkzeug (Modus)**
+Ein Knopf schaltet um, was ein Finger auf der Karte tut. Ohne Werkzeug verschiebt er die Karte, mit dem Straßen-Werkzeug zieht er Straßen, mit dem Abriss-Werkzeug reißt er ab. Wie beim Malprogramm: Erst wählt man Pinsel oder Radiergummi, dann malt man. Mit gewähltem Werkzeug bewegt man die Karte mit 2 Fingern (E-022).
+
 **Befehl (Command)**
 Ein kleines Datenpaket für eine Spieler-Aktion, z. B. „Baue hier einen Holzfäller“. Wie ein Wunschzettel an den Spielleiter: Er prüft ihn und erledigt ihn oder sagt, warum es nicht geht („Nicht genug Holz“).
 
@@ -76,6 +79,15 @@ Eine Rückmeldung eines Servers, die „Zutritt verboten“ bedeutet: Man ist zw
 **FPS (Bilder pro Sekunde)**
 Wie viele Bilder das Spiel pro Sekunde zeichnet. Ab etwa 30 wirkt alles flüssig, darunter beginnt es zu ruckeln. Wie bei einem Daumenkino: Je schneller man blättert, desto flüssiger die Bewegung.
 
+**Fruchtbarkeit**
+Welche Pflanzen auf einer Insel wachsen, z. B. Kakao oder Tabak. Jede Insel hat nur einige davon, deshalb kann keine Insel alles selbst herstellen. Das macht Besiedlung und Handel nötig.
+
+**Geist (Bau-Vorschau)**
+Ein durchscheinendes Vorschau-Gebäude, das zeigt, wo ein Gebäude landen würde. Grün heißt „passt“, rot heißt „passt nicht“, mit Grund (z. B. „Berg“). Erst beim Bestätigen wird wirklich gebaut.
+
+**Generator (Welt-Generator)**
+Ein Programm, das nach festen Regeln eine Inselwelt erzeugt, statt dass jemand sie von Hand zeichnet („prozedural“). Mit dem Seed als Startnummer entsteht immer wieder dieselbe Welt. Wie ein Rezept: gleiche Zutaten, gleicher Kuchen.
+
 **GitHub**
 Eine Webseite, auf der Repositories gespeichert werden. Dort liegt unser gesamter Code mit allen früheren Fassungen.
 
@@ -94,6 +106,9 @@ Ein fester Name für einen bestimmten Stand im Repository, z. B. „phase-1“. 
 **Greybox (Platzhalter-Grafik)**
 Einfache graue Formen wie Würfel oder Zylinder anstelle fertiger 3D-Modelle. So kann man das Spiel bauen und testen, bevor die schöne Grafik kommt (bei uns ab Phase 8).
 
+**Grundfläche (Footprint)**
+Die Kacheln, die ein Gebäude auf dem Boden belegt, z. B. 3 × 3. Wird ein Gebäude um 90° gedreht, tauschen Breite und Tiefe die Rollen.
+
 **Hochladen (Push)**
 Das Übertragen neuer Commits aus der Arbeitsumgebung zu GitHub. Erst danach sind sie dort gespeichert und können veröffentlicht werden.
 
@@ -108,6 +123,9 @@ Zwischenwerte ausrechnen. Die Simulation rechnet nur zweimal pro Sekunde; die Da
 
 **JSON**
 Ein einfaches Textformat für Daten, z. B. `{ "id": "wood", "name": "Holz" }`. Menschen und Computer können es gleichermaßen lesen. Unsere Spieldaten und später die Spielstände sind JSON.
+
+**Kachel und Raster**
+Das Raster ist wie Karopapier über der Welt, eine Kachel ist ein Kästchen davon (bei uns 2 × 2 Meter, so breit wie ein Feldweg). Jede Kachel hat eine Nummer aus Spalte und Zeile, z. B. 12/7, und einen „Notizzettel“: Geländeart, Insel, Baum, Gebäude oder Straße. Gebäude und Straßen werden immer genau auf Kacheln gesetzt.
 
 **Kreisel-Kamera (ArcRotateCamera)**
 Eine einfache Kamera von Babylon.js, die immer auf einen Punkt schaut und darum herumkreist, wie man um ein Modell auf dem Tisch herumgeht. Unsere vorläufige Kamera bis Phase 2.
@@ -154,6 +172,9 @@ Die „Visitenkarte“ eines Repositorys: eine Textdatei, die GitHub auf der Sta
 **Repository („Repo“)**
 Ein Online-Ordner für den gesamten Code eines Projekts, der sich jede frühere Fassung merkt. Ein Ordner mit eingebauter Zeitmaschine.
 
+**Rohstoffvorkommen**
+Eine Stelle in den Bergen, an der ein Rohstoff liegt, z. B. Eisenerz, Marmor, Gold oder Edelsteine. Später baut man dort eine Mine. Nicht jede Insel hat jedes Vorkommen.
+
 **Ruhebild**
 Akku-Sparmodus des Zeichnens: Bewegt sich 2 Sekunden lang nichts im Bild, wird nur noch gezeichnet, wenn sich etwas ändert, plus ein Kontrollbild pro Sekunde. Bei Berührung sofort wieder flüssig.
 
@@ -171,6 +192,9 @@ Der Teil des Programms, der das Spiel „rechnet“: Waren, Produktion, Bevölke
 
 **Spielzustand und Spielstand**
 Der Spielzustand ist alles, was in einer Partie gerade gilt, in einem einzigen Datenpaket. Ein Spielstand ist dieser Zustand als gespeicherter Text, wie ein Foto vom Spielbrett.
+
+**Strahl-Test (Picking)**
+So findet das Spiel heraus, was der Finger getroffen hat: Es schickt einen unsichtbaren Strahl von der Kamera durch die Fingerspitze in die 3D-Szene, wie einen Laserpointer. Wo der Strahl den Boden trifft, liegt die gesuchte Kachel.
 
 **System (Teil der Spiellogik)**
 Ein Baustein der Simulation, der in jedem Wirtschafts-Takt einmal läuft, z. B. die Produktion. Später kommen Verbrauch, Steuern, Marktkarren usw. dazu. Die Systeme laufen immer in derselben Reihenfolge, wie die Stationen an einem Fließband.
@@ -207,6 +231,9 @@ Die Technik, mit der ein Browser 3D-Grafik über den Grafikchip zeichnet. Babylo
 
 **WebGPU**
 Eine neuere Technik für 3D-Grafik im Browser, der Nachfolger von WebGL. Schneller, aber noch nicht auf allen Geräten verfügbar. Unsere Testseite prüft, ob das Tablet sie kann.
+
+**Zahlenfeld (Typed Array)**
+Eine lange, platzsparende Liste aus lauter Zahlen derselben Art, z. B. eine Zahl pro Kachel für die Geländeart. Bei 256 × 256 Kacheln sind das 65.536 Zahlen. Viel sparsamer und schneller als ein eigener „Notizzettel“ pro Kachel.
 
 **Zeichen-Takt**
 Wie oft die Darstellung ein neues Bild zeichnet (bei uns höchstens 60-mal pro Sekunde). Er ist vom Wirtschafts-Takt getrennt: Das Spiel rechnet gleich schnell, egal wie flüssig das Bild ist.

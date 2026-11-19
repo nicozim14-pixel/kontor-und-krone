@@ -4,10 +4,25 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 ## Aktueller Stand
 
-- **Phase 1 abgeschlossen** (19.11.2026, Git-Tag `phase-1`)
+- **Phase:** 2 von 10 – Greybox-Prototyp: Welt, Kamera & Bauen (Prompt: Projekt-Dokument „Phasen/Phase_02_Welt_Kamera_Bauen.txt“)
+- **Phase 1 abgeschlossen** am 19.11.2026 (Abschluss-Commit `06f83f4`; der Git-Tag `phase-1` ist noch offen, siehe „Bekannte Probleme“).
 - **Gerät:** **reines Tablet-Spiel** (Android-Tablet, Chrome, Querformat, Touch). Der alte Laptop entfällt seit 18.11.2026 (E-012, E-013).
-- **Erledigt:** 1.1 bis 1.7, alle Punkte der Abnahme-Checkliste.
-- **Nächster Schritt:** Phase 2 „Greybox-Prototyp: Welt, Kamera & Bauen“ mit dem Prompt aus dem Projekt-Dokument „Phasen/Phase_02_Welt_Kamera_Bauen.txt“.
+- **Erledigt in Phase 2:** 2.1.
+- **Nächster Schritt:** 2.2 „Raster & Welt-Datenmodell“.
+
+## Unterphasen von Phase 2
+
+| Nr. | Unterphase | Status | Erledigt am |
+| --- | --- | --- | --- |
+| 2.1 | Start, Überblick & Grundentscheidungen | ✅ erledigt (E-021 bis E-024) | 19.11.2026 |
+| 2.2 | Raster & Welt-Datenmodell | 🔧 in Arbeit | – |
+| 2.3 | Insel- & Weltgenerator | offen | – |
+| 2.4 | Spiel-Kamera per Touch | offen | – |
+| 2.5 | Bausystem: Platzieren, Drehen, Abriss | offen | – |
+| 2.6 | Straßen, automatische Ausrichtung & Pipette | offen | – |
+| 2.7 | Spielgefühl, Leistungs-Check, Abnahme & Übergabe | offen | – |
+
+**Grundentscheidungen von Phase 2 (2.1):** Test-Welt 256 × 256 Kacheln mit 6–8 Inseln, 1 Kachel = 2 m (E-021) · Bau-Werkzeug per Knopf, mit Werkzeug bewegen 2 Finger die Karte (E-022) · Gelände weich und natürlich, Ebenen flach, Raster nur beim Bauen (E-023) · Wälder ab Phase 2, Bauen räumt Bäume weg (E-024).
 
 ## Unterphasen von Phase 1
 
@@ -58,7 +73,7 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - ✅ „Holz“ wird aus einer JSON-Datei geladen, im 0,5-s-Takt verrechnet und in der Debug-Anzeige gezeigt; Pause und Geschwindigkeit funktionieren (automatisch geprüft und vom Nutzer am Tablet bestätigt, 19.11.2026)
 - ✅ build, test und lint fehlerfrei (116 Tests); Tests decken Takt und Datenprüfung ab
 - ✅ docs/ENTSCHEIDUNGEN.md, GLOSSAR.md, FORTSCHRITT.md und IDEEN-SPAETER.md sind aktuell
-- ✅ Git-Tag „phase-1“ gesetzt (19.11.2026)
+- ⏳ Git-Tag „phase-1“: lokal gesetzt, aber das Hochladen von Tags ist aus Claudes Umgebung gesperrt (siehe „Bekannte Probleme“)
 - ✅ Phase 2 starten: neuer Chat mit dem Prompt aus „Phasen/Phase_02_Welt_Kamera_Bauen.txt“
 
 ## Rückschau Phase 1 (19.11.2026)
@@ -79,7 +94,8 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 
 ## Bekannte Probleme
 
-- Keine. (Download beim Start: ca. 310 kB komprimiert, Budget 1 MB; Messweise in LEISTUNGSBUDGET.md, Abschnitt 8.)
+- **Git-Tags lassen sich aus Claudes Umgebung nicht hochladen** (19.11.2026): `git push origin phase-1` endet mit Fehler 403, die GitHub-Schnittstelle meldet „Write access to this GitHub API path is not permitted through this proxy“. Commits auf `main` funktionieren. Der Tag `phase-1` soll auf Commit `06f83f4` zeigen. Lösung mit dem Nutzer klären (z. B. Tag über die GitHub-Webseite anlegen); nicht weiter versuchen, die Sperre zu umgehen.
+- Download beim Start: ca. 310 kB komprimiert, Budget 1 MB (Messweise in LEISTUNGSBUDGET.md, Abschnitt 8).
 
 ## Verlauf
 
@@ -92,4 +108,4 @@ Diese Datei ist das Gedächtnis des Projekts. Ein neuer Chat liest sie zuerst un
 - **18.11.2026 (Chat 4):** 1.6 abgeschlossen. docs/ARCHITEKTUR.md mit Brettspiel-Vergleich und Diagramm geschrieben; Nutzer hat zugestimmt (E-016), dazu Bedienoberfläche mit HTML/CSS (E-017) und „läuft beim Zurückkehren sofort weiter“ (E-018). Grundgerüst gebaut: Uhr mit Tempo und Schutz vor der Aufhol-Lawine, Ereignis-Bus, Zufall mit Seed (sfc32, getrennte Ströme), Spielzustand mit Versionsnummer und Spielstand-Format, Befehle (Test-Befehl `debugAddGoods`), Daten-Lader mit zod und deutschen Fehlermeldungen, eigene Spiel-Schleife mit Bildraten-Begrenzer 60 FPS und Ruhebild, Schichten-Regeln in ESLint (mit Probedateien geprüft). 95 Tests grün; im unsichtbaren Chrome: 6 Takte in 3 s, Ruhebild 2 Bilder in 2 s, beim Wischen 60 Bilder pro Sekunde.
 - **18.11.2026 (Chat 5):** 1.7 begonnen. Durchstich nach Bestätigung des Nutzers gebaut (E-019): Holz und Test-Holzfäller als Datendateien mit Querverweis-Prüfung, Gebäude per Befehl, System „Produktion“, Platzhalter-Würfel in der Inselmitte, Debug-Anzeige mit FPS, Takt, Holz, Dreiecken, Draw Calls, Seed und Tempo-Knöpfen. 116 Tests grün; im unsichtbaren Chrome: Holz = Takte, Pause hält an, 4× = ca. 16 Takte in 2 s.
   Tablet-Test teilweise: Nutzer bestätigt ca. 60 FPS beim Drehen, 60 FPS wirkt gleichmäßiger als 45 (E-015 bleibt), Vollbild, Querformat-Hinweis und Gesten-Sperre funktionieren. Schritte 1–6 testet er später. Leistungs-Check Phase 1 eingetragen (LEISTUNGSBUDGET.md, Abschnitt 8). Rückschau: weniger Rückfragen ab Phase 2 (E-020). Prompt für Phase 2 als Projekt-Dokument entworfen.
-- **19.11.2026 (Chat 6):** Nutzer bestätigt den Tablet-Test des Durchstichs („Test alle ok“). **Phase 1 abgeschlossen**, Git-Tag `phase-1` gesetzt.
+- **19.11.2026 (Chat 6):** Nutzer bestätigt den Tablet-Test des Durchstichs („Test alle ok“). **Phase 1 abgeschlossen** (Git-Tag konnte nicht hochgeladen werden, siehe „Bekannte Probleme“). **Phase 2 begonnen:** 2.1 erledigt; Grundbegriffe erklärt, Entscheidungen E-021 bis E-024 (alle wie empfohlen).

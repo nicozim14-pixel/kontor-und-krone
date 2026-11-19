@@ -304,3 +304,57 @@ Neue Einträge kommen unten dazu. Eine Entscheidung wird nicht gelöscht, sonder
 - **Nachteile:** Der Nutzer sieht technische Entscheidungen erst hinterher. Eine Fehlentscheidung fällt eventuell später auf (lässt sich dank der gespeicherten Versionen aber zurücknehmen).
 - **Umsetzung:** eingearbeitet in den Prompt für Phase 2 (Projekt-Dokument „Phasen/Phase_02_…“), Regel C.3.
 - **Begründung:** Wunsch des Nutzers.
+
+---
+
+## E-021 · Größe der Test-Welt in Phase 2
+
+- **Datum:** 19.11.2026 · Unterphase 2.1
+- **Frage:** Wie groß ist die Test-Welt (Inseln, Kartengröße, Kachelgröße)?
+- **Gewählt:** **Mittel: 6–8 Inseln auf 256 × 256 Kacheln**, Inseln etwa 30–80 Kacheln breit. **Eine Kachel ist so breit wie ein Feldweg (2 Meter)**; ein Wohnhaus belegt später etwa 3 × 3 Kacheln. Die ganze Karte ist damit 512 × 512 Meter groß.
+- **Andere Optionen:**
+  - *Klein (4 Inseln, 128 × 128):* am schnellsten und sofort überschaubar, aber zu klein, um Zoom und Leistung ehrlich zu prüfen; die Verteilung der Fruchtbarkeiten wäre kaum testbar.
+  - *Groß (10–14 Inseln, 512 × 512):* nah an einer echten Endlos-Karte, aber über 500.000 Dreiecke allein für das Gelände; bräuchte schon jetzt eine Vereinfachung in der Ferne und mehr Aufwand.
+- **Vorteile:** genug Inseln, damit keine alles herstellen kann; lädt schnell; das Gelände braucht nur etwa 150.000 Dreiecke und lässt viel Luft im Budget (E-014) für Bäume und Gebäude.
+- **Nachteile:** kleiner als die großen Karten, die der Endlosspiel-Konfigurator in Phase 7 anbieten wird. Ob große Karten flüssig laufen, zeigt sich erst dort.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-022 · Gesten: Bau-Werkzeug per Knopf
+
+- **Datum:** 19.11.2026 · Unterphase 2.1
+- **Frage:** „Karte verschieben“ und „Straße ziehen“ gehen beide mit einem Finger. Wie werden sie unterschieden?
+- **Gewählt:** **Bau-Werkzeug per Knopf.** Ohne Werkzeug verschiebt 1 Finger die Karte. Ist ein Werkzeug gewählt (Straße, Gebäude, Abriss), baut 1 Finger; die Karte bewegt man dann mit 2 Fingern (verschieben, zoomen, drehen) oder legt das Werkzeug wieder ab.
+- **Andere Option:** *Lang drücken, dann ziehen:* kein Umschalten nötig, aber jedes Mal eine halbe Sekunde warten, Straßen aus Versehen möglich, und es kollidiert mit dem geplanten Schnellmenü per langem Drücken (Phase 3).
+- **Vorteile:** eindeutig, keine Wartezeit, keine Straße aus Versehen.
+- **Nachteile:** Mit gewähltem Werkzeug braucht das Verschieben 2 Finger (oder das Werkzeug wird abgelegt).
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-023 · Aussehen des Platzhalter-Geländes: weich und natürlich
+
+- **Datum:** 19.11.2026 · Unterphase 2.1
+- **Frage:** Wie sieht das Greybox-Gelände aus?
+- **Gewählt:** **Weich und natürlich.** Bauflächen (Ebenen) sind ganz flach, Strände fallen sanft ins Wasser, Berge sind weiche Kuppen. Das Raster erscheint nur beim Bauen (und auf Wunsch in der Debug-Anzeige).
+- **Andere Optionen:**
+  - *Klare Kacheln und Stufen:* jede Kachel sofort erkennbar, wirkt aber klötzchenhaft und hat nichts mit dem späteren Aussehen zu tun.
+  - *Flache Landkarte:* am wenigsten Aufwand, aber kaum 3D-Gefühl; die Kamera-Neigung ließe sich schlecht beurteilen.
+- **Vorteile:** sieht schon wie eine Insel aus; Kamera, Zoom und Stimmung lassen sich gut beurteilen.
+- **Nachteile:** Die Kachelgrenzen sieht man nur mit eingeblendetem Raster.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
+
+---
+
+## E-024 · Wälder schon in Phase 2, Bauen räumt Bäume weg
+
+- **Datum:** 19.11.2026 · Unterphase 2.1
+- **Frage:** Wachsen schon in Phase 2 Wälder (Platzhalter-Bäume)?
+- **Gewählt:** **Ja. Der Generator pflanzt Wälder; wo gebaut wird (Gebäude oder Straße), verschwinden die Bäume darunter automatisch.**
+- **Andere Optionen:**
+  - *Ja, aber Bäume blockieren das Bauen:* Wald bliebe wertvoll, aber man müsste um Wälder herumbauen, und einen Fäll-Befehl gibt es noch nicht.
+  - *Nein, erst in Phase 3:* Phase 2 ginge schneller, aber der Leistungs-Check am Ende wäre weniger aussagekräftig, und die Bauregeln müssten in Phase 3 angepasst werden.
+- **Vorteile:** realistischerer Leistungs-Test (Tausende Bäume), Inseln wirken lebendig, Bauen bleibt flüssig.
+- **Nachteile:** etwas mehr Aufwand in Unterphase 2.3. Holzfäller, die Bäume tatsächlich brauchen, kommen erst in Phase 3.
+- **Begründung:** Wahl des Nutzers, entsprach der Empfehlung.
